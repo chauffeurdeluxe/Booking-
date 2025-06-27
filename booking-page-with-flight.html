@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chauffeur de Luxe Booking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 480px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #f9f9f9;
+      color: #222;
+    }
+    h1 {
+      text-align: center;
+      color: #0d3b66;
+    }
+    form {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    button {
+      margin-top: 1.5rem;
+      width: 100%;
+      background-color: #0d3b66;
+      color: white;
+      font-size: 1.2rem;
+      padding: 0.7rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #144a89;
+    }
+    .success-message {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+      color: #155724;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Book Your Chauffeur Service</h1>
+  <form id="bookingForm" action="https://formspree.io/f/mnnvlnvg" method="POST">
+    <label for="name">Full Name *</label>
+    <input id="name" name="name" type="text" required />
+
+    <label for="email">Email Address *</label>
+    <input id="email" name="email" type="email" required />
+
+    <label for="phone">Phone Number *</label>
+    <input id="phone" name="phone" type="tel" required />
+
+    <label for="date">Booking Date *</label>
+    <input id="date" name="date" type="date" required />
+
+    <label for="time">Booking Time *</label>
+    <input id="time" name="time" type="time" required />
+
+    <label for="pickup">Pickup Location *</label>
+    <input id="pickup" name="pickup" type="text" required />
+
+    <label for="destination">Destination *</label>
+    <input id="destination" name="destination" type="text" required />
+
+    <label for="flightNumber">Flight Number</label>
+    <input id="flightNumber" name="flightNumber" type="text" />
+
+    <label for="arrivalTime">Arrival Time</label>
+    <input id="arrivalTime" name="arrivalTime" type="time" />
+
+    <label for="terminal">Terminal</label>
+    <input id="terminal" name="terminal" type="text" />
+
+    <label for="airline">Airline Name</label>
+    <input id="airline" name="airline" type="text" />
+
+    <label for="notes">Additional Notes</label>
+    <textarea id="notes" name="notes" rows="3"></textarea>
+
+    <button type="submit">Submit Booking</button>
+  </form>
+
+  <div class="success-message" id="successMessage">
+    Thanks for your booking! Redirecting you to WhatsApp...
+  </div>
+
+  <script>
+    const form = document.getElementById('bookingForm');
+    const successMessage = document.getElementById('successMessage');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const data = {};
+      formData.forEach((value, key) => (data[key] = value));
+
+      try {
+        const response = await fetch(form.action, {
+          method: form.method,
+          headers: { 'Accept': 'application/json' },
+          body: formData,
+        });
+
+        if (response.ok) {
+          successMessage.style.display = 'block';
+
+          const whatsappMessage = 
+            `Booking Request from *${data.name}*%0A` +
+            `Email: ${data.email}%0A` +
+            `Phone: ${data.phone}%0A` +
+            `Date: ${data.date}%0A` +
+            `Time: ${data.time}%0A` +
+            `Pickup: ${data.pickup}%0A` +
+            `Destination: ${data.destination}%0A` +
+            `Airline: ${data.airline || 'N/A'}%0A` +
+            `Flight Number: ${data.flightNumber || 'N/A'}%0A` +
+            `Arrival Time: ${data.arrivalTime || 'N/A'}%0A` +
+            `Terminal: ${data.terminal || 'N/A'}%0A` +
+            `Notes: ${data.notes || 'N/A'}`;
+
+          setTimeout(() => {
+            window.location.href = `https://wa.me/61402256915?text=${whatsappMessage}`;
+          }, 2000);
+        } else {
+          alert('Oops! There was a problem submitting your booking.');
+        }
+      } catch (error) {
+        alert('Oops! Something went wrong.');
+      }
+    });
+  </script>
+</body>
+</html>
