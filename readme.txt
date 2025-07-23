@@ -1,0 +1,1 @@
+Deployment instructions: Push to GitHub and link to Vercel.
