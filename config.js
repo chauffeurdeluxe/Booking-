@@ -1,1 +1,0 @@
-const config = { stripeKey: 'pk_test_xxx' };
