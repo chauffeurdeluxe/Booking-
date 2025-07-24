@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chauffeur de Luxe Booking</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>CHAUFFEUR DE LUXE</h1>
+      <p class="tagline">Driven by Distinction. Defined by Elegance.</p>
+    </header>
+    <form action="https://formspree.io/f/mnnvlnvg" method="POST" onsubmit="handleSubmit(event)">
+      <label>Full Name:</label>
+      <input type="text" name="name" required />
+
+      <label>Email Address:</label>
+      <input type="email" name="email" required />
+
+      <label>Phone Number:</label>
+      <input type="tel" name="phone" required />
+
+      <label>Pickup Location:</label>
+      <input type="text" name="pickup" required />
+
+      <label>Dropoff Location:</label>
+      <input type="text" name="dropoff" required />
+
+      <label>Date & Time:</label>
+      <input type="datetime-local" name="datetime" required />
+
+      
+    <label>Additional Notes:</label>
+    <textarea name="notes" rows="4" placeholder="e.g. Flight number, special requests, etc."></textarea>
+    <button type="submit">Submit Booking</button>
+    
+    </form>
+    <p id="thankYouMessage" class="hidden">Thank you, your booking has been sent.</p>
+  </div>
+
+  <script>
+    function handleSubmit(event) {
+      event.preventDefault();
+      const form = event.target;
+      const data = new FormData(form);
+      fetch(form.action, {
+        method: "POST",
+        body: data,
+        headers: {
+          'Accept': 'application/json'
+        }
+      }).then(response => {
+        if (response.ok) {
+          form.style.display = 'none';
+          document.getElementById("thankYouMessage").classList.remove("hidden");
+        } else {
+          alert("There was a problem submitting the form.");
+        }
+      });
+    }
+  </script>
+</body>
+</html>
