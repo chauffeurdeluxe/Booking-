@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chauffeur de Luxe Booking</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img src="logo.png" alt="Chauffeur de Luxe Logo" class="logo"/>
+      <h1>Chauffeur de Luxe</h1>
+      <p class="tagline">Driven by Distinction. Defined by Elegance.</p>
+    </header>
+
+    <form action="https://formspree.io/f/mnnvlnvg" method="POST">
+      <label>Full Name</label>
+      <input type="text" name="name" required>
+
+      <label>Email</label>
+      <input type="email" name="email" required>
+
+      <label>Phone</label>
+      <input type="tel" name="phone" required>
+
+      <label>Pickup Location</label>
+      <input type="text" name="pickup" required>
+
+      <label>Dropoff Location</label>
+      <input type="text" name="dropoff" required>
+
+      <label>Pickup Date & Time</label>
+      <input type="datetime-local" name="datetime" required>
+
+      <label>Additional Notes</label>
+      <textarea name="notes" rows="4" placeholder="Any extra details..."></textarea>
+
+      <button type="submit">Submit Booking</button>
+    </form>
+
+    <div class="thank-you" style="display:none;">
+      <h2>Thank you!</h2>
+      <p>Your booking request has been sent to our team.</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
