@@ -56,6 +56,80 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+ <script>
+  let distanceInKm = 0;
+
+  function initMap() {
+    const options = {
+      componentRestrictions: { country: 'au' },
+      fields: ['formatted_address', 'geometry'],
+    };
+
+    const pickupInput = document.getElementById("pickup");
+    const dropoffInput = document.getElementById("dropoff");
+
+    new google.maps.places.Autocomplete(pickupInput, options);
+    new google.maps.places.Autocomplete(dropoffInput, options);
+  }
+
+  async function calculateDistanceAndFare() {
+    const pickup = document.getElementById("pickup").value;
+    const dropoff = document.getElementById("dropoff").value;
+    const vehicleType = document.getElementById("vehicleType").value;
+
+    if (!pickup || !dropoff || !vehicleType) return;
+
+    const service = new google.maps.DistanceMatrixService();
+
+    service.getDistanceMatrix({
+      origins: [pickup],
+      destinations: [dropoff],
+      travelMode: 'DRIVING',
+      drivingOptions: {
+        departureTime: new Date(),
+        trafficModel: 'bestguess'
+      },
+      unitSystem: google.maps.UnitSystem.METRIC
+    }, (response, status) => {
+      if (status === 'OK') {
+        const element = response.rows[0].elements[0];
+
+        if (element.status === 'OK') {
+          const distanceValue = element.distance.value / 1000; // meters to KM
+          distanceInKm = distanceValue;
+
+          const fare = calculateTieredFare(distanceValue, vehicleType);
+          document.getElementById("fareDisplay").textContent = `Estimated Fare: $${fare}`;
+        }
+      }
+    });
+  }
+
+  function calculateTieredFare(km, type) {
+    let fare = 0;
+
+    const pricing = {
+      business: [124, 188, 250, 310, 370, 450],
+      suv: [184, 250, 320, 390, 460, 540],
+      first: [220, 300, 380, 450, 520, 600]
+    };
+
+    const tiers = [6, 20, 40, 60, 80, 100];
+    const rates = pricing[type] || [];
+
+    for (let i = 0; i < tiers.length; i++) {
+      if (km <= tiers[i]) return rates[i];
+    }
+
+    return "Custom Quote";
+  }
+
+  document.getElementById("pickup").addEventListener("change", calculateDistanceAndFare);
+  document.getElementById("dropoff").addEventListener("change", calculateDistanceAndFare);
+  document.getElementById("vehicleType").addEventListener("change", calculateDistanceAndFare);
+</script>
+
+<script async
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfdmX
 </body>
 </html>
