@@ -170,5 +170,44 @@
   <script async
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD7RaWa6dXSoDxXq3DWfeuwHuD-TmI2I9U&libraries=places&callback=initMap">
   </script>
+
+<script>
+  document.getElementById("payNowBtn").addEventListener("click", function(event) {
+    event.preventDefault();
+
+    // Choose link based on latestFare
+    let paymentUrl = "";
+
+    if (latestFare === 124) paymentUrl = "https://buy.stripe.com/test_XXX_BUS124";
+    else if (latestFare === 188) paymentUrl = "https://buy.stripe.com/test_XXX_BUS188";
+    else if (latestFare === 250) paymentUrl = "https://buy.stripe.com/test_XXX_BUS250";
+    else if (latestFare === 310) paymentUrl = "https://buy.stripe.com/test_XXX_BUS310";
+    else if (latestFare === 370) paymentUrl = "https://buy.stripe.com/test_XXX_BUS370";
+    else if (latestFare === 450) paymentUrl = "https://buy.stripe.com/test_XXX_BUS450";
+
+    else if (latestFare === 184) paymentUrl = "https://buy.stripe.com/test_XXX_SUV184";
+    else if (latestFare === 250) paymentUrl = "https://buy.stripe.com/test_XXX_SUV250";
+    else if (latestFare === 320) paymentUrl = "https://buy.stripe.com/test_XXX_SUV320";
+    else if (latestFare === 390) paymentUrl = "https://buy.stripe.com/test_XXX_SUV390";
+    else if (latestFare === 460) paymentUrl = "https://buy.stripe.com/test_XXX_SUV460";
+    else if (latestFare === 540) paymentUrl = "https://buy.stripe.com/test_XXX_SUV540";
+
+    else if (latestFare === 220) paymentUrl = "https://buy.stripe.com/test_XXX_FIRST220";
+    else if (latestFare === 300) paymentUrl = "https://buy.stripe.com/test_XXX_FIRST300";
+    else if (latestFare === 380) paymentUrl = "https://buy.stripe.com/test_XXX_FIRST380";
+    else if (latestFare === 450) paymentUrl = "https://buy.stripe.com/test_XXX_FIRST450";
+    else if (latestFare === 520) paymentUrl = "https://buy.stripe.com/test_XXX_FIRST520";
+    else if (latestFare === 600) paymentUrl = "https://buy.stripe.com/test_XXX_FIRST600";
+
+    else {
+      alert("Please contact us directly for a custom quote.");
+      return;
+    }
+
+    // Redirect to Stripe payment
+    window.location.href = paymentUrl;
+  });
+</script>
+  
 </body>
 </html>
