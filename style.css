@@ -1,6 +1,0 @@
-
-body { font-family: sans-serif; background: #111; color: #fff; padding: 20px; }
-.container { max-width: 600px; margin: auto; background: #222; padding: 20px; border-radius: 10px; }
-.logo { width: 150px; }
-input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; }
-button { padding: 10px 20px; background: gold; color: black; border: none; cursor: pointer; font-weight: bold; }
