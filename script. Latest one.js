@@ -1,20 +1,21 @@
 
-    let latestFare = 0;
+ let latestFare = 0;
+let pickupAutocomplete, dropoffAutocomplete;
 
 function initMap() {
   const options = {
-    componentRestrictions: { country: "au" },
-    fields: ["formatted_address", "geometry"],
+    componentRestrictions: { country: 'au' },
+    fields: ['formatted_address', 'geometry'],
   };
 
   const pickupInput = document.getElementById("pickup");
   const dropoffInput = document.getElementById("dropoff");
 
-  const pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, options);
-  const dropoffAutocomplete = new google.maps.places.Autocomplete(dropoffInput, options);
+  pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, options);
+  dropoffAutocomplete = new google.maps.places.Autocomplete(dropoffInput, options);
 
-  pickupAutocomplete.addListener("place_changed", calculateDistanceAndFare);
-  dropoffAutocomplete.addListener("place_changed", calculateDistanceAndFare);
+  pickupAutocomplete.addListener('place_changed', calculateDistanceAndFare);
+  dropoffAutocomplete.addListener('place_changed', calculateDistanceAndFare);
 }
 
 function calculateDistanceAndFare() {
@@ -23,98 +24,89 @@ function calculateDistanceAndFare() {
   const vehicleType = document.getElementById("vehicleType").value;
   const datetimeValue = document.getElementById("datetime").value;
 
-  console.log("Calculating fare for:", { pickup, dropoff, vehicleType, datetimeValue });
-
   if (!pickup || !dropoff || !vehicleType) {
-    console.log("Missing required input; skipping calculation.");
+    document.getElementById("fareDisplay").textContent = "Estimated Fare: $0";
     return;
   }
 
   const service = new google.maps.DistanceMatrixService();
 
-  service.getDistanceMatrix(
-    {
-      origins: [pickup],
-      destinations: [dropoff],
-      travelMode: "DRIVING",
-      unitSystem: google.maps.UnitSystem.METRIC,
-      drivingOptions: {
-        departureTime: new Date(),
-        trafficModel: "bestguess",
-      },
+  service.getDistanceMatrix({
+    origins: [pickup],
+    destinations: [dropoff],
+    travelMode: 'DRIVING',
+    drivingOptions: {
+      departureTime: new Date(),
+      trafficModel: 'bestguess'
     },
-    (response, status) => {
-      if (status !== "OK") {
-        console.error("Distance Matrix error:", status);
-        alert("Error getting distance info. Please check addresses.");
-        return;
-      }
-
+    unitSystem: google.maps.UnitSystem.METRIC
+  }, (response, status) => {
+    if (status === 'OK') {
       const element = response.rows[0].elements[0];
 
-      if (element.status !== "OK") {
-        console.error("Element status error:", element.status);
-        alert("Error with route details. Please check addresses.");
-        return;
-      }
+      if (element.status === 'OK') {
+        const distanceValue = element.distance.value / 1000; // meters to KM
 
-      const distanceInKm = element.distance.value / 1000;
-      console.log("Distance in km:", distanceInKm);
-
-      let fare = 0;
-
-      if (vehicleType === "business") {
-        if (distanceInKm <= 6) fare = 124;
-        else if (distanceInKm <= 20) fare = 188;
-        else if (distanceInKm <= 40) fare = 250;
-        else if (distanceInKm <= 60) fare = 310;
-        else if (distanceInKm <= 80) fare = 370;
-        else if (distanceInKm <= 100) fare = 450;
-        else fare = 0;
-      } else if (vehicleType === "suv") {
-        if (distanceInKm <= 6) fare = 184;
-        else if (distanceInKm <= 20) fare = 250;
-        else if (distanceInKm <= 40) fare = 320;
-        else if (distanceInKm <= 60) fare = 390;
-        else if (distanceInKm <= 80) fare = 460;
-        else if (distanceInKm <= 100) fare = 540;
-        else fare = 0;
-      } else if (vehicleType === "first") {
-        if (distanceInKm <= 6) fare = 220;
-        else if (distanceInKm <= 20) fare = 300;
-        else if (distanceInKm <= 40) fare = 380;
-        else if (distanceInKm <= 60) fare = 450;
-        else if (distanceInKm <= 80) fare = 520;
-        else if (distanceInKm <= 100) fare = 600;
-        else fare = 0;
-      }
-
-      const airportRegex = /airport/i;
-      const parkingFee = airportRegex.test(pickup) || airportRegex.test(dropoff) ? 14 : 0;
-
-      let earlyLateFee = 0;
-      if (datetimeValue) {
-        const hour = new Date(datetimeValue).getHours();
-        if (hour < 6 || hour >= 22) {
-          earlyLateFee = 30;
+        // Tiered pricing logic
+        let fare = 0;
+        if (vehicleType === "business") {
+          if (distanceValue <= 6) fare = 124;
+          else if (distanceValue <= 20) fare = 188;
+          else if (distanceValue <= 40) fare = 250;
+          else if (distanceValue <= 60) fare = 310;
+          else if (distanceValue <= 80) fare = 370;
+          else if (distanceValue <= 100) fare = 450;
+          else fare = 0;
+        } else if (vehicleType === "suv") {
+          if (distanceValue <= 6) fare = 184;
+          else if (distanceValue <= 20) fare = 250;
+          else if (distanceValue <= 40) fare = 320;
+          else if (distanceValue <= 60) fare = 390;
+          else if (distanceValue <= 80) fare = 460;
+          else if (distanceValue <= 100) fare = 540;
+          else fare = 0;
+        } else if (vehicleType === "first") {
+          if (distanceValue <= 6) fare = 220;
+          else if (distanceValue <= 20) fare = 300;
+          else if (distanceValue <= 40) fare = 380;
+          else if (distanceValue <= 60) fare = 450;
+          else if (distanceValue <= 80) fare = 520;
+          else if (distanceValue <= 100) fare = 600;
+          else fare = 0;
         }
+
+        // Airport parking fee if pickup or dropoff contains "airport"
+        const airportRegex = /airport/i;
+        const parkingFee = (airportRegex.test(pickup) || airportRegex.test(dropoff)) ? 14 : 0;
+
+        // Early/late surcharge before 6AM or after 10PM
+        let earlyLateFee = 0;
+        if (datetimeValue) {
+          const selectedHour = new Date(datetimeValue).getHours();
+          if (selectedHour < 6 || selectedHour >= 22) {
+            earlyLateFee = 30;
+          }
+        }
+
+        const totalFare = fare + parkingFee + earlyLateFee;
+        latestFare = totalFare;
+
+        document.getElementById("fareDisplay").textContent =
+          totalFare > 0 ? `Estimated Fare: $${totalFare}` : "Contact us for a custom quote.";
+      } else {
+        console.error('Distance Matrix element status:', element.status);
+        document.getElementById("fareDisplay").textContent = "Error calculating fare";
       }
-
-      const totalFare = fare + parkingFee + earlyLateFee;
-      latestFare = totalFare;
-
-      console.log(`Fare breakdown: base=${fare}, parking=${parkingFee}, earlyLate=${earlyLateFee}, total=${totalFare}`);
-
-      document.getElementById("fareDisplay").textContent =
-        totalFare > 0 ? `Estimated Fare: $${totalFare}` : "Contact us for a custom quote.";
+    } else {
+      console.error('Distance Matrix status:', status);
+      document.getElementById("fareDisplay").textContent = "Error calculating fare";
     }
-  );
+  });
 }
 
+// Event listeners for recalculating fare
 document.getElementById("vehicleType").addEventListener("change", calculateDistanceAndFare);
 document.getElementById("datetime").addEventListener("change", calculateDistanceAndFare);
-
-window.initMap = initMap;
     
 
 
