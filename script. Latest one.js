@@ -108,7 +108,41 @@ function calculateDistanceAndFare() {
 document.getElementById("vehicleType").addEventListener("change", calculateDistanceAndFare);
 document.getElementById("datetime").addEventListener("change", calculateDistanceAndFare);
     
+// Stripe Payment Redirection
+document.getElementById("payNowBtn").addEventListener("click", function(event) {
+  event.preventDefault();
 
+  const fare = latestFare;
+  let paymentUrl = "";
+
+  // Replace these with your actual Stripe payment links
+  if (fare === 124) paymentUrl = "https://buy.stripe.com/test_124";
+  else if (fare === 188) paymentUrl = "https://buy.stripe.com/test_188";
+  else if (fare === 250) paymentUrl = "https://buy.stripe.com/test_250";
+  else if (fare === 310) paymentUrl = "https://buy.stripe.com/test_310";
+  else if (fare === 370) paymentUrl = "https://buy.stripe.com/test_370";
+  else if (fare === 450) paymentUrl = "https://buy.stripe.com/test_450";
+
+  else if (fare === 184) paymentUrl = "https://buy.stripe.com/test_184";
+  else if (fare === 250) paymentUrl = "https://buy.stripe.com/test_250_suv";
+  else if (fare === 320) paymentUrl = "https://buy.stripe.com/test_320";
+  else if (fare === 390) paymentUrl = "https://buy.stripe.com/test_390";
+  else if (fare === 460) paymentUrl = "https://buy.stripe.com/test_460";
+  else if (fare === 540) paymentUrl = "https://buy.stripe.com/test_540";
+
+  else if (fare === 220) paymentUrl = "https://buy.stripe.com/test_220";
+  else if (fare === 300) paymentUrl = "https://buy.stripe.com/test_300";
+  else if (fare === 380) paymentUrl = "https://buy.stripe.com/test_380";
+  else if (fare === 450) paymentUrl = "https://buy.stripe.com/test_450_first";
+  else if (fare === 520) paymentUrl = "https://buy.stripe.com/test_520";
+  else if (fare === 600) paymentUrl = "https://buy.stripe.com/test_600";
+
+  if (paymentUrl) {
+    window.location.href = paymentUrl;
+  } else {
+    alert("Please contact us for a custom quote.");
+  }
+});
 
   
 
