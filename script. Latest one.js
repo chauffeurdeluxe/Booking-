@@ -1,74 +1,94 @@
 
-document.getElementById("booking-form").addEventListener("submit", async function (e) {
-  e.preventDefault();
+let latestFare = 0;
 
+function initAutocomplete() {
+  const pickupInput = document.getElementById("pickup");
+  const dropoffInput = document.getElementById("dropoff");
+
+  const pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput);
+  const dropoffAutocomplete = new google.maps.places.Autocomplete(dropoffInput);
+
+  pickupAutocomplete.setFields(["place_id", "geometry", "name"]);
+  dropoffAutocomplete.setFields(["place_id", "geometry", "name"]);
+
+  pickupAutocomplete.addListener("place_changed", calculateDistanceAndFare);
+  dropoffAutocomplete.addListener("place_changed", calculateDistanceAndFare);
+}
+
+document.getElementById("vehicleClass").addEventListener("change", calculateDistanceAndFare);
+document.getElementById("datetime").addEventListener("change", calculateDistanceAndFare);
+
+async function calculateDistanceAndFare() {
   const pickup = document.getElementById("pickup").value;
   const dropoff = document.getElementById("dropoff").value;
-  const vehicleType = document.getElementById("vehicle").value;
-  const datetime = document.getElementById("datetime").value;
-  const clientName = document.getElementById("name").value;
-  const clientEmail = document.getElementById("email").value;
-  const clientPhone = document.getElementById("phone").value;
+  const vehicleClass = document.getElementById("vehicleClass").value;
+  const datetimeValue = document.getElementById("datetime").value;
 
-  const pickupHour = new Date(datetime).getHours();
-  const isEarlyLate = (pickupHour < 6 || pickupHour >= 22);
-  const earlyLateFee = isEarlyLate ? 30 : 0;
+  if (!pickup || !dropoff || !vehicleClass) return;
 
-  const isAirport = pickup.toLowerCase().includes("airport") || dropoff.toLowerCase().includes("airport");
-  const parkingFee = isAirport ? 14 : 0;
-
-  const distanceService = new google.maps.DistanceMatrixService();
-  distanceService.getDistanceMatrix({
-    origins: [pickup],
-    destinations: [dropoff],
-    travelMode: 'DRIVING',
-    unitSystem: google.maps.UnitSystem.METRIC,
-  }, async function (response, status) {
-    if (status !== 'OK') {
-      alert('Error calculating distance: ' + status);
-    } else {
-      const distanceText = response.rows[0].elements[0].distance.text;
-      const distanceValue = parseFloat(distanceText.replace(' km', '').replace(',', ''));
-
-      let baseFare = 0;
-      if (vehicleType === "business") {
-        if (distanceValue <= 6) baseFare = 124;
-        else if (distanceValue <= 20) baseFare = 188;
-        else if (distanceValue <= 40) baseFare = 250;
-        else if (distanceValue <= 60) baseFare = 310;
-        else if (distanceValue <= 80) baseFare = 370;
-        else if (distanceValue <= 100) baseFare = 450;
-        else baseFare = 0; // custom quote
-      } else if (vehicleType === "van") {
-        if (distanceValue <= 6) baseFare = 184;
-        else if (distanceValue <= 20) baseFare = 250;
-        else if (distanceValue <= 40) baseFare = 320;
-        else if (distanceValue <= 60) baseFare = 390;
-        else if (distanceValue <= 80) baseFare = 460;
-        else if (distanceValue <= 100) baseFare = 540;
-        else baseFare = 0;
-      } else if (vehicleType === "first") {
-        if (distanceValue <= 6) baseFare = 220;
-        else if (distanceValue <= 20) baseFare = 300;
-        else if (distanceValue <= 40) baseFare = 380;
-        else if (distanceValue <= 60) baseFare = 450;
-        else if (distanceValue <= 80) baseFare = 520;
-        else if (distanceValue <= 100) baseFare = 600;
-        else baseFare = 0;
-      }
-
-      if (baseFare === 0) {
-        alert("Distance exceeds 100 km. Please contact us for a custom quote.");
+  const service = new google.maps.DistanceMatrixService();
+  service.getDistanceMatrix(
+    {
+      origins: [pickup],
+      destinations: [dropoff],
+      travelMode: "DRIVING",
+    },
+    (response, status) => {
+      if (status !== "OK") {
+        alert("Error with Google Maps Distance Matrix: " + status);
         return;
       }
 
-      const totalFare = baseFare + earlyLateFee + parkingFee;
+      const distanceText = response.rows[0].elements[0].distance.text;
+      const distanceValue = response.rows[0].elements[0].distance.value / 1000; // meters to km
 
-      // Update price on screen (optional if using UI display)
-      document.getElementById("calculatedFare").innerText = `$${totalFare.toFixed(2)}`;
+      let fare = 0;
 
-      // Redirect to Stripe link (temporary static link for now)
-      window.location.href = "https://buy.stripe.com/test_XXXXXXXXXXXXXX";
+      // Tiered pricing logic
+      if (vehicleClass === "business") {
+        if (distanceValue <= 6) fare = 124;
+        else if (distanceValue <= 20) fare = 188;
+        else if (distanceValue <= 40) fare = 250;
+        else if (distanceValue <= 60) fare = 310;
+        else if (distanceValue <= 80) fare = 370;
+        else if (distanceValue <= 100) fare = 450;
+        else fare = 0;
+      } else if (vehicleClass === "business-suv") {
+        if (distanceValue <= 6) fare = 184;
+        else if (distanceValue <= 20) fare = 250;
+        else if (distanceValue <= 40) fare = 320;
+        else if (distanceValue <= 60) fare = 390;
+        else if (distanceValue <= 80) fare = 460;
+        else if (distanceValue <= 100) fare = 540;
+        else fare = 0;
+      } else if (vehicleClass === "first") {
+        if (distanceValue <= 6) fare = 220;
+        else if (distanceValue <= 20) fare = 300;
+        else if (distanceValue <= 40) fare = 380;
+        else if (distanceValue <= 60) fare = 450;
+        else if (distanceValue <= 80) fare = 520;
+        else if (distanceValue <= 100) fare = 600;
+        else fare = 0;
+      }
+
+      // Airport parking detection
+      const airportRegex = /airport/i;
+      const parkingFee = (airportRegex.test(pickup) || airportRegex.test(dropoff)) ? 14 : 0;
+
+      // Early/late surcharge detection
+      let earlyLateFee = 0;
+      if (datetimeValue) {
+        const selectedHour = new Date(datetimeValue).getHours();
+        if (selectedHour < 6 || selectedHour >= 22) {
+          earlyLateFee = 30;
+        }
+      }
+
+      const totalFare = fare + parkingFee + earlyLateFee;
+      latestFare = totalFare;
+
+      document.getElementById("fareDisplay").textContent =
+        totalFare > 0 ? `Estimated Fare: $${totalFare}` : "Contact us for a custom quote.";
     }
-  });
-});
+  );
+}
