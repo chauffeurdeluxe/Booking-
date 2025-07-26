@@ -77,7 +77,7 @@ function calculateDistanceAndFare() {
 
         // Airport parking fee if pickup or dropoff contains "airport"
         const airportRegex = /airport/i;
-        const parkingFee = (airportRegex.test(pickup) || airportRegex.test(dropoff)) ? 14 : 0;
+        const parkingFee = airportRegex.test(pickup) ? 14 : 0;
 
         // Early/late surcharge before 6AM or after 10PM
         let earlyLateFee = 0;
