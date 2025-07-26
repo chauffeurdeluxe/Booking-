@@ -3,211 +3,175 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chauffeur de Luxe Booking</title>
-  <link rel="stylesheet" href="style.css"/>
+  <title>Chauffeur Booking</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #000; color: #FFD700; padding: 20px; }
+    input, select, button {
+      width: 100%; padding: 10px; margin: 10px 0;
+      border: 1px solid #ccc; border-radius: 4px;
+    }
+    label { margin-top: 15px; display: block; }
+    button {
+      background-color: #FFD700; color: #000; font-weight: bold;
+      cursor: pointer;
+    }
+    .fare-display {
+      margin-top: 20px; font-size: 1.2em;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Chauffeur de Luxe</h1>
-      <p class="tagline">Driven by Distinction. Defined by Elegance.</p>
-    </header>
 
-    <form action="https://formspree.io/f/mnnvlnvg" method="POST">
-      <label>Full Name</label>
-      <input type="text" name="name" required>
+  <h1>CHAUFFEUR DE LUXE BOOKING</h1>
 
-      <label>Email</label>
-      <input type="email" name="email" required>
+  <form id="bookingForm">
+    <label>Name</label>
+    <input type="text" id="name" required>
 
-      <label>Phone</label>
-      <input type="tel" name="phone" required>
+    <label>Email</label>
+    <input type="email" id="email" required>
 
-      <label for="vehicleType">Vehicle Type</label>
-      <select id="vehicleType" name="vehicleType" required>
-        <option value="" disabled selected>Select a vehicle</option>
-        <option value="business">Business Class</option>
-        <option value="suv">Business Van/SUV</option>
-        <option value="first">First Class</option>
-      </select>
+    <label>Phone</label>
+    <input type="tel" id="phone" required>
 
-      <label>Pickup Location</label>
-      <input type="text" name="pickup" id="pickup" required>
+    <label>Pickup Location</label>
+    <input type="text" id="pickup" required>
 
-      <label>Dropoff Location</label>
-      <input type="text" name="dropoff" id="dropoff" required>
+    <label>Dropoff Location</label>
+    <input type="text" id="dropoff" required>
 
-      <label>Pickup Date & Time</label>
-      <input type="datetime-local" name="datetime" id="datetime" required>
+    <label>Pickup Date</label>
+    <input type="date" id="pickupDate" required>
 
-      <label>Additional Notes</label>
-      <textarea name="notes" rows="4" placeholder="Any extra details..."></textarea>
+    <label>Pickup Time</label>
+    <input type="time" id="pickupTime" required>
 
-      <p id="fareDisplay" style="font-weight:bold; font-size: 18px; margin-top:10px;">Estimated Fare: $0</p>
+    <label>Vehicle Class</label>
+    <select id="vehicleClass" required>
+      <option value="">Select...</option>
+      <option value="business">Business Class</option>
+      <option value="van">Business Van/SUV</option>
+      <option value="first">First Class</option>
+    </select>
 
-      <button type="button" id="payNowBtn">Pay Now</button>
-    </form>
-
-    <div class="thank-you" style="display:none;">
-      <h2>Thank you!</h2>
-      <p>Your booking and payment have been received successfully. A confirmation has been sent to your email. We’ll see you soon!</p>
+    <div class="fare-display">
+      Estimated Fare: <span id="fareDisplay">$0.00</span>
     </div>
-  </div>
+
+    <button type="button" onclick="calculateFare()">Calculate Fare</button>
+    <button type="button" id="payNowBtn">Pay Now</button>
+  </form>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places"></script>
+  <script src="https://js.stripe.com/v3/"></script>
 
   <script>
     let latestFare = 0;
-    let pickupAutocomplete, dropoffAutocomplete;
 
-    function initMap() {
-      const options = {
-        componentRestrictions: { country: 'au' },
-        fields: ['formatted_address', 'geometry'],
-      };
-
-      const pickupInput = document.getElementById("pickup");
-      const dropoffInput = document.getElementById("dropoff");
-
-      pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, options);
-      dropoffAutocomplete = new google.maps.places.Autocomplete(dropoffInput, options);
-
-      pickupAutocomplete.addListener('place_changed', calculateDistanceAndFare);
-      dropoffAutocomplete.addListener('place_changed', calculateDistanceAndFare);
+    function initAutocomplete() {
+      new google.maps.places.Autocomplete(document.getElementById('pickup'));
+      new google.maps.places.Autocomplete(document.getElementById('dropoff'));
     }
 
-    function calculateDistanceAndFare() {
-      const pickup = document.getElementById("pickup").value;
-      const dropoff = document.getElementById("dropoff").value;
-      const vehicleType = document.getElementById("vehicleType").value;
-      const datetimeValue = document.getElementById("datetime").value;
+    window.onload = initAutocomplete;
 
-      if (!pickup || !dropoff || !vehicleType) {
-        document.getElementById("fareDisplay").textContent = "Estimated Fare: $0";
+    function calculateFare() {
+      const pickup = document.getElementById('pickup').value;
+      const dropoff = document.getElementById('dropoff').value;
+      const vehicleClass = document.getElementById('vehicleClass').value;
+      const pickupTime = document.getElementById('pickupTime').value;
+
+      if (!pickup || !dropoff || !vehicleClass) {
+        alert("Please fill all required fields.");
         return;
       }
 
       const service = new google.maps.DistanceMatrixService();
-
       service.getDistanceMatrix({
         origins: [pickup],
         destinations: [dropoff],
         travelMode: 'DRIVING',
-        drivingOptions: {
-          departureTime: new Date(),
-          trafficModel: 'bestguess'
-        },
-        unitSystem: google.maps.UnitSystem.METRIC
-      }, (response, status) => {
-        if (status === 'OK') {
-          const element = response.rows[0].elements[0];
-
-          if (element.status === 'OK') {
-            const distanceValue = element.distance.value / 1000; // meters to KM
-
-            // Tiered pricing logic
-            let fare = 0;
-            if (vehicleType === "business") {
-              if (distanceValue <= 6) fare = 124;
-              else if (distanceValue <= 20) fare = 188;
-              else if (distanceValue <= 40) fare = 250;
-              else if (distanceValue <= 60) fare = 310;
-              else if (distanceValue <= 80) fare = 370;
-              else if (distanceValue <= 100) fare = 450;
-              else fare = 0;
-            } else if (vehicleType === "suv") {
-              if (distanceValue <= 6) fare = 184;
-              else if (distanceValue <= 20) fare = 250;
-              else if (distanceValue <= 40) fare = 320;
-              else if (distanceValue <= 60) fare = 390;
-              else if (distanceValue <= 80) fare = 460;
-              else if (distanceValue <= 100) fare = 540;
-              else fare = 0;
-            } else if (vehicleType === "first") {
-              if (distanceValue <= 6) fare = 220;
-              else if (distanceValue <= 20) fare = 300;
-              else if (distanceValue <= 40) fare = 380;
-              else if (distanceValue <= 60) fare = 450;
-              else if (distanceValue <= 80) fare = 520;
-              else if (distanceValue <= 100) fare = 600;
-              else fare = 0;
-            }
-
-            // Airport parking fee if either pickup or dropoff contains "airport"
-            const airportRegex = /airport/i;
-            const parkingFee = airportRegex.test(pickup) ? 14 : 0;
-
-            // Early/late surcharge before 6AM or after 10PM
-            let earlyLateFee = 0;
-            if (datetimeValue) {
-              const selectedHour = new Date(datetimeValue).getHours();
-              if (selectedHour < 6 || selectedHour >= 22) {
-                earlyLateFee = 30;
-              }
-            }
-
-            const totalFare = fare + parkingFee + earlyLateFee;
-            latestFare = totalFare;
-
-            document.getElementById("fareDisplay").textContent =
-              totalFare > 0 ? `Estimated Fare: $${totalFare}` : "Contact us for a custom quote.";
-          } else {
-            console.error('Distance Matrix element status:', element.status);
-            document.getElementById("fareDisplay").textContent = "Error calculating fare";
-          }
+        unitSystem: google.maps.UnitSystem.METRIC,
+      }, function(response, status) {
+        if (status !== 'OK') {
+          alert('Error: ' + status);
         } else {
-          console.error('Distance Matrix status:', status);
-          document.getElementById("fareDisplay").textContent = "Error calculating fare";
+          const distanceText = response.rows[0].elements[0].distance.text;
+          const distanceKm = parseFloat(distanceText.replace(" km", ""));
+
+          let fare = 0;
+
+          // Tiered pricing
+          const pricing = {
+            business:   [124, 188, 250, 310, 370, 450],
+            van:        [184, 250, 320, 390, 460, 540],
+            first:      [220, 300, 380, 450, 520, 600]
+          };
+
+          const tiers = [6, 20, 40, 60, 80, 100];
+          const classPricing = pricing[vehicleClass];
+
+          for (let i = 0; i < tiers.length; i++) {
+            if (distanceKm <= tiers[i]) {
+              fare = classPricing[i];
+              break;
+            }
+          }
+
+          if (distanceKm > 100) {
+            alert("For trips over 100 km, please contact us for a custom quote.");
+            fare = 0;
+          }
+
+          // Early/late fee
+          const [hour] = pickupTime.split(':').map(Number);
+          if (hour < 6 || hour >= 22) {
+            fare += 30;
+          }
+
+          // Airport pickup fee only
+          const airportRegex = /airport/i;
+          if (airportRegex.test(pickup)) {
+            fare += 14;
+          }
+
+          latestFare = fare;
+          document.getElementById("fareDisplay").textContent = `$${fare.toFixed(2)}`;
         }
       });
     }
 
-    // Event listeners for recalculating fare
-    document.getElementById("vehicleType").addEventListener("change", calculateDistanceAndFare);
-    document.getElementById("datetime").addEventListener("change", calculateDistanceAndFare);
+    document.getElementById("payNowBtn").addEventListener("click", async function(event) {
+      event.preventDefault();
 
+      if (!latestFare || latestFare <= 0) {
+        alert("Please calculate fare before proceeding to payment.");
+        return;
+      }
+
+      const amountInCents = Math.round(latestFare * 100);
+
+      try {
+        const response = await fetch('/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: amountInCents })
+        });
+
+        const session = await response.json();
+
+        if (session.id) {
+          const stripe = Stripe('YOUR_PUBLISHABLE_KEY'); // Replace with your real key
+          await stripe.redirectToCheckout({ sessionId: session.id });
+        } else {
+          alert("Payment session could not be created.");
+        }
+      } catch (error) {
+        console.error("Stripe error:", error);
+        alert("Payment failed. Please try again.");
+      }
+    });
   </script>
 
-  <!-- GOOGLE MAPS API -->
-  <script async
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD7RaWa6dXSoDxXq3DWfeuwHuD-TmI2I9U&libraries=places&callback=initMap">
-  </script>
-
-<script>
-  document.getElementById("payNowBtn").addEventListener("click", function(event) {
-    event.preventDefault();
-
-    // Choose link based on latestFare
-    let paymentUrl = "";
-
-    if (latestFare === 124) paymentUrl = "https://buy.stripe.com/test_XXX_BUS124";
-    else if (latestFare === 188) paymentUrl = "https://buy.stripe.com/test_XXX_BUS188";
-    else if (latestFare === 250) paymentUrl = "https://buy.stripe.com/test_XXX_BUS250";
-    else if (latestFare === 310) paymentUrl = "https://buy.stripe.com/test_XXX_BUS310";
-    else if (latestFare === 370) paymentUrl = "https://buy.stripe.com/test_XXX_BUS370";
-    else if (latestFare === 450) paymentUrl = "https://buy.stripe.com/test_XXX_BUS450";
-
-    else if (latestFare === 184) paymentUrl = "https://buy.stripe.com/test_XXX_SUV184";
-    else if (latestFare === 250) paymentUrl = "https://buy.stripe.com/test_XXX_SUV250";
-    else if (latestFare === 320) paymentUrl = "https://buy.stripe.com/test_XXX_SUV320";
-    else if (latestFare === 390) paymentUrl = "https://buy.stripe.com/test_XXX_SUV390";
-    else if (latestFare === 460) paymentUrl = "https://buy.stripe.com/test_XXX_SUV460";
-    else if (latestFare === 540) paymentUrl = "https://buy.stripe.com/test_XXX_SUV540";
-
-    else if (latestFare === 220) paymentUrl = "https://buy.stripe.com/test_XXX_FIRST220";
-    else if (latestFare === 300) paymentUrl = "https://buy.stripe.com/test_XXX_FIRST300";
-    else if (latestFare === 380) paymentUrl = "https://buy.stripe.com/test_XXX_FIRST380";
-    else if (latestFare === 450) paymentUrl = "https://buy.stripe.com/test_XXX_FIRST450";
-    else if (latestFare === 520) paymentUrl = "https://buy.stripe.com/test_XXX_FIRST520";
-    else if (latestFare === 600) paymentUrl = "https://buy.stripe.com/test_XXX_FIRST600";
-
-    else {
-      alert("Please contact us directly for a custom quote.");
-      return;
-    }
-
-    // Redirect to Stripe payment
-    window.location.href = paymentUrl;
-  });
-</script>
-  
 </body>
 </html>
