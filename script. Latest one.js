@@ -77,7 +77,7 @@ function calculateDistanceAndFare() {
 
         // Airport parking fee if pickup or dropoff contains "airport"
         const airportRegex = /airport/i;
-        const parkingFee = airportRegex.test(pickup) ? 14 : 0;
+        const parkingFee = airportRegex.test(pickup) || airportRegex.test(dropoff) ? 14 : 0;
 
         // Early/late surcharge before 6AM or after 10PM
         let earlyLateFee = 0;
@@ -106,9 +106,9 @@ function calculateDistanceAndFare() {
 
 // Event listeners for recalculating fare
 document.getElementById("vehicleType").addEventListener("change", calculateDistanceAndFare);
-document.getElementById("datetime").addEventListener("change", 
+document.getElementById("datetime").addEventListener("change", calculateDistanceAndFare);
 
-   // Stripe Payment Redirection using Stripe Checkout with dynamic amount
+// Stripe Payment Redirection using Stripe Checkout with dynamic amount
 document.getElementById("payNowBtn").addEventListener("click", async function(event) {
   event.preventDefault();
 
@@ -146,4 +146,5 @@ document.getElementById("payNowBtn").addEventListener("click", async function(ev
     console.error("Error during payment process:", error);
     alert("Payment failed. Please try again.");
   }
-});                                                  
+});
+                                              
