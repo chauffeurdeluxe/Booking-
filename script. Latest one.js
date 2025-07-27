@@ -133,7 +133,7 @@ document.getElementById("payNowBtn").addEventListener("click", async function(ev
 
     if (session.id) {
       // Use Stripe.js to redirect to the checkout page
-      const stripe = Stripe('pk_test_51RekxBAc65pROHTAjbmaqX0wL5TLUVaAOQe59PEgdTPBf2DIe1PNpGlm8LJl8mGThvXBrsI4OptShqGhcwyrVV3700XS1XJGck); // Replace with your Stripe publishable key
+      const stripe = Stripe('pk_test_51RekxBAc65pROHTAjbmaqX0wL5TLUVaAOQe59PEgdTPBf2DIe1PNpGlm8LJl8mGThvXBrsI4OptShqGhcwyrVV3700XS1XJGck'); // Replace with your Stripe publishable key
       const { error } = await stripe.redirectToCheckout({ sessionId: session.id });
       if (error) {
         console.error(error);
