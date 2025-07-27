@@ -123,7 +123,7 @@ document.getElementById("payNowBtn").addEventListener("click", async function(ev
   try {
     // Call your backend to create a Stripe Checkout session
     // Replace with your actual backend URL that creates Stripe session with dynamic amount
-    const response = await fetch('/create-checkout-session', {
+    const response = await fetch(https://server-qdh1.onrender.com/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount: amountInCents })
