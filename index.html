@@ -2,75 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chauffeur de Luxe Booking</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #000; color: #FFD700; padding: 20px; max-width: 400px; margin: auto; }
-    input, select, button {
-      width: 100%; padding: 10px; margin: 10px 0;
-      border: 1px solid #ccc; border-radius: 4px;
-      font-size: 1em;
-    }
-    label { margin-top: 15px; display: block; font-weight: bold; }
-    button {
-      background-color: #FFD700; color: #000; font-weight: bold;
-      cursor: pointer;
-      border: none;
-    }
-    .fare-display {
-      margin-top: 20px; font-size: 1.2em; font-weight: bold;
-      min-height: 1.5em;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chauffeur Booking</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD-BEJyiMYlZ8MxHZWDKnvPPuTx-WtTXiw&libraries=places"></script>
 </head>
 <body>
+  <div class="container">
+    <h1>Chauffeur Booking</h1>
+    <form id="booking-form">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" required />
 
-  <h1>CHAUFFEUR DE LUXE BOOKING</h1>
+      <label for="email">Email</label>
+      <input type="email" id="email" required />
 
-  <form id="bookingForm" onsubmit="return false;">
-    <label for="name">Name</label>
-    <input type="text" id="name" required />
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" required />
 
-    <label for="email">Email</label>
-    <input type="email" id="email" required />
+      <label for="vehicleClass">Vehicle Class</label>
+      <select id="vehicleClass" required>
+        <option value="">Select</option>
+        <option value="business">Business Class</option>
+        <option value="van">Business Van/SUV</option>
+        <option value="first">First Class</option>
+      </select>
 
-    <label for="phone">Phone</label>
-    <input type="tel" id="phone" required />
+      <label for="pickup">Pickup Location</label>
+      <input type="text" id="pickup" required />
 
-    <label for="pickup">Pickup Location</label>
-    <input type="text" id="pickup" required />
+      <label for="dropoff">Dropoff Location</label>
+      <input type="text" id="dropoff" required />
 
-    <label for="dropoff">Dropoff Location</label>
-    <input type="text" id="dropoff" required />
+      <label for="date">Pickup Date</label>
+      <input type="date" id="date" required />
 
-    <label for="pickupDate">Pickup Date</label>
-    <input type="date" id="pickupDate" required />
+      <label for="time">Pickup Time</label>
+      <input type="time" id="time" required />
 
-    <label for="pickupTime">Pickup Time</label>
-    <input type="time" id="pickupTime" required />
+      <p><strong>Total Fare (AUD): $<span id="fare">0.00</span></strong></p>
 
-    <label for="vehicleClass">Vehicle Class</label>
-    <select id="vehicleClass" required>
-      <option value="">Select...</option>
-      <option value="business">Business Class</option>
-      <option value="van">Business Van/SUV</option>
-      <option value="first">First Class</option>
-    </select>
+      <button type="submit" id="payBtn">Pay Now</button>
+    </form>
+  </div>
 
-    <div class="fare-display" id="fareDisplay">Estimated Fare: $0.00</div>
-
-    <button type="button" id="calculateFareBtn">Calculate Fare</button>
-    <button type="button" id="payNowBtn">Pay Now</button>
-  </form>
-
-  <!-- Google Maps Places API -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD7RaWa6dXSoDxXq3DWfeuwHuD-TmI2I9U&libraries=places"></script>
-
-  <!-- Stripe.js -->
-  <script src="https://js.stripe.com/v3/"></script>
-
-  <!-- Your script -->
   <script src="script.js"></script>
-
 </body>
 </html>
