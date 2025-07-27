@@ -1,157 +1,107 @@
+const stripe = Stripe("pk_test_51RekxBAc65pROHTATqGZiySLEf35Hw2ybABap9g9NUR6aEn5FqPSjvRMQLRHilqU1do9sVTsyKHKvCQ8Pl0nHKbUF00ONgA02Y0");
 
-// Global latest fare
-let latestFare = 0;
-let pickupAutocomplete, dropoffAutocomplete;
+let directionsService;
+let tollsAmount = 0;
 
-// Initialize Google Places Autocomplete
-function initAutocomplete() {
-  const options = {
-    componentRestrictions: { country: 'au' },
-    fields: ['formatted_address', 'geometry'],
-  };
+window.onload = () => {
+  const pickupInput = document.getElementById("pickup");
+  const dropoffInput = document.getElementById("dropoff");
+  new google.maps.places.Autocomplete(pickupInput);
+  new google.maps.places.Autocomplete(dropoffInput);
 
-  pickupAutocomplete = new google.maps.places.Autocomplete(document.getElementById("pickup"), options);
-  dropoffAutocomplete = new google.maps.places.Autocomplete(document.getElementById("dropoff"), options);
+  directionsService = new google.maps.DirectionsService();
 
-  pickupAutocomplete.addListener('place_changed', calculateFare);
-  dropoffAutocomplete.addListener('place_changed', calculateFare);
-}
-
-// Calculate fare function
-function calculateFare() {
-  const pickup = document.getElementById("pickup").value.trim();
-  const dropoff = document.getElementById("dropoff").value.trim();
-  const vehicleClass = document.getElementById("vehicleClass").value;
-  const pickupTime = document.getElementById("pickupTime").value;
-
-  if (!pickup || !dropoff || !vehicleClass) {
-    latestFare = 0;
-    document.getElementById("fareDisplay").textContent = "Estimated Fare: $0.00";
-    alert("Please fill Pickup Location, Dropoff Location, and Vehicle Class before calculating fare.");
-    return;
-  }
-
-  const service = new google.maps.DistanceMatrixService();
-  service.getDistanceMatrix({
-    origins: [pickup],
-    destinations: [dropoff],
-    travelMode: 'DRIVING',
-    drivingOptions: {
-      departureTime: new Date(),
-      trafficModel: 'bestguess'
-    },
-    unitSystem: google.maps.UnitSystem.METRIC,
-  }, (response, status) => {
-    if (status !== "OK") {
-      console.error("Distance Matrix service error:", status);
-      document.getElementById("fareDisplay").textContent = "Error calculating fare.";
-      latestFare = 0;
-      return;
-    }
-
-    const element = response.rows[0].elements[0];
-    if (element.status !== "OK") {
-      console.error("Distance Matrix element error:", element.status);
-      document.getElementById("fareDisplay").textContent = "Error calculating fare.";
-      latestFare = 0;
-      return;
-    }
-
-    const distanceKm = element.distance.value / 1000;
-
-    // Pricing tiers as per your rates
-    const pricingTable = {
-      business: [124, 188, 250, 310, 370, 450],
-      van:      [184, 250, 320, 390, 460, 540],
-      first:    [220, 300, 380, 450, 520, 600]
-    };
-    const distanceTiers = [6, 20, 40, 60, 80, 100];
-
-    let fare = 0;
-    const prices = pricingTable[vehicleClass];
-    for (let i = 0; i < distanceTiers.length; i++) {
-      if (distanceKm <= distanceTiers[i]) {
-        fare = prices[i];
-        break;
-      }
-    }
-
-    if (distanceKm > 100) {
-      document.getElementById("fareDisplay").textContent = "Contact us for a custom quote.";
-      latestFare = 0;
-      return;
-    }
-
-    // Airport parking fee
-    const airportRegex = /airport/i;
-    const pickupLocation = document.getElementById("pickup").value;
-    const dropoffLocation = document.getElementById("dropoff").value;
-    const parkingFee = airportRegex.test(pickupLocation) || airportRegex.test(dropoffLocation) ? 14 : 0;
-
-    // Early/late fee
-    let earlyLateFee = 0;
-    if (pickupTime) {
-      const hour = parseInt(pickupTime.split(":")[0], 10);
-      if (hour < 6 || hour >= 22) earlyLateFee = 30;
-    }
-
-    const totalFare = fare + parkingFee + earlyLateFee;
-    latestFare = totalFare;
-
-    document.getElementById("fareDisplay").textContent = `Estimated Fare: $${totalFare.toFixed(2)}`;
+  document.getElementById("booking-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await calculateAndPay();
   });
-}
+};
 
-// Stripe payment button handler
-document.getElementById("payNowBtn").addEventListener("click", async () => {
-  if (!latestFare || latestFare <= 0) {
-    alert("Please calculate the fare before proceeding to payment.");
+async function calculateAndPay() {
+  const pickup = document.getElementById("pickup").value;
+  const dropoff = document.getElementById("dropoff").value;
+  const vehicleClass = document.getElementById("vehicleClass").value;
+  const date = document.getElementById("date").value;
+  const time = document.getElementById("time").value;
+
+  if (!pickup || !dropoff || !vehicleClass || !date || !time) {
+    alert("Please complete all fields.");
     return;
   }
 
-  // Validate essential fields are filled before payment
-  const requiredFields = ["name", "email", "phone", "pickup", "dropoff", "pickupDate", "pickupTime", "vehicleClass"];
-  for (const id of requiredFields) {
-    const val = document.getElementById(id).value.trim();
-    if (!val) {
-      alert(`Please fill the "${id}" field before proceeding.`);
-      return;
-    }
-  }
+  const pickupDateTime = new Date(`${date}T${time}`);
+  const hour = pickupDateTime.getHours();
+  const earlyLateFee = (hour < 6 || hour > 22) ? 30 : 0;
 
-  const amountInCents = Math.round(latestFare * 100);
+  const isAirportPickup = /airport/i.test(pickup);
+  const airportParkingFee = isAirportPickup ? 14 : 0;
 
   try {
-    const response = await fetch('https://server-qdh1.onrender.com/create-checkout-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: amountInCents }),
+    const distanceData = await getDistance(pickup, dropoff);
+    const distanceInKm = distanceData.distance.value / 1000;
+    tollsAmount = distanceData.tolls || 0;
+
+    let baseFare = 0;
+    if (vehicleClass === "business") {
+      baseFare = getTieredFare(distanceInKm, [124, 188, 250, 310, 370, 450]);
+    } else if (vehicleClass === "van") {
+      baseFare = getTieredFare(distanceInKm, [184, 250, 320, 390, 460, 540]);
+    } else if (vehicleClass === "first") {
+      baseFare = getTieredFare(distanceInKm, [220, 300, 380, 450, 520, 600]);
+    }
+
+    const totalFare = baseFare + earlyLateFee + airportParkingFee + tollsAmount;
+    document.getElementById("fare").innerText = totalFare.toFixed(2);
+
+    // Stripe Checkout
+    const response = await fetch("https://server-qdh1.onrender.com/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: Math.round(totalFare * 100) })
     });
 
-    if (!response.ok) throw new Error("Payment server connection failed.");
-
     const session = await response.json();
-
     if (session.id) {
-      const stripe = Stripe('pk_test_51RekxBAc65pROHTAjbmaqX0wL5TLUVaAOQe59PEgdTPBf2DIe1PNpGlm8LJl8mGThvXBrsI4OptShqGhcwyrVV3700XS1XJGck');
-      const { error } = await stripe.redirectToCheckout({ sessionId: session.id });
-      if (error) {
-        console.error("Stripe checkout error:", error);
-        alert("Payment redirect failed. Please try again.");
-      }
+      stripe.redirectToCheckout({ sessionId: session.id });
     } else {
-      alert("Failed to create payment session.");
+      alert("Stripe session creation failed.");
     }
-  } catch (error) {
-    console.error("Payment error:", error);
-    alert("Payment failed. Please try again.");
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to calculate fare or connect to payment.");
   }
-});
+}
 
-// Calculate fare button handler
-document.getElementById("calculateFareBtn").addEventListener("click", calculateFare);
+function getTieredFare(km, tiers) {
+  if (km <= 6) return tiers[0];
+  if (km <= 20) return tiers[1];
+  if (km <= 40) return tiers[2];
+  if (km <= 60) return tiers[3];
+  if (km <= 80) return tiers[4];
+  if (km <= 100) return tiers[5];
+  return 0; // 100+ km requires custom quote
+}
 
-// Init Google Autocomplete after page load
-window.onload = initAutocomplete;
-  
-                                              
+async function getDistance(origin, destination) {
+  return new Promise((resolve, reject) => {
+    directionsService.route(
+      {
+        origin,
+        destination,
+        travelMode: google.maps.TravelMode.DRIVING,
+        provideRouteAlternatives: false
+      },
+      (result, status) => {
+        if (status === "OK") {
+          const leg = result.routes[0].legs[0];
+          const distance = leg.distance;
+          // NOTE: No official Google tolls API, placeholder
+          resolve({ distance, tolls: 0 }); // Replace 0 with actual toll logic if available
+        } else {
+          reject("Directions request failed due to " + status);
+        }
+      }
+    );
+  });
+}
