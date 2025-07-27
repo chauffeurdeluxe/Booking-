@@ -152,11 +152,12 @@
       const amountInCents = Math.round(latestFare * 100);
 
       try {
-        const response = await fetch('/create-checkout-session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: amountInCents })
-        });
+        fetch('https://server-qdh1.onrender.com/create-checkout-session', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ amount: amountInCents })
+});
+      
 
         const session = await response.json();
 
