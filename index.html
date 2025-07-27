@@ -161,7 +161,7 @@
         const session = await response.json();
 
         if (session.id) {
-          const stripe = Stripe('YOUR_PUBLISHABLE_KEY'); // Replace with your real key
+          const stripe = Stripe('pk_test_51RekxBAc65pROHTAjbmaqX0wL5TLUVaAOQe59PEgdTPBf2DIe1PNpGlm8LJl8mGThvXBrsI4OptShqGhcwyrVV3700XS1XJGck');
           await stripe.redirectToCheckout({ sessionId: session.id });
         } else {
           alert("Payment session could not be created.");
