@@ -129,6 +129,10 @@ document.getElementById("payNowBtn").addEventListener("click", async function(ev
       body: JSON.stringify({ amount: amountInCents })
     });
 
+   if (!response.ok) {
+  throw new Error("Failed to connect to payment server.");
+}
+
     const session = await response.json();
 
     if (session.id) {
