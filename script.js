@@ -34,52 +34,45 @@ document.getElementById('calculateFare').addEventListener('click', function () {
 
       const distanceText = response.rows[0].elements[0].distance.text;
       const distanceInKm = parseFloat(distanceText.replace(' km', '').replace(',', ''));
-      let fare = 0;
-const baseRate = 50;
-const perKmRate = 3.30;
-const gstRate = 0.15;
-const taxRate = 0.15;
-const profitRate = 0.20;
+      const baseRate = 50;
+      const perKmRate = 3.30;
+      const gstRate = 0.15;
+      const taxRate = 0.15;
+      const profitRate = 0.20;
 
-const blocksOf10km = Math.ceil(distanceInKm / 10); // every 10km block
+      const blocksOf10km = Math.ceil(distanceInKm / 10); // every 10km block
 
-let rawFare = baseRate + (distanceInKm * perKmRate);
+      let rawFare = baseRate + (distanceInKm * perKmRate);
 
-// Add extra cost per 10km based on vehicle type
-if (vehicleType === 'suv') {
-  rawFare += blocksOf10km * 50;
-} else if (vehicleType === 'first') {
-  rawFare += blocksOf10km * 65;
-}
+      // Add extra cost per 10km based on vehicle type
+      if (vehicleType === 'suv') {
+        rawFare += blocksOf10km * 50;
+      } else if (vehicleType === 'first') {
+        rawFare += blocksOf10km * 65;
+      }
 
-// Apply GST, TAX, and Profit margin
-const gst = rawFare * gstRate;
-const tax = rawFare * taxRate;
-const profit = rawFare * profitRate;
+      // Apply GST, TAX, and Profit margin
+      const gst = rawFare * gstRate;
+      const tax = rawFare * taxRate;
+      const profit = rawFare * profitRate;
 
-fare = rawFare + gst + tax + profit;
+      let fare = rawFare + gst + tax + profit;
 
-// Add early/late pickup surcharge
-const pickupHour = new Date(pickupTime).getHours();
-if (pickupHour < 5 || pickupHour >= 22) fare += 30;
-
-// Add airport parking if pickup includes "airport"
-if (pickup.toLowerCase().includes("airport")) fare += 14;
-
-fare = fare.toFixed(2);
-
-document.getElementById('fareResult').innerText = `Estimated Fare: $${fare}`;
-
+      // Add early/late pickup surcharge
       const pickupHour = new Date(pickupTime).getHours();
       if (pickupHour < 5 || pickupHour >= 22) fare += 30;
 
+      // Add airport parking if pickup includes "airport"
       if (pickup.toLowerCase().includes("airport")) fare += 14;
+
+      fare = fare.toFixed(2);
 
       document.getElementById('fareResult').innerText = `Estimated Fare: $${fare}`;
     }
   );
 });
-  document.getElementById('payNow').addEventListener('click', async function () {
+
+document.getElementById('payNow').addEventListener('click', async function () {
   const name = document.getElementById('name').value;
   const phone = document.getElementById('phone').value;
   const email = document.getElementById('email').value;
@@ -108,10 +101,10 @@ document.getElementById('fareResult').innerText = `Estimated Fare: $${fare}`;
 
   try {
     const response = await fetch('https://server-qdh1.onrender.com/create-checkout-session', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(bookingData)
-});
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bookingData)
+    });
 
     const data = await response.json();
     if (data.url) {
@@ -124,4 +117,6 @@ document.getElementById('fareResult').innerText = `Estimated Fare: $${fare}`;
     alert('Something went wrong. Please try again.');
   }
 });
+  
+
 
