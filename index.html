@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chauffeur de Luxe</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD7RaWa6dXSoDxXq3DWfeuwHuD-TmI2I9U&libraries=places&callback=initAutocomplete" async defer></script>
+</head>
+<body>
+  <header>
+    <h1>CHAUFFEUR DE LUXE</h1>
+    <p>Driven by Distinction. Defined by Elegance.</p>
+  </header>
+  <main>
+    <form id="bookingForm">
+      <input type="text" name="name" placeholder="Full Name" required />
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="tel" name="phone" placeholder="Phone Number" required />
+      <select id="vehicleType" required>
+        <option value="">Select Vehicle Class</option>
+        <option value="business">Business Class</option>
+        <option value="suv">Business Van/SUV</option>
+        <option value="first">First Class</option>
+      </select>
+      <input type="text" id="pickup" placeholder="Pickup Location" required />
+      <input type="text" id="dropoff" placeholder="Dropoff Location" required />
+      <input type="datetime-local" id="pickupTime" required />
+      <textarea name="notes" placeholder="Additional Notes (optional)"></textarea>
+      <div id="fareDisplay"></div>
+      <button type="button" id="payNow">Pay Now</button>
+    </form>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
