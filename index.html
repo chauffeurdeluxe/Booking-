@@ -3,48 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chauffeur Booking</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://js.stripe.com/v3/"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD-BEJyiMYlZ8MxHZWDKnvPPuTx-WtTXiw&libraries=places"></script>
+  <title>Chauffeur de Luxe Booking</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBMj6AZh1U0ijO-34GjHo3k66g3Q8vqMew&libraries=places"></script>
 </head>
 <body>
   <div class="container">
-    <h1>Chauffeur Booking</h1>
-    <form id="booking-form">
-      <label for="name">Full Name</label>
-      <input type="text" id="name" required />
+    <header>
+      <img src="logo.png" alt="Chauffeur de Luxe Logo" class="logo"/>
+      <h1>Chauffeur de Luxe</h1>
+      <p class="tagline">Driven by Distinction. Defined by Elegance.</p>
+    </header>
 
-      <label for="email">Email</label>
-      <input type="email" id="email" required />
+    <form id="bookingForm">
+      <label>Full Name</label>
+      <input type="text" name="name" required>
 
-      <label for="phone">Phone Number</label>
-      <input type="tel" id="phone" required />
+      <label>Email</label>
+      <input type="email" name="email" required>
 
-      <label for="vehicleClass">Vehicle Class</label>
-      <select id="vehicleClass" required>
-        <option value="">Select</option>
+      <label>Phone</label>
+      <input type="tel" name="phone" required>
+
+      <label for="vehicleType">Vehicle Type</label>
+      <select id="vehicleType" name="vehicleType" required>
+        <option value="" disabled selected>Select a vehicle</option>
         <option value="business">Business Class</option>
-        <option value="van">Business Van/SUV</option>
+        <option value="suv">Business Van/SUV</option>
         <option value="first">First Class</option>
       </select>
 
-      <label for="pickup">Pickup Location</label>
-      <input type="text" id="pickup" required />
+      <label>Pickup Location</label>
+      <input type="text" id="pickup" name="pickup" required>
 
-      <label for="dropoff">Dropoff Location</label>
-      <input type="text" id="dropoff" required />
+      <label>Dropoff Location</label>
+      <input type="text" id="dropoff" name="dropoff" required>
 
-      <label for="date">Pickup Date</label>
-      <input type="date" id="date" required />
+      <label>Pickup Date & Time</label>
+      <input type="datetime-local" id="pickupTime" name="datetime" required>
 
-      <label for="time">Pickup Time</label>
-      <input type="time" id="time" required />
+      <label>Additional Notes</label>
+      <textarea name="notes" rows="4" placeholder="Any extra details..."></textarea>
 
-      <p><strong>Total Fare (AUD): $<span id="fare">0.00</span></strong></p>
+      <p id="fareDisplay" style="font-weight:bold; font-size: 18px; margin-top:10px;">Estimated Fare: $0</p>
 
-      <button type="submit" id="payBtn">Pay Now</button>
+      <button type="button" id="payNow">Pay Now</button>
     </form>
+
+    <div class="thank-you" style="display:none;">
+      <h2>Thank you!</h2>
+      <p>Your booking and payment have been received.</p>
+    </div>
   </div>
 
   <script src="script.js"></script>
