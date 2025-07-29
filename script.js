@@ -80,5 +80,49 @@ document.getElementById('calculateFare').addEventListener('click', function () {
     }
   );
 });
-  
+  document.getElementById('payNow').addEventListener('click', async function () {
+  const name = document.getElementById('name').value;
+  const phone = document.getElementById('phone').value;
+  const email = document.getElementById('email').value;
+  const pickup = document.getElementById('pickup').value;
+  const dropoff = document.getElementById('dropoff').value;
+  const pickupTime = document.getElementById('pickupTime').value;
+  const vehicleType = document.getElementById('vehicleType').value;
+  const fareText = document.getElementById('fareResult').innerText;
+
+  if (!name || !phone || !email || !pickup || !dropoff || !pickupTime || !vehicleType || !fareText.includes('$')) {
+    alert('Please fill out all details and calculate fare before proceeding.');
+    return;
+  }
+
+  const totalFare = parseFloat(fareText.replace(/[^\d.]/g, ''));
+  const bookingData = {
+    name,
+    phone,
+    email,
+    pickup,
+    dropoff,
+    datetime: pickupTime,
+    vehicleType,
+    totalFare
+  };
+
+  try {
+    const response = await fetch('https://your-render-server-url.com/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bookingData)
+    });
+
+    const data = await response.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('Payment session failed. Please try again.');
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    alert('Something went wrong. Please try again.');
+  }
+});
 
