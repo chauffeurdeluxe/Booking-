@@ -13,7 +13,7 @@ function initAutocomplete() {
   });
 }
 
-google.maps.event.addDomListener(window, 'load', initAutocomplete);
+
 
 document.getElementById('payNow').addEventListener('click', async function () {
   const name = document.querySelector('input[name="name"]').value;
