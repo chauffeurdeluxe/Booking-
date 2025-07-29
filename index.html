@@ -25,7 +25,10 @@
       </select>
       <input type="text" id="pickup" placeholder="Pickup Location" required />
       <input type="text" id="dropoff" placeholder="Dropoff Location" required />
-      <input type="datetime-local" id="pickupTime" placeholder="Date/Time" required />
+      <div class="form-group">
+  <label for="pickupTime">Pickup Date & Time</label>
+  <input type="datetime-local" id="pickupTime" required />
+</div>
       <textarea name="notes" placeholder="Additional Notes (optional)"></textarea>
       <div id="fareDisplay"></div>
       <button type="button" id="calculateFare" style="margin-bottom: 10px;">Calculate Fare</button>
