@@ -1,107 +1,162 @@
-const stripe = Stripe("pk_test_51RekxBAc65pROHTATqGZiySLEf35Hw2ybABap9g9NUR6aEn5FqPSjvRMQLRHilqU1do9sVTsyKHKvCQ8Pl0nHKbUF00ONgA02Y0");
+let pickupInput = document.getElementById('pickup');
+let dropoffInput = document.getElementById('dropoff');
+let fareDisplay = document.getElementById('fareDisplay');
+let payNowButton = document.getElementById('payNow');
 
-let directionsService;
-let tollsAmount = 0;
+let pickupPlace = '';
+let dropoffPlace = '';
+let calculatedFare = 0;
 
-window.onload = () => {
-  const pickupInput = document.getElementById("pickup");
-  const dropoffInput = document.getElementById("dropoff");
+// Init Google Places Autocomplete
+function initAutocomplete() {
   new google.maps.places.Autocomplete(pickupInput);
   new google.maps.places.Autocomplete(dropoffInput);
+}
 
-  directionsService = new google.maps.DirectionsService();
+window.onload = initAutocomplete;
 
-  document.getElementById("booking-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    await calculateAndPay();
-  });
-};
+payNowButton.addEventListener('click', async () => {
+  const name = document.querySelector('input[name="name"]').value.trim();
+  const email = document.querySelector('input[name="email"]').value.trim();
+  const phone = document.querySelector('input[name="phone"]').value.trim();
+  const vehicleType = document.getElementById('vehicleType').value;
+  const pickup = pickupInput.value.trim();
+  const dropoff = dropoffInput.value.trim();
+  const datetime = document.getElementById('pickupTime').value;
 
-async function calculateAndPay() {
-  const pickup = document.getElementById("pickup").value;
-  const dropoff = document.getElementById("dropoff").value;
-  const vehicleClass = document.getElementById("vehicleClass").value;
-  const date = document.getElementById("date").value;
-  const time = document.getElementById("time").value;
-
-  if (!pickup || !dropoff || !vehicleClass || !date || !time) {
-    alert("Please complete all fields.");
+  if (!name || !email || !phone || !pickup || !dropoff || !datetime || !vehicleType) {
+    alert('Please complete all required fields.');
     return;
   }
 
-  const pickupDateTime = new Date(`${date}T${time}`);
-  const hour = pickupDateTime.getHours();
-  const earlyLateFee = (hour < 6 || hour > 22) ? 30 : 0;
-
-  const isAirportPickup = /airport/i.test(pickup);
-  const airportParkingFee = isAirportPickup ? 14 : 0;
-
   try {
-    const distanceData = await getDistance(pickup, dropoff);
-    const distanceInKm = distanceData.distance.value / 1000;
-    tollsAmount = distanceData.tolls || 0;
-
-    let baseFare = 0;
-    if (vehicleClass === "business") {
-      baseFare = getTieredFare(distanceInKm, [124, 188, 250, 310, 370, 450]);
-    } else if (vehicleClass === "van") {
-      baseFare = getTieredFare(distanceInKm, [184, 250, 320, 390, 460, 540]);
-    } else if (vehicleClass === "first") {
-      baseFare = getTieredFare(distanceInKm, [220, 300, 380, 450, 520, 600]);
+    const distanceResult = await calculateDistance(pickup, dropoff);
+    if (!distanceResult) {
+      alert('Could not calculate distance.');
+      return;
     }
 
-    const totalFare = baseFare + earlyLateFee + airportParkingFee + tollsAmount;
-    document.getElementById("fare").innerText = totalFare.toFixed(2);
+    const distanceKm = distanceResult.distance;
+    const isAirportPickup = /airport/i.test(pickup);
+    const isEarlyLate = checkEarlyLate(datetime);
+    const pricing = calculatePricing(vehicleType, distanceKm, isAirportPickup, isEarlyLate);
 
-    // Stripe Checkout
-    const response = await fetch("https://server-qdh1.onrender.com/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: Math.round(totalFare * 100) })
+    calculatedFare = pricing.total;
+    fareDisplay.textContent = `Estimated Fare: $${calculatedFare.toFixed(2)}`;
+
+    // Send to server for Stripe payment
+    const response = await fetch('/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        email,
+        phone,
+        pickup,
+        dropoff,
+        datetime,
+        vehicleType,
+        totalFare: calculatedFare
+      })
     });
 
     const session = await response.json();
     if (session.id) {
-      stripe.redirectToCheckout({ sessionId: session.id });
+      window.location.href = session.url;
     } else {
-      alert("Stripe session creation failed.");
+      alert('Payment session could not be created.');
     }
 
-  } catch (err) {
-    console.error(err);
-    alert("Failed to calculate fare or connect to payment.");
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Something went wrong.');
   }
+});
+
+function checkEarlyLate(datetime) {
+  const time = new Date(datetime).getHours();
+  return (time < 5 || time >= 22);
 }
 
-function getTieredFare(km, tiers) {
-  if (km <= 6) return tiers[0];
-  if (km <= 20) return tiers[1];
-  if (km <= 40) return tiers[2];
-  if (km <= 60) return tiers[3];
-  if (km <= 80) return tiers[4];
-  if (km <= 100) return tiers[5];
-  return 0; // 100+ km requires custom quote
+function calculatePricing(vehicleType, distance, isAirport, isEarlyLate) {
+  let baseFare = 0;
+
+  const tiers = {
+    business: [
+      { max: 6, fare: 124 },
+      { max: 20, fare: 188 },
+      { max: 40, fare: 250 },
+      { max: 60, fare: 310 },
+      { max: 80, fare: 370 },
+      { max: 100, fare: 450 }
+    ],
+    suv: [
+      { max: 6, fare: 184 },
+      { max: 20, fare: 250 },
+      { max: 40, fare: 320 },
+      { max: 60, fare: 390 },
+      { max: 80, fare: 460 },
+      { max: 100, fare: 540 }
+    ],
+    first: [
+      { max: 6, fare: 220 },
+      { max: 20, fare: 300 },
+      { max: 40, fare: 380 },
+      { max: 60, fare: 450 },
+      { max: 80, fare: 520 },
+      { max: 100, fare: 600 }
+    ]
+  };
+
+  const selectedTier = tiers[vehicleType];
+  for (let tier of selectedTier) {
+    if (distance <= tier.max) {
+      baseFare = tier.fare;
+      break;
+    }
+  }
+
+  if (distance > 100) baseFare = 0; // Requires manual quote
+
+  const airportFee = isAirport ? 14 : 0;
+  const earlyLateFee = isEarlyLate ? 30 : 0;
+  const total = baseFare + airportFee + earlyLateFee;
+
+  return { baseFare, airportFee, earlyLateFee, total };
 }
 
-async function getDistance(origin, destination) {
+async function calculateDistance(origin, destination) {
+  const service = new google.maps.DistanceMatrixService();
+
   return new Promise((resolve, reject) => {
-    directionsService.route(
+    service.getDistanceMatrix(
       {
-        origin,
-        destination,
+        origins: [origin],
+        destinations: [destination],
         travelMode: google.maps.TravelMode.DRIVING,
-        provideRouteAlternatives: false
+        unitSystem: google.maps.UnitSystem.METRIC
       },
-      (result, status) => {
-        if (status === "OK") {
-          const leg = result.routes[0].legs[0];
-          const distance = leg.distance;
-          // NOTE: No official Google tolls API, placeholder
-          resolve({ distance, tolls: 0 }); // Replace 0 with actual toll logic if available
+      (response, status) => {
+        if (status !== "OK") {
+          console.error("Distance Matrix failed:", status);
+          reject(null);
         } else {
-          reject("Directions request failed due to " + status);
+          const element = response.rows[0].elements[0];
+          if (element.status === "OK") {
+            const distanceText = element.distance.text;
+            const distanceKm = parseFloat(distanceText.replace(" km", ""));
+            resolve({ distance: distanceKm });
+          } else {
+            console.error("No result for route.");
+            reject(null);
+          }
         }
       }
     );
   });
 }
+      
+    
+  
+
+
