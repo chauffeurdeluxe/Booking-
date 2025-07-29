@@ -35,41 +35,40 @@ document.getElementById('calculateFare').addEventListener('click', function () {
       const distanceText = response.rows[0].elements[0].distance.text;
       const distanceInKm = parseFloat(distanceText.replace(' km', '').replace(',', ''));
       let fare = 0;
+const baseRate = 50;
+const perKmRate = 3.30;
+const gstRate = 0.15;
+const taxRate = 0.15;
+const profitRate = 0.20;
 
-      if (vehicleType === 'business') {
-        if (distanceInKm <= 6) fare = 124;
-        else if (distanceInKm <= 20) fare = 188;
-        else if (distanceInKm <= 40) fare = 250;
-        else if (distanceInKm <= 60) fare = 310;
-        else if (distanceInKm <= 80) fare = 370;
-        else if (distanceInKm <= 100) fare = 450;
-        else {
-          document.getElementById('fareResult').innerText = 'Distance exceeds 100 km. Custom quote required.';
-          return;
-        }
-      } else if (vehicleType === 'suv') {
-        if (distanceInKm <= 6) fare = 184;
-        else if (distanceInKm <= 20) fare = 250;
-        else if (distanceInKm <= 40) fare = 320;
-        else if (distanceInKm <= 60) fare = 390;
-        else if (distanceInKm <= 80) fare = 460;
-        else if (distanceInKm <= 100) fare = 540;
-        else {
-          document.getElementById('fareResult').innerText = 'Distance exceeds 100 km. Custom quote required.';
-          return;
-        }
-      } else if (vehicleType === 'first') {
-        if (distanceInKm <= 6) fare = 220;
-        else if (distanceInKm <= 20) fare = 300;
-        else if (distanceInKm <= 40) fare = 380;
-        else if (distanceInKm <= 60) fare = 450;
-        else if (distanceInKm <= 80) fare = 520;
-        else if (distanceInKm <= 100) fare = 600;
-        else {
-          document.getElementById('fareResult').innerText = 'Distance exceeds 100 km. Custom quote required.';
-          return;
-        }
-      }
+const blocksOf10km = Math.ceil(distanceInKm / 10); // every 10km block
+
+let rawFare = baseRate + (distanceInKm * perKmRate);
+
+// Add extra cost per 10km based on vehicle type
+if (vehicleType === 'suv') {
+  rawFare += blocksOf10km * 50;
+} else if (vehicleType === 'first') {
+  rawFare += blocksOf10km * 65;
+}
+
+// Apply GST, TAX, and Profit margin
+const gst = rawFare * gstRate;
+const tax = rawFare * taxRate;
+const profit = rawFare * profitRate;
+
+fare = rawFare + gst + tax + profit;
+
+// Add early/late pickup surcharge
+const pickupHour = new Date(pickupTime).getHours();
+if (pickupHour < 5 || pickupHour >= 22) fare += 30;
+
+// Add airport parking if pickup includes "airport"
+if (pickup.toLowerCase().includes("airport")) fare += 14;
+
+fare = fare.toFixed(2);
+
+document.getElementById('fareResult').innerText = `Estimated Fare: $${fare}`;
 
       const pickupHour = new Date(pickupTime).getHours();
       if (pickupHour < 5 || pickupHour >= 22) fare += 30;
