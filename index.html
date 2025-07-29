@@ -40,5 +40,20 @@
     </form>
   </main>
   <script src="script.js"></script>
+
+ <script>
+    function initAutocomplete() {
+      const pickupInput = document.getElementById("pickup");
+      const dropoffInput = document.getElementById("dropoff");
+
+      if (pickupInput) {
+        new google.maps.places.Autocomplete(pickupInput, { componentRestrictions: { country: 'au' } });
+      }
+
+      if (dropoffInput) {
+        new google.maps.places.Autocomplete(dropoffInput, { componentRestrictions: { country: 'au' } });
+      }
+    }
+  </script>
 </body>
 </html>
