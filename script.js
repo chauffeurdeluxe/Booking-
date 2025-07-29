@@ -35,9 +35,9 @@ document.getElementById('calculateFare').addEventListener('click', function () {
       const distanceText = response.rows[0].elements[0].distance.text;
       const distanceInKm = parseFloat(distanceText.replace(' km', '').replace(',', ''));
       const baseRate = 50;
-      const perKmRate = 3.30;
-      const gstRate = 0.15;
-      const taxRate = 0.15;
+      const perKmRate = 3.00;
+      const gstRate = 0.10;
+      const taxRate = 0.10;
       const profitRate = 0.20;
 
       const blocksOf10km = Math.ceil(distanceInKm / 10); // every 10km block
@@ -46,9 +46,9 @@ document.getElementById('calculateFare').addEventListener('click', function () {
 
       // Add extra cost per 10km based on vehicle type
       if (vehicleType === 'suv') {
-        rawFare += blocksOf10km * 50;
+        rawFare += blocksOf10km * 20;
       } else if (vehicleType === 'first') {
-        rawFare += blocksOf10km * 65;
+        rawFare += blocksOf10km * 45;
       }
 
       // Apply GST, TAX, and Profit margin
