@@ -108,11 +108,11 @@ document.getElementById('calculateFare').addEventListener('click', function () {
   };
 
   try {
-    const response = await fetch('https://server-qdh1.onrender.com/create-checkout-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(bookingData)
-    });
+    const response = await fetch('https://server-qdh1.onrender.com:10000/create-checkout-session', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(bookingData)
+});
 
     const data = await response.json();
     if (data.url) {
