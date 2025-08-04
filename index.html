@@ -32,7 +32,13 @@
   <input type="datetime-local" id="pickupTime" required />
 </div>
 
-<textarea id="notes" name="notes" placeholder="Any special instructions or requests?" rows="2" style="width:100%; padding:10px; margin:10px 0; border-radius:6px; border:1px solid #ccc;"></textarea>
+<textarea
+  id="notes"
+  name="notes"
+  placeholder="Any special instructions or requests?"
+  rows="2"
+  style="width: 100%; max-width: 100%; box-sizing: border-box; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; font-size: 16px;"
+></textarea>
       
        <button type="button" id="calculateFare" style="margin-bottom: 10px;">Calculate Fare</button>
 <p id="fareResult" style="color: gold; font-weight: bold;"></p>
