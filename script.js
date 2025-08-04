@@ -81,7 +81,8 @@ document.getElementById('payNow').addEventListener('click', async function () {
   const pickupTime = document.getElementById('pickupTime').value;
   const vehicleType = document.getElementById('vehicleType').value;
   const fareText = document.getElementById('fareResult').innerText;
-
+  const notes = document.getElementById('notes').value;
+  
   if (!name || !phone || !email || !pickup || !dropoff || !pickupTime || !vehicleType || !fareText.includes('$')) {
     alert('Please fill out all details and calculate fare before proceeding.');
     return;
