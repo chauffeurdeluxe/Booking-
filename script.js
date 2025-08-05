@@ -97,6 +97,7 @@ document.getElementById('payNow').addEventListener('click', async function () {
     dropoff,
     datetime: pickupTime,
     vehicleType,
+    notes,
     totalFare
   };
 
