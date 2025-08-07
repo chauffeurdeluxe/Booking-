@@ -1,6 +1,6 @@
 {
   "name": "Chauffeur de Luxe",
-  "short_name": "Chauffeur",
+  "short_name": "CDL",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#000000",
