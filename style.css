@@ -18,11 +18,11 @@ header {
 .header-top {
   display: flex;
   align-items: center;
-  gap: 10px; /* space between logo and heading */
+  gap: 10px;
 }
 
 .header-top img {
-  height: 50px; /* adjust logo size */
+  height: 50px;
 }
 
 header p.tagline {
