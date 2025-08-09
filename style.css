@@ -25,7 +25,7 @@ header {
   height: 50px;
 }
 
-header p.tagline {
+.tagline {
   font-style: italic;
   font-size: 1em;
   margin-top: 5px;
