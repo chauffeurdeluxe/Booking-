@@ -10,6 +10,25 @@ body {
 
 header {
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* space between logo and heading */
+}
+
+.header-top img {
+  height: 50px; /* adjust logo size */
+}
+
+header p.tagline {
+  font-style: italic;
+  font-size: 1em;
+  margin-top: 5px;
 }
 
 h1 {
