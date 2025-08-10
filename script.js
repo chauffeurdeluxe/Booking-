@@ -27,8 +27,8 @@ document.getElementById('calculateFare').addEventListener('click', function () {
     const distanceKm = parseFloat(el.distance.text.replace(/[^0-9.]/g, ''));
     const durationMin = el.duration.value / 60; // minutes
 
-    // Sydney market-aligned base rates
-    const perKmRate = 3.50;
+    // Modified per km rate: cheaper if distance > 20 km
+    const perKmRate = (distanceKm > 20) ? 2.50 : 3.50;
     const perMinRate = 0.90;
 
     // Blacklane-style multipliers
