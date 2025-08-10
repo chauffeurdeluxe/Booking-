@@ -48,7 +48,7 @@ document.getElementById('calculateFare').addEventListener('click', function () {
       if (vehicleType === 'suv') {
         rawFare += blocksOf10km * 20;
       } else if (vehicleType === 'first') {
-        rawFare += blocksOf10km * 45;
+        rawFare += blocksOf10km * 40;
       }
 
       // Apply GST, TAX, and Profit margin
