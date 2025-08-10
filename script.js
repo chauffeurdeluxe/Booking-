@@ -83,13 +83,10 @@ document.getElementById('calculateFare').addEventListener('click', function () {
     fare = fare.toFixed(2);
 
     document.getElementById('fareSummary').innerHTML = `
-      <div style="color: gold; font-weight: bold; font-size: 18px; margin-bottom: 4px;">
-        Estimated Fare: $${fare}
-      </div>
-      <div style="color: gold; font-weight: bold; font-size: 18px;">
-        Distance: ${distanceKm.toFixed(2)} km &nbsp;&nbsp;|&nbsp;&nbsp; Estimated Time: ${durationMin.toFixed(0)} minutes
-      </div>
-    `;
+  <div>Estimated Fare: $${fare}</div>
+  <div>Distance: ${distanceKm.toFixed(2)} km</div>
+  <div>Estimated Time: ${durationMin.toFixed(0)} min</div>
+`;
 
     // Store fare in a data attribute for later payment processing
     document.getElementById('fareSummary').setAttribute('data-fare', fare);
