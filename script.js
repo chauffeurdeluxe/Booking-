@@ -26,9 +26,6 @@ document.getElementById('calculateFare').addEventListener('click', function () {
     const el = response.rows[0].elements[0];
     const distanceKm = parseFloat(el.distance.text.replace(/[^0-9.]/g, ''));
     const durationMin = el.duration.value / 60; // minutes
-
-    document.getElementById('fareSummary').innerHTML = 
-  `Estimated Fare: $${fare} &nbsp;&nbsp;|&nbsp;&nbsp; Distance: ${distanceKm.toFixed(2)} km &nbsp;&nbsp;|&nbsp;&nbsp; Estimated Time: ${durationMin.toFixed(0)} minutes`;
     
     // Modified per km rate: cheaper if distance > 20 km
     const perKmRate = (distanceKm > 20) ? 2.75 : 3.50;
@@ -76,7 +73,8 @@ document.getElementById('calculateFare').addEventListener('click', function () {
     }
 
     fare = fare.toFixed(2);
-
+document.getElementById('fareSummary').innerHTML = 
+  `Estimated Fare: $${fare} &nbsp;&nbsp;|&nbsp;&nbsp; Distance: ${distanceKm.toFixed(2)} km &nbsp;&nbsp;|&nbsp;&nbsp; Estimated Time: ${durationMin.toFixed(0)} minutes`;
     document.getElementById('fareResult').innerText = `Estimated Fare: $${fare}`;
   });
 });
