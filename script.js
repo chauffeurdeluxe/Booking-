@@ -35,7 +35,7 @@ document.getElementById('calculateFare').addEventListener('click', function () {
       const distanceText = response.rows[0].elements[0].distance.text;
       const distanceInKm = parseFloat(distanceText.replace(' km', '').replace(',', ''));
       const baseRate = 45;
-      const perKmRate = 3.00;
+      const perKmRate = 3.50;
       const gstRate = 0.10;
       const taxRate = 0.10;
       const profitRate = 0.25;
