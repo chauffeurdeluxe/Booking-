@@ -38,7 +38,7 @@ document.getElementById('calculateFare').addEventListener('click', function () {
       const perKmRate = 3.00;
       const gstRate = 0.10;
       const taxRate = 0.10;
-      const profitRate = 0.20;
+      const profitRate = 0.25;
 
       const blocksOf10km = Math.ceil(distanceInKm / 10); // every 10km block
 
