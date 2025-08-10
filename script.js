@@ -1,4 +1,15 @@
-function initAutocomplete() { }
+function initAutocomplete() {
+  const pickupInput = document.getElementById("pickup");
+  const dropoffInput = document.getElementById("dropoff");
+
+  if (pickupInput) {
+    new google.maps.places.Autocomplete(pickupInput, { componentRestrictions: { country: 'au' } });
+  }
+
+  if (dropoffInput) {
+    new google.maps.places.Autocomplete(dropoffInput, { componentRestrictions: { country: 'au' } });
+  }
+}
 
 document.getElementById('calculateFare').addEventListener('click', function () {
   const vehicleType = document.getElementById('vehicleType').value;
@@ -24,58 +35,64 @@ document.getElementById('calculateFare').addEventListener('click', function () {
     }
 
     const el = response.rows[0].elements[0];
+    if (el.status !== 'OK') {
+      alert('Could not calculate distance for the provided locations.');
+      return;
+    }
+
     const distanceKm = parseFloat(el.distance.text.replace(/[^0-9.]/g, ''));
-    const durationMin = el.duration.value / 60; // minutes
+    const durationMin = el.duration.value / 60; // convert seconds to minutes
     
-    // Modified per km rate: cheaper if distance > 20 km
+    // Pricing logic
     const perKmRate = (distanceKm > 20) ? 2.75 : 3.50;
     const perMinRate = 0.90;
 
-    // Blacklane-style multipliers
     const multipliers = {
-      business: 1.0, // Sedan
-      suv: 1.4,      // Business SUV
-      first: 1.8     // First Class
+      business: 1.0,
+      suv: 1.4,
+      first: 1.8
     };
 
-    // Sydney minimum fares (AUD)
     const minFare = {
       business: 110,
       suv: 145,
       first: 200
     };
 
-    // Raw fare calculation
     let fareCore = (distanceKm * perKmRate + durationMin * perMinRate) * multipliers[vehicleType];
-
-    // Enforce minimum fare
     fareCore = Math.max(fareCore, minFare[vehicleType]);
 
-    // GST, tax, profit margin (all-inclusive model)
     const gstRate = 0.10;
     const taxRate = 0.10;
     const profitRate = 0.25;
     let fare = fareCore * (1 + gstRate + taxRate + profitRate);
 
-    // Late/early pickup surcharge
     const pickupHour = new Date(pickupTime).getHours();
     if (pickupHour < 5 || pickupHour >= 22) fare += 30;
 
-    // Sydney airport parking fee
     if (pickup.toLowerCase().includes("airport")) {
       if (pickup.toLowerCase().includes("domestic")) {
-        fare += 9; // Domestic
+        fare += 9;
       } else if (pickup.toLowerCase().includes("international")) {
-        fare += 14; // International
+        fare += 14;
       } else {
-        fare += 14; // Default to International rate if unspecified
+        fare += 14;
       }
     }
 
     fare = fare.toFixed(2);
-document.getElementById('fareSummary').innerHTML = 
-  `Estimated Fare: $${fare} &nbsp;&nbsp;|&nbsp;&nbsp; Distance: ${distanceKm.toFixed(2)} km &nbsp;&nbsp;|&nbsp;&nbsp; Estimated Time: ${durationMin.toFixed(0)} minutes`;
-    document.getElementById('fareResult').innerText = `Estimated Fare: $${fare}`;
+
+    document.getElementById('fareSummary').innerHTML = `
+      <div style="color: gold; font-weight: bold; font-size: 18px; margin-bottom: 4px;">
+        Estimated Fare: $${fare}
+      </div>
+      <div style="color: gold; font-weight: bold; font-size: 18px;">
+        Distance: ${distanceKm.toFixed(2)} km &nbsp;&nbsp;|&nbsp;&nbsp; Estimated Time: ${durationMin.toFixed(0)} minutes
+      </div>
+    `;
+
+    // Store fare in a data attribute for later payment processing
+    document.getElementById('fareSummary').setAttribute('data-fare', fare);
   });
 });
 
@@ -87,15 +104,18 @@ document.getElementById('payNow').addEventListener('click', async function () {
   const dropoff = document.getElementById('dropoff').value;
   const pickupTime = document.getElementById('pickupTime').value;
   const vehicleType = document.getElementById('vehicleType').value;
-  const fareText = document.getElementById('fareResult').innerText;
   const notes = document.getElementById('notes').value;
 
-  if (!name || !phone || !email || !pickup || !dropoff || !pickupTime || !vehicleType || !fareText.includes('$')) {
+  const fareSummary = document.getElementById('fareSummary');
+  const fare = fareSummary.getAttribute('data-fare');
+
+  if (!name || !phone || !email || !pickup || !dropoff || !pickupTime || !vehicleType || !fare) {
     alert('Please fill out all details and calculate fare before proceeding.');
     return;
   }
 
-  const totalFare = parseFloat(fareText.replace(/[^\d.]/g, ''));
+  const totalFare = parseFloat(fare);
+
   const bookingData = {
     name,
     phone,
