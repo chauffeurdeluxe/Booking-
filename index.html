@@ -15,55 +15,54 @@
 </head>
 <body>
   <header>
-  <div class="header-top">
-    <img src="icon.png" alt="Chauffeur de Luxe Logo">
-    <h1>Chauffeur De Luxe</h1>
-  </div>
-  <p class="tagline">Driven by Distinction. Defined by Elegance.</p>
-</header>
+    <div class="header-top">
+      <img src="icon.png" alt="Chauffeur de Luxe Logo" />
+      <h1>Chauffeur De Luxe</h1>
+    </div>
+    <p class="tagline">Driven by Distinction. Defined by Elegance.</p>
+  </header>
+
   <main>
     <form id="bookingForm">
       <input type="text" id="name" name="name" placeholder="Full Name" required />
-<input type="email" id="email" name="email" placeholder="Email" required />
-<input type="tel" id="phone" name="phone" placeholder="Phone Number" required />
+      <input type="email" id="email" name="email" placeholder="Email" required />
+      <input type="tel" id="phone" name="phone" placeholder="Phone Number" required />
+
       <select id="vehicleType" required>
         <option value="">Select Vehicle Class</option>
         <option value="business">Business Class</option>
         <option value="suv">Business Van/SUV</option>
         <option value="first">First Class</option>
       </select>
+
       <input type="text" id="pickup" placeholder="Pickup Location" required />
       <input type="text" id="dropoff" placeholder="Dropoff Location" required />
-    <div class="form-group">
-  <label for="pickupTime" style="display:block; margin-bottom:6px; color:#FFD700; font-weight:bold;">
-    Pickup Date & Time
-  </label>
-  <input type="datetime-local" id="pickupTime" required />
-</div>
 
-<textarea
-  id="notes"
-  name="notes"
-  placeholder="Any special instructions or requests?"
-  rows="2"
-  style="width: 100%; max-width: 100%; box-sizing: border-box; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; font-size: 16px;"
-></textarea>
-      
-       <button type="button" id="calculateFare" style="margin-bottom: 10px;">Calculate Fare</button>
-document.getElementById('fareSummary').innerHTML = `
-  <div style="color: gold; font-weight: bold; font-size: 18px; margin-bottom: 4px;">
-    Estimated Fare: $${fare}
-  </div>
-  <div style="color: gold; font-weight: bold; font-size: 18px;">
-    Distance: ${distanceKm.toFixed(2)} km &nbsp;&nbsp;|&nbsp;&nbsp; Estimated Time: ${durationMin.toFixed(0)} minutes
-  </div>
-`;
+      <div class="form-group">
+        <label for="pickupTime" style="display:block; margin-bottom:6px; color:#FFD700; font-weight:bold;">
+          Pickup Date & Time
+        </label>
+        <input type="datetime-local" id="pickupTime" required />
+      </div>
+
+      <textarea
+        id="notes"
+        name="notes"
+        placeholder="Any special instructions or requests?"
+        rows="2"
+        style="width: 100%; max-width: 100%; box-sizing: border-box; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; font-size: 16px;"
+      ></textarea>
+
+      <button type="button" id="calculateFare" style="margin-bottom: 10px;">Calculate Fare</button>
+
+      <!-- Container to show fare, distance, and time -->
+      <div id="fareSummary" style="margin-bottom: 10px;"></div>
+
       <button type="button" id="payNow">Pay Now</button>
     </form>
   </main>
-  <script src="script.js"></script>
 
- <script>
+  <script>
     function initAutocomplete() {
       const pickupInput = document.getElementById("pickup");
       const dropoffInput = document.getElementById("dropoff");
@@ -77,5 +76,6 @@ document.getElementById('fareSummary').innerHTML = `
       }
     }
   </script>
+  <script src="script.js"></script>
 </body>
 </html>
