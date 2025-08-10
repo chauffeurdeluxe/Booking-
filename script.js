@@ -36,8 +36,8 @@ document.getElementById('calculateFare').addEventListener('click', function () {
       const distanceInKm = parseFloat(distanceText.replace(' km', '').replace(',', ''));
       const baseRate = 45;
       const perKmRate = 3.50;
-      const gstRate = 0.10;
-      const taxRate = 0.10;
+      const gstRate = 0.15;
+      const taxRate = 0.15;
       const profitRate = 0.25;
 
       const blocksOf10km = Math.ceil(distanceInKm / 10); // every 10km block
