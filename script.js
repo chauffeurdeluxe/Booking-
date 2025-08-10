@@ -122,6 +122,8 @@ document.getElementById('payNow').addEventListener('click', async function () {
     datetime: pickupTime,
     vehicleType,
     totalFare,
+    distanceKm,
+    durationMin,
     notes
   };
 
