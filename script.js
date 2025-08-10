@@ -28,7 +28,7 @@ document.getElementById('calculateFare').addEventListener('click', function () {
     const durationMin = el.duration.value / 60; // minutes
 
     // Modified per km rate: cheaper if distance > 20 km
-    const perKmRate = (distanceKm > 20) ? 2.50 : 3.50;
+    const perKmRate = (distanceKm > 20) ? 2.75 : 3.50;
     const perMinRate = 0.90;
 
     // Blacklane-style multipliers
@@ -42,7 +42,7 @@ document.getElementById('calculateFare').addEventListener('click', function () {
     const minFare = {
       business: 110,
       suv: 145,
-      first: 220
+      first: 200
     };
 
     // Raw fare calculation
