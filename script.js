@@ -61,9 +61,16 @@ document.getElementById('calculateFare').addEventListener('click', function () {
     const pickupHour = new Date(pickupTime).getHours();
     if (pickupHour < 5 || pickupHour >= 22) fare += 30;
 
-    // Airport pickup already includes wait & tolls in fareCore
-    // so no extra fee unless you want to add parking:
-    if (pickup.toLowerCase().includes("airport")) fare += 0;
+    // Sydney airport parking fee
+    if (pickup.toLowerCase().includes("airport")) {
+      if (pickup.toLowerCase().includes("domestic")) {
+        fare += 9; // Domestic
+      } else if (pickup.toLowerCase().includes("international")) {
+        fare += 14; // International
+      } else {
+        fare += 14; // Default to International rate if unspecified
+      }
+    }
 
     fare = fare.toFixed(2);
 
