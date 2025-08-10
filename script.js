@@ -83,13 +83,15 @@ document.getElementById('calculateFare').addEventListener('click', function () {
     fare = fare.toFixed(2);
 
     document.getElementById('fareSummary').innerHTML = `
-  <div>Estimated Fare: $${fare}</div>
-  <div>Distance: ${distanceKm.toFixed(2)} km</div>
-  <div>Estimated Time: ${durationMin.toFixed(0)} min</div>
-`;
+      <div>Estimated Fare: $${fare}</div>
+      <div>Distance: ${distanceKm.toFixed(2)} km</div>
+      <div>Estimated Time: ${durationMin.toFixed(0)} min</div>
+    `;
 
-    // Store fare in a data attribute for later payment processing
-    document.getElementById('fareSummary').setAttribute('data-fare', fare);
+    const fareSummary = document.getElementById('fareSummary');
+    fareSummary.setAttribute('data-fare', fare);
+    fareSummary.setAttribute('data-distance', distanceKm.toFixed(2));
+    fareSummary.setAttribute('data-duration', durationMin.toFixed(0));
   });
 });
 
@@ -105,6 +107,8 @@ document.getElementById('payNow').addEventListener('click', async function () {
 
   const fareSummary = document.getElementById('fareSummary');
   const fare = fareSummary.getAttribute('data-fare');
+  const distanceKm = fareSummary.getAttribute('data-distance');
+  const durationMin = fareSummary.getAttribute('data-duration');
 
   if (!name || !phone || !email || !pickup || !dropoff || !pickupTime || !vehicleType || !fare) {
     alert('Please fill out all details and calculate fare before proceeding.');
