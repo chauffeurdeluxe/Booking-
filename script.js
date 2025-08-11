@@ -11,10 +11,12 @@ function initAutocomplete() {
   }
 }
 
-// Hide spinner on page load (for cases like back navigation from Stripe)
-window.addEventListener('load', () => {
-  const spinner = document.getElementById('loadingSpinner');
-  if (spinner) spinner.style.display = 'none';
+// Hide spinner when user navigates back to page (prevents spinner freeze)
+window.addEventListener('pageshow', function(event) {
+  if (event.persisted) {
+    const spinner = document.getElementById('loadingSpinner');
+    if (spinner) spinner.style.display = 'none';
+  }
 });
 
 document.getElementById('calculateFare').addEventListener('click', function () {
