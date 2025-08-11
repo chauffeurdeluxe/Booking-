@@ -96,8 +96,8 @@ document.getElementById('calculateFare').addEventListener('click', function () {
 });
 
 document.getElementById('payNow').addEventListener('click', async function () {
-  const payNowBtn = this;
-  const originalBtnText = payNowBtn.innerHTML;
+  const spinner = document.getElementById('loadingSpinner');
+  spinner.style.display = 'block'; // show spinner
 
   const name = document.getElementById('name').value;
   const phone = document.getElementById('phone').value;
@@ -114,12 +114,10 @@ document.getElementById('payNow').addEventListener('click', async function () {
   const durationMin = fareSummary.getAttribute('data-duration');
 
   if (!name || !phone || !email || !pickup || !dropoff || !pickupTime || !vehicleType || !fare) {
+    spinner.style.display = 'none'; // hide spinner if validation fails
     alert('Please fill out all details and calculate fare before proceeding.');
     return;
   }
-
-  payNowBtn.disabled = true;
-  payNowBtn.innerHTML = '<span class="spinner"></span> Processing...';
 
   const totalFare = parseFloat(fare);
 
@@ -145,17 +143,16 @@ document.getElementById('payNow').addEventListener('click', async function () {
     });
 
     const data = await response.json();
+
     if (data.url) {
       window.location.href = data.url;
     } else {
       alert('Payment session failed. Please try again.');
-      payNowBtn.disabled = false;
-      payNowBtn.innerHTML = originalBtnText;
+      spinner.style.display = 'none';
     }
   } catch (err) {
     console.error('Error:', err);
     alert('Something went wrong. Please try again.');
-    payNowBtn.disabled = false;
-    payNowBtn.innerHTML = originalBtnText;
+    spinner.style.display = 'none';
   }
 });
