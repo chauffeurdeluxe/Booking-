@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driver Partner Form</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Driver Partner Registration</h1>
+  </header>
+
+  <main>
+    <form id="partnerForm" enctype="multipart/form-data">
+      <input type="text" name="companyName" placeholder="Company Name" required />
+      <input type="text" name="fullName" placeholder="Full Name" required />
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="tel" name="phone" placeholder="Phone Number" required />
+
+      <input type="text" name="carMake" placeholder="Car Make" required />
+      <input type="text" name="carModel" placeholder="Car Model" required />
+      <input type="number" name="carYear" placeholder="Car Year" required />
+
+      <label>Registration Expiry</label>
+      <input type="date" name="regoExpiry" required />
+
+      <label>Insurance Expiry</label>
+      <input type="date" name="insuranceExpiry" required />
+
+      <label>Upload Insurance Papers</label>
+      <input type="file" name="insuranceFile" accept=".pdf,.jpg,.jpeg,.png" required />
+
+      <label>Upload Registration (Pink Slip)</label>
+      <input type="file" name="regoFile" accept=".pdf,.jpg,.jpeg,.png" required />
+
+      <label>Upload ABN Certificate</label>
+      <input type="file" name="abnFile" accept=".pdf,.jpg,.jpeg,.png" required />
+
+      <button type="submit">Submit</button>
+    </form>
+  </main>
+
+  <script>
+    document.getElementById('partnerForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+
+      const res = await fetch('/partner-form', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (res.ok) {
+        alert('Form submitted successfully!');
+        this.reset();
+      } else {
+        alert('Something went wrong.');
+      }
+    });
+  </script>
+</body>
+</html>
