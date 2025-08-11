@@ -12,27 +12,6 @@
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" href="icon.png" type="image/png" />
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD7RaWa6dXSoDxXq3DWfeuwHuD-TmI2I9U&libraries=places&callback=initAutocomplete" async defer></script>
-  <style>
-    /* Spinner styles */
-    #loadingSpinner {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      border: 8px solid #f3f3f3;
-      border-top: 8px solid #d4af37;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-      z-index: 1000;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
 </head>
 <body>
   <header>
@@ -83,8 +62,10 @@
     </form>
   </main>
 
-  <!-- Loading spinner -->
-  <div id="loadingSpinner"></div>
+  <!-- Loading spinner overlay -->
+  <div id="loadingSpinner" style="display:none;">
+    <div class="spinner"></div>
+  </div>
 
   <script>
     function initAutocomplete() {
@@ -186,7 +167,7 @@
 
     document.getElementById('payNow').addEventListener('click', async function () {
       const spinner = document.getElementById('loadingSpinner');
-      spinner.style.display = 'block'; // show spinner
+      spinner.style.display = 'flex'; // show spinner overlay as flex to center
 
       const name = document.getElementById('name').value;
       const phone = document.getElementById('phone').value;
