@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Driver Partner Form</title>
+  <title>Driver Partner Registration</title>
 
   <link rel="stylesheet" href="style.css" />
 
@@ -16,94 +16,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Driver Partner" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-
-  <style>
-    /* Centered fixed spinner overlay */
-    #loadingSpinner {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 9999;
-      background-color: rgba(0,0,0,0.6);
-      padding: 15px;
-      border-radius: 10px;
-    }
-    /* Spinner SVG animation */
-    #loadingSpinner svg {
-      display: block;
-      margin: 0 auto;
-      stroke: #FFD700;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* New upload group styles */
-    .upload-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-
-    .upload-item {
-      flex: 1 1 45%;
-      min-width: 250px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Label styling */
-    label {
-      color: #d4af37;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    /* Inputs spacing */
-    input[type="file"], input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="date"] {
-      padding: 8px;
-      border-radius: 5px;
-      border: 1px solid #555;
-      font-family: inherit;
-      font-size: 1em;
-      color: #000;
-    }
-
-    /* Smaller vertical margin for labels & inputs */
-    form > input,
-    form > label,
-    .upload-item > input,
-    .upload-item > label {
-      margin-bottom: 10px;
-    }
-
-    /* Responsive: stack upload items vertically on small screens */
-    @media (max-width: 600px) {
-      .upload-item {
-        flex: 1 1 100%;
-      }
-    }
-
-    /* Button styling consistent with booking form */
-    button[type="submit"] {
-      background-color: #d4af37;
-      color: #000;
-      padding: 12px;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-      font-family: 'Georgia', serif;
-      margin-top: 10px;
-    }
-  </style>
 </head>
 <body>
   <header>
@@ -121,41 +33,28 @@
       <input type="text" name="carModel" placeholder="Car Model" required />
       <input type="number" name="carYear" placeholder="Car Year" required />
 
-      <label for="regoExpiry">Registration Expiry</label>
-      <input type="date" id="regoExpiry" name="regoExpiry" required />
+      <label>Registration Expiry</label>
+      <input type="date" name="regoExpiry" required />
 
-      <label for="insuranceExpiry">Insurance Expiry</label>
-      <input type="date" id="insuranceExpiry" name="insuranceExpiry" required />
+      <label>Insurance Expiry</label>
+      <input type="date" name="insuranceExpiry" required />
 
-      <div class="upload-group">
-        <div class="upload-item">
-          <label for="insuranceFile">Upload Insurance Papers</label>
-          <input type="file" id="insuranceFile" name="insuranceFile" accept=".pdf,.jpg,.jpeg,.png" required />
-        </div>
-        <div class="upload-item">
-          <label for="regoFile">Upload Registration (Pink Slip)</label>
-          <input type="file" id="regoFile" name="regoFile" accept=".pdf,.jpg,.jpeg,.png" required />
-        </div>
-        <div class="upload-item">
-          <label for="abnFile">Upload ABN Certificate</label>
-          <input type="file" id="abnFile" name="abnFile" accept=".pdf,.jpg,.jpeg,.png" required />
-        </div>
-      </div>
+      <label>Upload Insurance Papers</label>
+      <input type="file" name="insuranceFile" accept=".pdf,.jpg,.jpeg,.png" required />
+
+      <label>Upload Registration (Pink Slip)</label>
+      <input type="file" name="regoFile" accept=".pdf,.jpg,.jpeg,.png" required />
+
+      <label>Upload ABN Certificate</label>
+      <input type="file" name="abnFile" accept=".pdf,.jpg,.jpeg,.png" required />
 
       <button type="submit">Submit</button>
     </form>
   </main>
 
-  <!-- Centered loading spinner -->
-  <div id="loadingSpinner" role="status" aria-live="polite" aria-label="Loading">
-    <svg viewBox="0 0 40 40" stroke="#FFD700" xmlns="http://www.w3.org/2000/svg" >
-      <g fill="none" fill-rule="evenodd">
-        <circle cx="20" cy="20" r="18" stroke-opacity="0.5" stroke-width="4"/>
-        <path d="M36 20c0-8.837-7.163-16-16-16" stroke-width="4" stroke-linecap="round">
-          <animateTransform attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="1s" repeatCount="indefinite"/>
-        </path>
-      </g>
-    </svg>
+  <!-- Loading spinner overlay -->
+  <div id="loadingSpinner" style="display:none;">
+    <div class="spinner"></div>
   </div>
 
   <script>
@@ -163,11 +62,11 @@
       e.preventDefault();
 
       const spinner = document.getElementById('loadingSpinner');
-      spinner.style.display = 'block';
+      spinner.style.display = 'flex'; // show spinner as flex to center
 
       // Disable form inputs while loading
       const formElements = this.elements;
-      for(let i=0; i<formElements.length; i++) {
+      for(let i = 0; i < formElements.length; i++) {
         formElements[i].disabled = true;
       }
 
@@ -188,9 +87,9 @@
       } catch (error) {
         alert('Network error. Please try again.');
       } finally {
-        spinner.style.display = 'none';
+        spinner.style.display = 'none'; // hide spinner
         // Re-enable form inputs
-        for(let i=0; i<formElements.length; i++) {
+        for(let i = 0; i < formElements.length; i++) {
           formElements[i].disabled = false;
         }
       }
