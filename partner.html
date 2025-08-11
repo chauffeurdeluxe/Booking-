@@ -8,8 +8,8 @@
   <link rel="stylesheet" href="style.css" />
 
   <!-- Favicon and web app icons -->
-  <link rel="icon" href="partner-icon.png" type="image/png" />
-  <link rel="apple-touch-icon" href="partner-icon.png" />
+  <link rel="icon" href="icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="icon.png" />
   <link rel="manifest" href="partner-manifest.json" />
 
   <!-- iOS meta tags for standalone mode and status bar -->
@@ -49,24 +49,47 @@
       <input type="file" name="abnFile" accept=".pdf,.jpg,.jpeg,.png" required />
 
       <button type="submit">Submit</button>
+
+      <div id="loadingSpinner" style="display:none; text-align:center; margin: 10px 0;">
+        <svg width="40" height="40" viewBox="0 0 40 40" stroke="#FFD700">
+          <g fill="none" fill-rule="evenodd">
+            <circle cx="20" cy="20" r="18" stroke-opacity="0.5" stroke-width="4"/>
+            <path d="M36 20c0-8.837-7.163-16-16-16" stroke-width="4" stroke-linecap="round">
+              <animateTransform attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="1s" repeatCount="indefinite"/>
+            </path>
+          </g>
+        </svg>
+      </div>
     </form>
   </main>
 
   <script>
     document.getElementById('partnerForm').addEventListener('submit', async function(e) {
       e.preventDefault();
+
+      // Show spinner
+      const spinner = document.getElementById('loadingSpinner');
+      spinner.style.display = 'block';
+
       const formData = new FormData(this);
 
-      const res = await fetch('https://server-qdh1.onrender.com/partner-form', {
-        method: 'POST',
-        body: formData
-      });
+      try {
+        const res = await fetch('https://server-qdh1.onrender.com/partner-form', {
+          method: 'POST',
+          body: formData
+        });
 
-      if (res.ok) {
-        alert('Form submitted successfully!');
-        this.reset();
-      } else {
-        alert('Something went wrong.');
+        if (res.ok) {
+          alert('Form submitted successfully!');
+          this.reset();
+        } else {
+          alert('Something went wrong.');
+        }
+      } catch (error) {
+        alert('Network error. Please try again.');
+      } finally {
+        // Hide spinner
+        spinner.style.display = 'none';
       }
     });
   </script>
