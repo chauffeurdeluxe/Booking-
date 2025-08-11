@@ -96,6 +96,9 @@ document.getElementById('calculateFare').addEventListener('click', function () {
 });
 
 document.getElementById('payNow').addEventListener('click', async function () {
+  const payNowBtn = this;
+  const originalBtnText = payNowBtn.innerHTML;
+
   const name = document.getElementById('name').value;
   const phone = document.getElementById('phone').value;
   const email = document.getElementById('email').value;
@@ -114,6 +117,9 @@ document.getElementById('payNow').addEventListener('click', async function () {
     alert('Please fill out all details and calculate fare before proceeding.');
     return;
   }
+
+  payNowBtn.disabled = true;
+  payNowBtn.innerHTML = '<span class="spinner"></span> Processing...';
 
   const totalFare = parseFloat(fare);
 
@@ -143,9 +149,13 @@ document.getElementById('payNow').addEventListener('click', async function () {
       window.location.href = data.url;
     } else {
       alert('Payment session failed. Please try again.');
+      payNowBtn.disabled = false;
+      payNowBtn.innerHTML = originalBtnText;
     }
   } catch (err) {
     console.error('Error:', err);
     alert('Something went wrong. Please try again.');
+    payNowBtn.disabled = false;
+    payNowBtn.innerHTML = originalBtnText;
   }
 });
