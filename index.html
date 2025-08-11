@@ -12,6 +12,34 @@
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" href="icon.png" type="image/png" />
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD7RaWa6dXSoDxXq3DWfeuwHuD-TmI2I9U&libraries=places&callback=initAutocomplete" async defer></script>
+
+  <style>
+    /* Spinner styles */
+    #payNow {
+      position: relative;
+      padding-right: 40px; /* space for spinner */
+    }
+    #payNow.loading {
+      pointer-events: none;
+      color: transparent;
+    }
+    #payNow.loading::after {
+      content: "";
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      width: 20px;
+      height: 20px;
+      margin-top: -10px;
+      border: 3px solid #FFD700;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
   <header>
