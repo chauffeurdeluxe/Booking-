@@ -47,12 +47,12 @@
   <script>
     const loginForm = document.getElementById('loginForm');
     const loginSection = document.getElementById('loginSection');
+    const spinner = document.getElementById('loadingSpinner');
+      spinner.style.display = 'flex'; // show spinner overlay as flex to center
     const jobsSection = document.getElementById('jobsSection');
     const jobsList = document.getElementById('jobsList');
     const loginError = document.getElementById('loginError');
     const logoutBtn = document.getElementById('logoutBtn');
-const spinner = document.getElementById('loadingSpinner');
-      spinner.style.display = 'flex'; // show spinner overlay as flex to center
 
     let driverEmail = '';
 
