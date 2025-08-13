@@ -30,7 +30,7 @@
       font-weight: bold;
       color: #d4af37;
     }
-    textarea, input, select {
+    input, select {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
@@ -71,10 +71,26 @@
   
   <h1>Job Assignment Admin</h1>
 
-  <label for="bookingData">Booking Data (JSON):</label>
-  <textarea id="bookingData" rows="10" placeholder='Paste or generate booking JSON here...'></textarea>
+  <!-- Booking Form -->
+  <label>Customer Name:</label>
+  <input type="text" id="customerName" placeholder="Enter customer name" />
 
-  <label for="driverEmail">Assign to Driver Email:</label>
+  <label>Pickup Location:</label>
+  <input type="text" id="pickupLocation" placeholder="Enter pickup address" />
+
+  <label>Dropoff Location:</label>
+  <input type="text" id="dropoffLocation" placeholder="Enter dropoff address" />
+
+  <label>Date:</label>
+  <input type="date" id="date" />
+
+  <label>Time:</label>
+  <input type="time" id="time" />
+
+  <label>Vehicle Type:</label>
+  <input type="text" id="vehicleType" placeholder="Enter vehicle type" />
+
+  <label>Assign to Driver Email:</label>
   <input list="drivers" id="driverEmail" placeholder="Type or select driver email" />
   <datalist id="drivers">
     <option value="farahjnr@gmail.com"></option>
@@ -104,11 +120,17 @@
 
     assignBtn.addEventListener('click', async () => {
       statusDiv.textContent = '';
-      const bookingJSON = document.getElementById('bookingData').value.trim();
+
+      const customerName = document.getElementById('customerName').value.trim();
+      const pickupLocation = document.getElementById('pickupLocation').value.trim();
+      const dropoffLocation = document.getElementById('dropoffLocation').value.trim();
+      const date = document.getElementById('date').value;
+      const time = document.getElementById('time').value;
+      const vehicleType = document.getElementById('vehicleType').value.trim();
       const driverEmail = document.getElementById('driverEmail').value.trim();
 
-      if (!bookingJSON) {
-        statusDiv.textContent = 'Please paste booking JSON data.';
+      if (!customerName || !pickupLocation || !dropoffLocation || !date || !time || !vehicleType) {
+        statusDiv.textContent = 'Please fill in all booking details.';
         statusDiv.style.color = 'red';
         return;
       }
@@ -118,14 +140,14 @@
         return;
       }
 
-      let bookingData;
-      try {
-        bookingData = JSON.parse(bookingJSON);
-      } catch (e) {
-        statusDiv.textContent = 'Invalid JSON format.';
-        statusDiv.style.color = 'red';
-        return;
-      }
+      const bookingData = {
+        customerName,
+        pickupLocation,
+        dropoffLocation,
+        date,
+        time,
+        vehicleType
+      };
 
       try {
         const response = await fetch('/assign-job', {
