@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Job Assignment Admin - Chauffeur de Luxe</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #d4af37;
+      font-family: 'Georgia', serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #d4af37;
+    }
+    textarea, input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      background: #111;
+      border: 1px solid #d4af37;
+      color: #d4af37;
+      font-family: 'Georgia', serif;
+      font-size: 1em;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      background-color: #d4af37;
+      color: #000;
+      border: none;
+      padding: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      font-size: 1.1em;
+      border-radius: 4px;
+    }
+    #status {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Job Assignment Admin</h1>
+
+  <label for="bookingData">Booking Data (JSON):</label>
+  <textarea id="bookingData" rows="10" placeholder='Paste booking JSON here...'></textarea>
+
+  <label for="driverEmail">Assign to Driver Email:</label>
+  <input list="drivers" id="driverEmail" placeholder="Type or select driver email" />
+  <datalist id="drivers">
+    <option value="driver1@example.com"></option>
+    <option value="driver2@example.com"></option>
+    <option value="driver3@example.com"></option>
+    <option value="driver4@example.com"></option>
+    <option value="driver5@example.com"></option>
+    <option value="driver6@example.com"></option>
+    <option value="driver7@example.com"></option>
+    <option value="driver8@example.com"></option>
+    <option value="driver9@example.com"></option>
+    <option value="driver10@example.com"></option>
+    <option value="driver11@example.com"></option>
+    <option value="driver12@example.com"></option>
+    <option value="driver13@example.com"></option>
+    <option value="driver14@example.com"></option>
+    <option value="driver15@example.com"></option>
+  </datalist>
+
+  <button id="assignBtn">Assign Job</button>
+
+  <div id="status"></div>
+
+  <script>
+    const assignBtn = document.getElementById('assignBtn');
+    const statusDiv = document.getElementById('status');
+
+    assignBtn.addEventListener('click', async () => {
+      statusDiv.textContent = '';
+      const bookingJSON = document.getElementById('bookingData').value.trim();
+      const driverEmail = document.getElementById('driverEmail').value.trim();
+
+      if (!bookingJSON) {
+        statusDiv.textContent = 'Please paste booking JSON data.';
+        statusDiv.style.color = 'red';
+        return;
+      }
+      if (!driverEmail) {
+        statusDiv.textContent = 'Please enter or select a driver email.';
+        statusDiv.style.color = 'red';
+        return;
+      }
+
+      let bookingData;
+      try {
+        bookingData = JSON.parse(bookingJSON);
+      } catch (e) {
+        statusDiv.textContent = 'Invalid JSON format.';
+        statusDiv.style.color = 'red';
+        return;
+      }
+
+      // POST to assign-job endpoint
+      try {
+        const response = await fetch('/assign-job', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ driverEmail, bookingData })
+        });
+        const result = await response.json();
+
+        if (response.ok) {
+          statusDiv.textContent = `Job assigned successfully! Job ID: ${result.jobId}`;
+          statusDiv.style.color = '#d4af37';
+          // Optionally clear inputs
+          // document.getElementById('bookingData').value = '';
+          // document.getElementById('driverEmail').value = '';
+        } else {
+          statusDiv.textContent = `Error: ${result.error || 'Failed to assign job.'}`;
+          statusDiv.style.color = 'red';
+        }
+      } catch (error) {
+        statusDiv.textContent = 'Network or server error.';
+        statusDiv.style.color = 'red';
+      }
+    });
+  </script>
+</body>
+</html>
