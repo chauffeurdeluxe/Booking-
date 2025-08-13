@@ -28,10 +28,6 @@
         <input type="email" id="driverEmail" placeholder="Enter your email" required />
         <button type="submit">Login</button>
       </form>
-      <!-- Loading spinner overlay -->
-  <div id="loadingSpinner" style="display:none;">
-    <div class="spinner"></div>
-  </div>
       <div id="loginError" style="color: #d4af37; margin-top: 10px;"></div>
     </section>
 
@@ -46,8 +42,6 @@
   <script>
     const loginForm = document.getElementById('loginForm');
     const loginSection = document.getElementById('loginSection');
-    const spinner = document.getElementById('loadingSpinner');
-      spinner.style.display = 'flex'; // show spinner overlay as flex to center
     const jobsSection = document.getElementById('jobsSection');
     const jobsList = document.getElementById('jobsList');
     const loginError = document.getElementById('loginError');
