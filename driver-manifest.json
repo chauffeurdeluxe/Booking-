@@ -1,6 +1,6 @@
 {
-  "name": "Driver Job",
-  "short_name": "Driver Job",
+  "name": "Driver Jobs",
+  "short_name": "Driver Jobs",
   "start_url": "./driver-job.html",
   "display": "standalone",
   "background_color": "#000000",
