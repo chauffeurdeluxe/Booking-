@@ -60,7 +60,8 @@
     }
   </style>
 </head>
-    <header>
+<body>
+  <header>
     <div class="header-top">
       <img src="icon.png" alt="Chauffeur de Luxe Logo" />
       <h1>Chauffeur De Luxe</h1>
@@ -71,7 +72,7 @@
   <h1>Job Assignment Admin</h1>
 
   <label for="bookingData">Booking Data (JSON):</label>
-  <textarea id="bookingData" rows="10" placeholder='Paste booking JSON here...'></textarea>
+  <textarea id="bookingData" rows="10" placeholder='Paste or generate booking JSON here...'></textarea>
 
   <label for="driverEmail">Assign to Driver Email:</label>
   <input list="drivers" id="driverEmail" placeholder="Type or select driver email" />
@@ -126,27 +127,24 @@
         return;
       }
 
-      // POST to assign-job endpoint
       try {
         const response = await fetch('/assign-job', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ driverEmail, bookingData })
         });
+
         const result = await response.json();
 
         if (response.ok) {
-          statusDiv.textContent = `Job assigned successfully! Job ID: ${result.jobId}`;
+          statusDiv.textContent = `✅ Job assigned successfully! Job ID: ${result.jobId}`;
           statusDiv.style.color = '#d4af37';
-          // Optionally clear inputs
-          // document.getElementById('bookingData').value = '';
-          // document.getElementById('driverEmail').value = '';
         } else {
-          statusDiv.textContent = `Error: ${result.error || 'Failed to assign job.'}`;
+          statusDiv.textContent = `❌ Error: ${result.error || 'Failed to assign job.'}`;
           statusDiv.style.color = 'red';
         }
       } catch (error) {
-        statusDiv.textContent = 'Network or server error.';
+        statusDiv.textContent = '🚫 Network or server error.';
         statusDiv.style.color = 'red';
       }
     });
