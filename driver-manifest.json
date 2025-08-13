@@ -1,7 +1,7 @@
 {
-  "name": "Chauffeur de Luxe",
-  "short_name": "Chauffeur De Luxe",
-  "start_url": "./index.html",
+  "name": "Driver Job",
+  "short_name": "Driver Job",
+  "start_url": "./driver-job.html",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
