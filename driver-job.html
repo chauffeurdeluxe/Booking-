@@ -35,31 +35,12 @@
       <h2>Your Assigned Jobs</h2>
       <div id="jobsList" style="text-align: left;"></div>
 
-      <h3>Assign New Job</h3>
-      <form id="assignJobForm">
-        <input type="text" id="pickup" placeholder="Pickup Location" required />
-        <input type="text" id="dropoff" placeholder="Dropoff Location" required />
-        <input type="datetime-local" id="pickupTime" required />
-        <select id="vehicleType" required>
-          <option value="">Select Vehicle Class</option>
-          <option value="business">Business Class</option>
-          <option value="suv">Business Van/SUV</option>
-          <option value="first">First Class</option>
-        </select>
-        <input type="number" id="totalFare" placeholder="Total Fare (AUD)" step="0.01" required />
-        <input type="number" id="distanceKm" placeholder="Distance (km)" step="0.01" required />
-        <input type="number" id="durationMin" placeholder="Duration (minutes)" step="1" required />
-        <textarea id="notes" placeholder="Additional notes (optional)" rows="3"></textarea>
-        <button type="submit">Assign Job</button>
-      </form>
-
       <button id="logoutBtn" style="margin-top: 20px; background-color: #000; color: #d4af37; border: 2px solid #d4af37; padding: 10px; cursor: pointer;">Logout</button>
     </section>
   </main>
 
   <script>
     const loginForm = document.getElementById('loginForm');
-    const assignJobForm = document.getElementById('assignJobForm');
     const loginSection = document.getElementById('loginSection');
     const jobsSection = document.getElementById('jobsSection');
     const jobsList = document.getElementById('jobsList');
@@ -92,46 +73,6 @@
         }
       } catch (err) {
         loginError.textContent = 'Network error. Please try again.';
-      }
-    });
-
-    assignJobForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const bookingData = {
-        pickup: document.getElementById('pickup').value.trim(),
-        dropoff: document.getElementById('dropoff').value.trim(),
-        datetime: document.getElementById('pickupTime').value,
-        vehicleType: document.getElementById('vehicleType').value,
-        totalFare: parseFloat(document.getElementById('totalFare').value),
-        distanceKm: parseFloat(document.getElementById('distanceKm').value),
-        durationMin: parseInt(document.getElementById('durationMin').value, 10),
-        notes: document.getElementById('notes').value.trim()
-      };
-
-      // Basic validation
-      if (!bookingData.pickup || !bookingData.dropoff || !bookingData.datetime || !bookingData.vehicleType || isNaN(bookingData.totalFare) || isNaN(bookingData.distanceKm) || isNaN(bookingData.durationMin)) {
-        alert('Please fill out all required fields correctly.');
-        return;
-      }
-
-      try {
-        const response = await fetch('https://server-qdh1.onrender.com/assign-job', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ driverEmail, bookingData })
-        });
-        const data = await response.json();
-        if (response.ok) {
-          alert('Job assigned successfully.');
-          // Refresh jobs list by re-fetching
-          fetchDriverJobs();
-          assignJobForm.reset();
-        } else {
-          alert(data.error || 'Failed to assign job.');
-        }
-      } catch (err) {
-        alert('Network error. Please try again.');
       }
     });
 
