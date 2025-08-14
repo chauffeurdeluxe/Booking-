@@ -89,17 +89,18 @@
       try {
         const res = await fetch('/pending-bookings');
         pendingBookings = await res.json();
-        renderPendingBookings();
+        if (!pendingBookings || pendingBookings.length === 0) {
+          pendingBookingsDiv.textContent = 'No pending bookings.';
+        } else {
+          renderPendingBookings();
+        }
       } catch (err) {
-        pendingBookingsDiv.textContent = 'Error loading bookings.';
+        console.error(err);
+        pendingBookingsDiv.textContent = 'No pending bookings.';
       }
     }
 
     function renderPendingBookings() {
-      if (!pendingBookings.length) {
-        pendingBookingsDiv.textContent = 'No pending bookings.';
-        return;
-      }
       pendingBookingsDiv.innerHTML = '';
       pendingBookings.forEach((booking) => {
         const div = document.createElement('div');
