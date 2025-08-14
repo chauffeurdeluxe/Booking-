@@ -35,20 +35,19 @@
 
   <h1>Assign Job</h1>
 
-  <label>Customer Name:</label>
-  <input type="text" id="customerName" placeholder="Customer name" />
+  <!-- Hidden customer info aligned with server -->
+  <input type="hidden" id="name" />
+  <input type="hidden" id="email" />
+  <input type="hidden" id="phone" />
 
   <label>Pickup Location:</label>
-  <input type="text" id="pickupLocation" placeholder="Pickup address" />
+  <input type="text" id="pickup" placeholder="Pickup address" />
 
   <label>Dropoff Location:</label>
-  <input type="text" id="dropoffLocation" placeholder="Dropoff address" />
+  <input type="text" id="dropoff" placeholder="Dropoff address" />
 
-  <label>Date:</label>
-  <input type="date" id="date" />
-
-  <label>Time:</label>
-  <input type="time" id="time" />
+  <label>Date & Time:</label>
+  <input type="datetime-local" id="datetime" />
 
   <label>Vehicle Type:</label>
   <input type="text" id="vehicleType" placeholder="Vehicle type" />
@@ -85,10 +84,9 @@
 
     let pendingBookings = [];
 
-    // Load pending bookings from server
     async function loadPendingBookings() {
       try {
-        const res = await fetch('/pending-bookings'); // You need to create this route in server.js
+        const res = await fetch('/pending-bookings');
         pendingBookings = await res.json();
         renderPendingBookings();
       } catch (err) {
@@ -102,21 +100,22 @@
         return;
       }
       pendingBookingsDiv.innerHTML = '';
-      pendingBookings.forEach((booking, idx) => {
+      pendingBookings.forEach((booking) => {
         const div = document.createElement('div');
         div.className = 'booking-item';
-        div.innerHTML = `<strong>${booking.customerName}</strong> - ${booking.pickup} → ${booking.dropoff} (${booking.date} ${booking.time})`;
+        div.innerHTML = `<strong>${booking.name}</strong> - ${booking.pickup} → ${booking.dropoff} (${booking.datetime})`;
         div.addEventListener('click', () => populateForm(booking));
         pendingBookingsDiv.appendChild(div);
       });
     }
 
     function populateForm(booking) {
-      document.getElementById('customerName').value = booking.customerName;
-      document.getElementById('pickupLocation').value = booking.pickup;
-      document.getElementById('dropoffLocation').value = booking.dropoff;
-      document.getElementById('date').value = booking.date;
-      document.getElementById('time').value = booking.time;
+      document.getElementById('name').value = booking.name;
+      document.getElementById('email').value = booking.email;
+      document.getElementById('phone').value = booking.phone;
+      document.getElementById('pickup').value = booking.pickup;
+      document.getElementById('dropoff').value = booking.dropoff;
+      document.getElementById('datetime').value = booking.datetime;
       document.getElementById('vehicleType').value = booking.vehicleType;
       document.getElementById('totalFare').value = booking.totalFare || '';
       document.getElementById('distanceKm').value = booking.distanceKm || '';
@@ -128,11 +127,12 @@
       statusDiv.textContent = '';
 
       const bookingData = {
-        customerName: document.getElementById('customerName').value.trim(),
-        pickup: document.getElementById('pickupLocation').value.trim(),
-        dropoff: document.getElementById('dropoffLocation').value.trim(),
-        date: document.getElementById('date').value,
-        time: document.getElementById('time').value,
+        name: document.getElementById('name').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        pickup: document.getElementById('pickup').value.trim(),
+        dropoff: document.getElementById('dropoff').value.trim(),
+        datetime: document.getElementById('datetime').value,
         vehicleType: document.getElementById('vehicleType').value.trim(),
         totalFare: parseFloat(document.getElementById('totalFare').value),
         distanceKm: parseFloat(document.getElementById('distanceKm').value),
@@ -142,9 +142,7 @@
 
       const driverEmail = document.getElementById('driverEmail').value.trim();
 
-      if (!bookingData.customerName || !bookingData.pickup || !bookingData.dropoff ||
-          !bookingData.date || !bookingData.time || !bookingData.vehicleType ||
-          !bookingData.totalFare || isNaN(bookingData.totalFare)) {
+      if (!bookingData.pickup || !bookingData.dropoff || !bookingData.datetime || !bookingData.vehicleType || !bookingData.totalFare || isNaN(bookingData.totalFare)) {
         statusDiv.textContent = 'Please fill in all required booking details.';
         statusDiv.style.color = 'red';
         return;
@@ -166,7 +164,6 @@
         if (response.ok) {
           statusDiv.textContent = `✅ Job assigned successfully! Job ID: ${result.jobId}`;
           statusDiv.style.color = '#d4af37';
-          // Optionally remove the assigned booking from pending list
           pendingBookings = pendingBookings.filter(b => b !== bookingData);
           renderPendingBookings();
         } else {
