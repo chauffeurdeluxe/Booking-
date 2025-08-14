@@ -88,7 +88,7 @@
 
     async function loadPendingBookings() {
       try {
-        const res = await fetch('/pending-bookings');
+        const res = await fetch('${API_BASE}/pending-bookings');
         pendingBookings = await res.json();
         if (!pendingBookings || pendingBookings.length === 0) {
           pendingBookingsDiv.textContent = 'No pending bookings.';
@@ -159,7 +159,7 @@
       }
 
       try {
-        const response = await fetch('/assign-job', {
+        const response = await fetch('${API_BASE}/assign-job', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ driverEmail, bookingData })
