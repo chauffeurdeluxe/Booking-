@@ -136,4 +136,9 @@ button {
     padding: 10px;
     max-width: 100%;
   }
+  /* Ensure white text inside the assign box */
+.assign-driver-select {
+  color: #fff; /* White text */
+  background-color: #000; /* Optional: black background */
+}
 }
