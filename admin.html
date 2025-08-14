@@ -36,6 +36,7 @@
   <h1>Assign Job</h1>
 
   <!-- Hidden customer info aligned with server -->
+  <input type="hidden" id="id" />
   <input type="hidden" id="name" />
   <input type="hidden" id="email" />
   <input type="hidden" id="phone" />
@@ -110,6 +111,7 @@
     }
 
     function populateForm(booking) {
+      document.getElementById('id').value = booking.id || '';
       document.getElementById('name').value = booking.name;
       document.getElementById('email').value = booking.email;
       document.getElementById('phone').value = booking.phone;
@@ -127,6 +129,7 @@
       statusDiv.textContent = '';
 
       const bookingData = {
+        id: document.getElementById('id').value,
         name: document.getElementById('name').value.trim(),
         email: document.getElementById('email').value.trim(),
         phone: document.getElementById('phone').value.trim(),
@@ -164,7 +167,8 @@
         if (response.ok) {
           statusDiv.textContent = `✅ Job assigned successfully! Job ID: ${result.jobId}`;
           statusDiv.style.color = '#d4af37';
-          pendingBookings = pendingBookings.filter(b => b !== bookingData);
+          // Remove the assigned booking by matching ID
+          pendingBookings = pendingBookings.filter(b => b.id !== bookingData.id);
           renderPendingBookings();
         } else {
           statusDiv.textContent = `❌ Error: ${result.error || 'Failed to assign job.'}`;
