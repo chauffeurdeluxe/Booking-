@@ -40,177 +40,178 @@
   </main>
 
   <script>
-    const loginForm = document.getElementById('loginForm');
-    const loginSection = document.getElementById('loginSection');
-    const jobsSection = document.getElementById('jobsSection');
-    const jobsList = document.getElementById('jobsList');
-    const loginError = document.getElementById('loginError');
-    const logoutBtn = document.getElementById('logoutBtn');
+const loginForm = document.getElementById('loginForm');
+const loginSection = document.getElementById('loginSection');
+const jobsSection = document.getElementById('jobsSection');
+const jobsList = document.getElementById('jobsList');
+const loginError = document.getElementById('loginError');
+const logoutBtn = document.getElementById('logoutBtn');
 
-    let driverEmail = '';
+let driverEmail = '';
 
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      loginError.textContent = '';
-      driverEmail = document.getElementById('driverEmail').value.trim();
-      if (!driverEmail) {
-        loginError.textContent = 'Please enter your email.';
-        return;
-      }
-      await loadJobs();
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  loginError.textContent = '';
+  driverEmail = document.getElementById('driverEmail').value.trim();
+  if (!driverEmail) {
+    loginError.textContent = 'Please enter your email.';
+    return;
+  }
+  await loadJobs();
+});
+
+logoutBtn.addEventListener('click', () => {
+  driverEmail = '';
+  jobsList.innerHTML = '';
+  loginSection.style.display = 'block';
+  jobsSection.style.display = 'none';
+  loginForm.reset();
+});
+
+async function loadJobs() {
+  try {
+    const response = await fetch('https://server-qdh1.onrender.com/driver-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: driverEmail })
     });
-
-    logoutBtn.addEventListener('click', () => {
-      driverEmail = '';
-      jobsList.innerHTML = '';
-      loginSection.style.display = 'block';
-      jobsSection.style.display = 'none';
-      loginForm.reset();
-    });
-
-    async function loadJobs() {
-      try {
-        const response = await fetch('https://server-qdh1.onrender.com/driver-login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: driverEmail })
-        });
-        const data = await response.json();
-        if (response.ok) {
-          showJobs(data.jobs);
-          loginSection.style.display = 'none';
-          jobsSection.style.display = 'block';
-        } else {
-          loginError.textContent = data.error || 'Login failed.';
-        }
-      } catch (err) {
-        loginError.textContent = 'Network error. Please try again.';
-      }
+    const data = await response.json();
+    if (response.ok) {
+      showJobs(data.jobs);
+      loginSection.style.display = 'none';
+      jobsSection.style.display = 'block';
+    } else {
+      loginError.textContent = data.error || 'Login failed.';
     }
+  } catch (err) {
+    loginError.textContent = 'Network error. Please try again.';
+  }
+}
 
-    function showJobs(jobs) {
-      if (!jobs || jobs.length === 0) {
-        jobsList.innerHTML = '<p>No jobs assigned yet.</p>';
-        return;
-      }
-      jobsList.innerHTML = '';
-      jobs.forEach(job => {
-        const jobDiv = document.createElement('div');
-        jobDiv.style.border = '1px solid #d4af37';
-        jobDiv.style.padding = '10px';
-        jobDiv.style.marginBottom = '10px';
-        jobDiv.style.borderRadius = '6px';
-        jobDiv.style.backgroundColor = '#111';
+function showJobs(jobs) {
+  if (!jobs || jobs.length === 0) {
+    jobsList.innerHTML = '<p>No jobs assigned yet.</p>';
+    return;
+  }
+  jobsList.innerHTML = '';
+  jobs.forEach(job => {
+    const jobDiv = document.createElement('div');
+    jobDiv.style.border = '1px solid #d4af37';
+    jobDiv.style.padding = '10px';
+    jobDiv.style.marginBottom = '10px';
+    jobDiv.style.borderRadius = '6px';
+    jobDiv.style.backgroundColor = '#111';
 
-        jobDiv.innerHTML = `
-          <p><strong>Pickup:</strong> ${job.bookingData.pickup}</p>
-          <p><strong>Dropoff:</strong> ${job.bookingData.dropoff}</p>
-          <p><strong>Pickup Time:</strong> ${new Date(job.bookingData.datetime).toLocaleString()}</p>
-          <p><strong>Vehicle Type:</strong> ${job.bookingData.vehicleType}</p>
-          <p><strong>Driver Payout:</strong> $${parseFloat(job.driverPay).toFixed(2)}</p>
-          <p><strong>Notes:</strong> ${job.bookingData.notes || 'None'}</p>
-        `;
+    jobDiv.innerHTML = `
+      <p><strong>Pickup:</strong> ${job.bookingData.pickup}</p>
+      <p><strong>Dropoff:</strong> ${job.bookingData.dropoff}</p>
+      <p><strong>Pickup Time:</strong> ${new Date(job.bookingData.datetime).toLocaleString()}</p>
+      <p><strong>Vehicle Type:</strong> ${job.bookingData.vehicleType}</p>
+      <p><strong>Driver Payout:</strong> $${parseFloat(job.driverPay).toFixed(2)}</p>
+      <p><strong>Notes:</strong> ${job.bookingData.notes || 'None'}</p>
+    `;
 
-        const btnDiv = document.createElement('div');
-        btnDiv.style.marginTop = '10px';
+    const btnDiv = document.createElement('div');
+    btnDiv.style.marginTop = '10px';
 
-        // Confirm button
-        const confirmBtn = document.createElement('button');
-        confirmBtn.textContent = '✅ Confirm';
-        confirmBtn.style.marginRight = '10px';
-        confirmBtn.style.backgroundColor = '#d4af37';
-        confirmBtn.style.color = '#000';
-        confirmBtn.style.border = 'none';
-        confirmBtn.style.padding = '8px';
-        confirmBtn.style.cursor = 'pointer';
+    // Confirm button
+    const confirmBtn = document.createElement('button');
+    confirmBtn.textContent = '✅ Confirm';
+    confirmBtn.style.marginRight = '10px';
+    confirmBtn.style.backgroundColor = '#d4af37';
+    confirmBtn.style.color = '#000';
+    confirmBtn.style.border = 'none';
+    confirmBtn.style.padding = '8px';
+    confirmBtn.style.cursor = 'pointer';
 
-        confirmBtn.onclick = async () => {
-          const success = await respondToJob(job.id, true);
-          if (success) {
-            confirmBtn.disabled = true;
-            confirmBtn.style.opacity = 0.5;
+    confirmBtn.onclick = async () => {
+      const success = await respondToJob(job.id, true); // triggers admin email
+      if (success) {
+        confirmBtn.disabled = true;
+        confirmBtn.style.opacity = 0.5;
 
-            const completeBtn = document.createElement('button');
-            completeBtn.textContent = '🏁 Complete';
-            completeBtn.style.backgroundColor = '#000';
-            completeBtn.style.color = '#d4af37';
-            completeBtn.style.border = '2px solid #d4af37';
-            completeBtn.style.padding = '8px';
-            completeBtn.style.cursor = 'pointer';
-            completeBtn.style.marginLeft = '10px';
+        const completeBtn = document.createElement('button');
+        completeBtn.textContent = '🏁 Complete';
+        completeBtn.style.backgroundColor = '#000';
+        completeBtn.style.color = '#d4af37';
+        completeBtn.style.border = '2px solid #d4af37';
+        completeBtn.style.padding = '8px';
+        completeBtn.style.cursor = 'pointer';
+        completeBtn.style.marginLeft = '10px';
 
-            completeBtn.onclick = async () => {
-              const completed = await markJobCompleted(job.id);
-              if (completed) jobDiv.remove();
-            };
-
-            btnDiv.appendChild(completeBtn);
-          }
+        completeBtn.onclick = async () => {
+          const completed = await markJobCompleted(job.id);
+          if (completed) jobDiv.remove();
         };
 
-        // Refuse button
-        const refuseBtn = document.createElement('button');
-        refuseBtn.textContent = '❌ Refuse';
-        refuseBtn.style.backgroundColor = '#000';
-        refuseBtn.style.color = '#d4af37';
-        refuseBtn.style.border = '2px solid #d4af37';
-        refuseBtn.style.padding = '8px';
-        refuseBtn.style.cursor = 'pointer';
-
-        refuseBtn.onclick = async () => {
-          const success = await respondToJob(job.id, false);
-          if (success) jobDiv.remove();
-        };
-
-        btnDiv.appendChild(confirmBtn);
-        btnDiv.appendChild(refuseBtn);
-        jobDiv.appendChild(btnDiv);
-
-        jobsList.appendChild(jobDiv);
-      });
-    }
-
-    async function respondToJob(jobId, confirmed) {
-      if (!driverEmail) return false;
-      try {
-        const response = await fetch('https://server-qdh1.onrender.com/driver-response', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ driverEmail, jobId, confirmed })
-        });
-        const data = await response.json();
-        if (response.ok) {
-          return true;
-        } else {
-          alert(data.error || 'Failed to send response.');
-          return false;
-        }
-      } catch (err) {
-        alert('Network error. Please try again.');
-        return false;
+        btnDiv.appendChild(completeBtn);
       }
-    }
+    };
 
-    async function markJobCompleted(jobId) {
-      try {
-        const response = await fetch('https://server-qdh1.onrender.com/driver-complete', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ driverEmail, jobId })
-        });
-        const data = await response.json();
-        if (response.ok) {
-          alert('Job marked as completed ✅');
-          return true;
-        } else {
-          alert(data.error || 'Failed to mark job as completed.');
-          return false;
-        }
-      } catch (err) {
-        alert('Network error. Please try again.');
-        return false;
-      }
+    // Refuse button
+    const refuseBtn = document.createElement('button');
+    refuseBtn.textContent = '❌ Refuse';
+    refuseBtn.style.backgroundColor = '#000';
+    refuseBtn.style.color = '#d4af37';
+    refuseBtn.style.border = '2px solid #d4af37';
+    refuseBtn.style.padding = '8px';
+    refuseBtn.style.cursor = 'pointer';
+
+    refuseBtn.onclick = async () => {
+      const success = await respondToJob(job.id, false); // triggers admin email
+      if (success) jobDiv.remove();
+    };
+
+    btnDiv.appendChild(confirmBtn);
+    btnDiv.appendChild(refuseBtn);
+    jobDiv.appendChild(btnDiv);
+
+    jobsList.appendChild(jobDiv);
+  });
+}
+
+async function respondToJob(jobId, confirmed) {
+  if (!driverEmail) return false;
+  try {
+    const response = await fetch('https://server-qdh1.onrender.com/driver-response', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ driverEmail, jobId, confirmed })
+    });
+    const data = await response.json();
+    if (response.ok) {
+      return true;
+    } else {
+      alert(data.error || 'Failed to send response.');
+      return false;
     }
-  </script>
+  } catch (err) {
+    alert('Network error. Please try again.');
+    return false;
+  }
+}
+
+async function markJobCompleted(jobId) {
+  if (!driverEmail) return false;
+  try {
+    const response = await fetch('https://server-qdh1.onrender.com/driver-complete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ driverEmail, jobId })
+    });
+    const data = await response.json();
+    if (response.ok) {
+      alert('Job marked as completed ✅');
+      return true;
+    } else {
+      alert(data.error || 'Failed to mark job as completed.');
+      return false;
+    }
+  } catch (err) {
+    alert('Network error. Please try again.');
+    return false;
+  }
+}
+</script>
 </body>
 </html>
