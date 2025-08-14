@@ -67,13 +67,7 @@
 
   <label>Assign to Driver Email:</label>
   <input list="drivers" id="driverEmail" placeholder="Type or select driver email" />
-  <datalist id="drivers">
-    <option value="farahjnr@gmail.com"></option>
-    <option value="driver2@example.com"></option>
-    <option value="driver3@example.com"></option>
-    <option value="driver4@example.com"></option>
-    <option value="driver5@example.com"></option>
-  </datalist>
+  <datalist id="drivers"></datalist>
 
   <button id="assignBtn">Assign Job</button>
   <div id="status"></div>
@@ -83,12 +77,13 @@
     const pendingBookingsDiv = document.getElementById('pendingBookings');
     const assignBtn = document.getElementById('assignBtn');
     const statusDiv = document.getElementById('status');
+    const driversDatalist = document.getElementById('drivers');
 
     let pendingBookings = [];
 
     async function loadPendingBookings() {
       try {
-        const res = await fetch('${API_BASE}/pending-bookings');
+        const res = await fetch(`${API_BASE}/pending-bookings`);
         pendingBookings = await res.json();
         if (!pendingBookings || pendingBookings.length === 0) {
           pendingBookingsDiv.textContent = 'No pending bookings.';
@@ -127,6 +122,21 @@
       document.getElementById('notes').value = booking.notes || '';
     }
 
+    async function loadDrivers() {
+      try {
+        const res = await fetch(`${API_BASE}/drivers`);
+        const drivers = await res.json();
+        driversDatalist.innerHTML = '';
+        drivers.forEach(driver => {
+          const option = document.createElement('option');
+          option.value = driver.email;
+          driversDatalist.appendChild(option);
+        });
+      } catch (err) {
+        console.error('Failed to load drivers:', err);
+      }
+    }
+
     assignBtn.addEventListener('click', async () => {
       statusDiv.textContent = '';
 
@@ -139,15 +149,15 @@
         dropoff: document.getElementById('dropoff').value.trim(),
         datetime: document.getElementById('datetime').value,
         vehicleType: document.getElementById('vehicleType').value.trim(),
-        totalFare: parseFloat(document.getElementById('totalFare').value),
-        distanceKm: parseFloat(document.getElementById('distanceKm').value),
-        durationMin: parseFloat(document.getElementById('durationMin').value),
+        totalFare: parseFloat(document.getElementById('totalFare').value) || 0,
+        distanceKm: parseFloat(document.getElementById('distanceKm').value) || 0,
+        durationMin: parseFloat(document.getElementById('durationMin').value) || 0,
         notes: document.getElementById('notes').value.trim()
       };
 
       const driverEmail = document.getElementById('driverEmail').value.trim();
 
-      if (!bookingData.pickup || !bookingData.dropoff || !bookingData.datetime || !bookingData.vehicleType || !bookingData.totalFare || isNaN(bookingData.totalFare)) {
+      if (!bookingData.pickup || !bookingData.dropoff || !bookingData.datetime || !bookingData.vehicleType || !bookingData.totalFare) {
         statusDiv.textContent = 'Please fill in all required booking details.';
         statusDiv.style.color = 'red';
         return;
@@ -159,7 +169,7 @@
       }
 
       try {
-        const response = await fetch('${API_BASE}/assign-job', {
+        const response = await fetch(`${API_BASE}/assign-job`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ driverEmail, bookingData })
@@ -169,7 +179,6 @@
         if (response.ok) {
           statusDiv.textContent = `✅ Job assigned successfully! Job ID: ${result.jobId}`;
           statusDiv.style.color = '#d4af37';
-          // Remove the assigned booking by matching ID
           pendingBookings = pendingBookings.filter(b => b.id !== bookingData.id);
           renderPendingBookings();
         } else {
@@ -183,6 +192,7 @@
     });
 
     loadPendingBookings();
+    loadDrivers();
   </script>
 </body>
 </html>
