@@ -130,6 +130,43 @@ button {
   border-radius: 4px;
 }
 
+/* -------------------- ADMIN PAGE -------------------- */
+#pendingBookings {
+  margin-bottom: 20px;
+}
+
+/* Individual booking boxes */
+.booking-item {
+  padding: 10px;
+  border: 1px solid #FFD700; /* gold border */
+  margin-bottom: 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.6); /* semi-transparent black */
+  color: #fff; /* white text */
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.booking-item:hover {
+  background: rgba(255, 215, 0, 0.1); /* subtle gold highlight */
+  color: #fff; /* keep text white on hover */
+}
+
+/* Inputs in admin form */
+input, select, textarea {
+  background: #111;
+  border: 1px solid #d4af37;
+  color: #d4af37;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* Status messages */
+#status {
+  margin-top: 15px;
+  font-weight: bold;
+}
+
 /* Ensure partner form fits well on mobile */
 @media (max-width: 600px) {
   main {
