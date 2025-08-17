@@ -62,6 +62,14 @@ input, select, textarea {
   font-family: 'Georgia', serif;
 }
 
+/* ---------- Fix Date/Time Inputs ---------- */
+input[type="date"], 
+input[type="time"] {
+  max-width: 100%;   /* prevent overflow */
+  width: 100%;       /* align with other inputs */
+  box-sizing: border-box;
+}
+
 /* Textarea specific */
 textarea {
   resize: vertical;
@@ -143,7 +151,14 @@ button:hover {
   color: #FFD700;
 }
 
-/* ---------- Responsive ---------- */
+/* Fix Assign Button */
+button.assign-btn {
+  margin-top: 10px;
+  display: block;
+  width: 100%;
+}
+
+/* Responsive - always last */
 @media (max-width: 600px) {
   main {
     padding: 10px;
