@@ -12,19 +12,19 @@
   <link rel="icon" href="icon.png" type="image/png" />
 </head>
 <body>
-  <header>
+  <header class="admin-header">
     <div class="header-top">
-      <img src="icon.png" alt="Chauffeur de Luxe Logo" />
-      <h1>Chauffeur De Luxe</h1>
+      <img src="icon.png" alt="Chauffeur de Luxe Logo" class="logo" />
+      <h1 class="site-title">Chauffeur De Luxe</h1>
     </div>
     <p class="tagline">Driven by Distinction. Defined by Elegance.</p>
   </header>
 
-  <main style="max-width:600px; margin:auto; padding:20px;">
-    <h2 style="color:gold; margin-bottom:15px;">Pending Bookings</h2>
-    <div id="pendingBookings" style="margin-bottom:30px; color:#d4af37;">Loading bookings...</div>
+  <main class="container">
+    <h1 class="section-title">Pending Bookings</h1>
+    <div id="pendingBookings" class="booking-list">Loading bookings...</div>
 
-    <h2 style="color:gold; margin-bottom:15px;">Assign Job</h2>
+    <h1 class="section-title">Assign Job</h1>
 
     <!-- Hidden customer info aligned with server -->
     <input type="hidden" id="id" />
@@ -32,36 +32,36 @@
     <input type="hidden" id="email" />
     <input type="hidden" id="phone" />
 
-    <label>Pickup Location:</label>
-    <input type="text" id="pickup" placeholder="Pickup address" />
+    <label class="form-label">Pickup Location:</label>
+    <input type="text" id="pickup" placeholder="Pickup address" class="form-field" />
 
-    <label>Dropoff Location:</label>
-    <input type="text" id="dropoff" placeholder="Dropoff address" />
+    <label class="form-label">Dropoff Location:</label>
+    <input type="text" id="dropoff" placeholder="Dropoff address" class="form-field" />
 
-    <label>Date & Time:</label>
-    <input type="datetime-local" id="datetime" />
+    <label class="form-label">Date & Time:</label>
+    <input type="datetime-local" id="datetime" class="form-field" />
 
-    <label>Vehicle Type:</label>
-    <input type="text" id="vehicleType" placeholder="Vehicle type" />
+    <label class="form-label">Vehicle Type:</label>
+    <input type="text" id="vehicleType" placeholder="Vehicle type" class="form-field" />
 
-    <label>Total Fare:</label>
-    <input type="number" id="totalFare" placeholder="Total fare" step="0.01" />
+    <label class="form-label">Total Fare:</label>
+    <input type="number" id="totalFare" placeholder="Total fare" step="0.01" class="form-field" />
 
-    <label>Distance (km):</label>
-    <input type="number" id="distanceKm" placeholder="Distance in km" step="0.1" />
+    <label class="form-label">Distance (km):</label>
+    <input type="number" id="distanceKm" placeholder="Distance in km" step="0.1" class="form-field" />
 
-    <label>Duration (min):</label>
-    <input type="number" id="durationMin" placeholder="Duration in minutes" />
+    <label class="form-label">Duration (min):</label>
+    <input type="number" id="durationMin" placeholder="Duration in minutes" class="form-field" />
 
-    <label>Notes:</label>
-    <textarea id="notes" placeholder="Optional notes" rows="3"></textarea>
+    <label class="form-label">Notes:</label>
+    <textarea id="notes" placeholder="Optional notes" rows="3" class="form-field"></textarea>
 
-    <label>Assign to Driver Email:</label>
-    <input list="drivers" id="driverEmail" placeholder="Type or select driver email" />
+    <label class="form-label">Assign to Driver Email:</label>
+    <input list="drivers" id="driverEmail" placeholder="Type or select driver email" class="form-field" />
     <datalist id="drivers"></datalist>
 
-    <button id="assignBtn">Assign Job</button>
-    <div id="status" style="margin-top:15px; font-weight:bold;"></div>
+    <button id="assignBtn" class="btn">Assign Job</button>
+    <div id="status" class="status"></div>
   </main>
 
   <script>
@@ -93,11 +93,6 @@
       pendingBookings.forEach((booking) => {
         const div = document.createElement('div');
         div.className = 'booking-item';
-        div.style.padding='10px'; 
-        div.style.border='1px solid #d4af37';
-        div.style.marginBottom='10px';
-        div.style.cursor='pointer';
-        div.style.borderRadius='6px';
         div.innerHTML = `<strong>${booking.name}</strong> - ${booking.pickup} → ${booking.dropoff} (${booking.datetime})`;
         div.addEventListener('click', () => populateForm(booking));
         pendingBookingsDiv.appendChild(div);
@@ -156,12 +151,12 @@
 
       if (!bookingData.pickup || !bookingData.dropoff || !bookingData.datetime || !bookingData.vehicleType || !bookingData.totalFare) {
         statusDiv.textContent = 'Please fill in all required booking details.';
-        statusDiv.style.color = 'red';
+        statusDiv.classList.add('error');
         return;
       }
       if (!driverEmail) {
         statusDiv.textContent = 'Please enter or select a driver email.';
-        statusDiv.style.color = 'red';
+        statusDiv.classList.add('error');
         return;
       }
 
@@ -175,16 +170,14 @@
 
         if (response.ok) {
           statusDiv.textContent = `✅ Job assigned successfully! Job ID: ${result.jobId}`;
-          statusDiv.style.color = '#d4af37';
-          pendingBookings = pendingBookings.filter(b => b.id !== bookingData.id);
-          renderPendingBookings();
+          statusDiv.classList.remove('error');
         } else {
           statusDiv.textContent = `❌ Error: ${result.error || 'Failed to assign job.'}`;
-          statusDiv.style.color = 'red';
+          statusDiv.classList.add('error');
         }
       } catch (error) {
         statusDiv.textContent = '🚫 Network or server error.';
-        statusDiv.style.color = 'red';
+        statusDiv.classList.add('error');
       }
     });
 
