@@ -10,6 +10,72 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" href="icon.png" type="image/png" />
+    <style>
+    /* Admin-specific tweaks on top of booking page style */
+    body {
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+      text-align: left; /* Keep form left-aligned for admin readability */
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #d4af37;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #d4af37;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      background: #000;          /* Match booking input background */
+      border: 1px solid #d4af37;
+      color: #fff;               /* White text inside inputs */
+      font-size: 1em;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 20px;
+      background-color: #d4af37;
+      color: #000;
+      border: none;
+      padding: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      font-size: 1.1em;
+      border-radius: 4px;
+    }
+
+    /* Pending bookings list */
+    .booking-item {
+      padding: 10px;
+      border: 1px solid #d4af37;
+      margin-bottom: 10px;
+      cursor: pointer;
+      border-radius: 4px;
+      background: #000;          /* Black background like booking page */
+      color: #fff;               /* White text */
+    }
+    .booking-item:hover {
+      background: #111;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
   <header>
