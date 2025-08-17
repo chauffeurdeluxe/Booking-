@@ -62,12 +62,14 @@ input, select, textarea {
   font-family: 'Georgia', serif;
 }
 
-/* ---------- Fix Date/Time Inputs ---------- */
-input[type="date"], 
-input[type="time"] {
-  max-width: 100%;   /* prevent overflow */
-  width: 100%;       /* align with other inputs */
+/* ✅ Fix 1: datetime input overflow */
+input[type="datetime-local"] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* Textarea specific */
@@ -93,6 +95,11 @@ button:hover {
   background-color: #c39b2b;
 }
 
+/* ✅ Fix 2: breathing room above Assign button */
+#assignBtn {
+  margin-top: 12px;
+}
+
 /* ---------- Fare Summary ---------- */
 #fareSummary {
   font-size: 1.2em;
@@ -103,7 +110,7 @@ button:hover {
 
 /* ---------- Loading Spinner ---------- */
 #loadingSpinner {
-  display: none; /* hidden by default */
+  display: none;
   position: fixed;
   top: 0; 
   left: 0;
@@ -112,14 +119,14 @@ button:hover {
   background-color: rgba(0,0,0,0.5);
   z-index: 9999;
 
-  display: flex; /* centers spinner inside overlay */
+  display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .spinner {
-  border: 8px solid #f3f3f3;        /* Light grey */
-  border-top: 8px solid #d4af37;    /* Gold */
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #d4af37;
   border-radius: 50%;
   width: 60px;
   height: 60px;
@@ -151,17 +158,14 @@ button:hover {
   color: #FFD700;
 }
 
-/* Fix Assign Button */
-button.assign-btn {
-  margin-top: 10px;
-  display: block;
-  width: 100%;
-}
-
-/* Responsive - always last */
+/* ---------- Responsive (LAST) ---------- */
 @media (max-width: 600px) {
   main {
     padding: 10px;
+    max-width: 100%;
+  }
+
+  input, select, textarea, button {
     max-width: 100%;
   }
 }
