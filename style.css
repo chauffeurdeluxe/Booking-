@@ -1,3 +1,4 @@
+/* ---------- Base Styles ---------- */
 body {
   background-color: #000;
   color: #d4af37;
@@ -24,24 +25,20 @@ header {
   height: 50px;
 }
 
-.tagline {
-  font-style: italic;
-  font-size: 1em;
-  margin-top: 5px;
-}
-
 h1 {
   font-size: 2em;
   margin: 0;
 }
 
-p {
+p.tagline {
   font-style: italic;
-  margin: 5px 0 20px;
+  font-size: 1em;
+  margin-top: 5px;
 }
 
+/* ---------- Main Form Containers ---------- */
 main {
-  max-width: 500px;
+  max-width: 600px;
   margin: auto;
   padding: 20px;
 }
@@ -52,12 +49,26 @@ form {
   gap: 15px;
 }
 
+/* ---------- Inputs, Selects, Textareas ---------- */
 input, select, textarea {
   padding: 10px;
-  border: none;
-  font-size: 1em;
+  border-radius: 6px;
+  border: 1px solid #d4af37;
+  background-color: #111;
+  color: #fff;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Georgia', serif;
 }
 
+/* Textarea specific */
+textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+/* ---------- Buttons ---------- */
 button {
   background-color: #d4af37;
   color: #000;
@@ -65,15 +76,24 @@ button {
   border: none;
   font-weight: bold;
   cursor: pointer;
+  font-size: 1.1em;
+  border-radius: 6px;
+  transition: all 0.2s ease;
 }
 
-#fareDisplay {
+button:hover {
+  background-color: #c39b2b;
+}
+
+/* ---------- Fare Summary ---------- */
+#fareSummary {
   font-size: 1.2em;
   font-weight: bold;
   margin-top: 10px;
+  color: #FFD700;
 }
 
-/* Loading spinner container - hidden by default */
+/* ---------- Loading Spinner ---------- */
 #loadingSpinner {
   display: none; /* hidden by default */
   position: fixed;
@@ -84,12 +104,11 @@ button {
   background-color: rgba(0,0,0,0.5);
   z-index: 9999;
 
-  display: flex;       /* centers spinner inside overlay */
+  display: flex; /* centers spinner inside overlay */
   justify-content: center;
   align-items: center;
 }
 
-/* Spinner circle */
 .spinner {
   border: 8px solid #f3f3f3;        /* Light grey */
   border-top: 8px solid #d4af37;    /* Gold */
@@ -99,84 +118,35 @@ button {
   animation: spin 1s linear infinite;
 }
 
-/* Spin animation */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* Partner form specific layout tweaks */
-#partnerForm label {
-  color: #d4af37;
-  font-weight: bold;
-  margin-top: 10px;
-  margin-bottom: 4px;
-  text-align: left;
-  display: block;
-}
-
-#partnerForm input[type="file"] {
-  padding: 6px 10px;
-}
-
-/* Optional: Make file inputs smaller height */
-#partnerForm input[type="file"]::-webkit-file-upload-button {
-  padding: 6px 12px;
-  background-color: #d4af37;
-  color: #000;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-  border-radius: 4px;
-}
-
-/* -------------------- ADMIN PAGE -------------------- */
-#pendingBookings {
-  margin-bottom: 20px;
-}
-
-/* Individual booking boxes */
+/* ---------- Admin & Driver Specific ---------- */
 .booking-item {
   padding: 10px;
-  border: 1px solid #FFD700; /* gold border */
+  border: 1px solid #d4af37;
   margin-bottom: 10px;
   cursor: pointer;
   border-radius: 6px;
-  background: rgba(0, 0, 0, 0.6); /* semi-transparent black */
-  color: #fff; /* white text */
-  transition: background 0.3s ease, color 0.3s ease;
+  color: #fff;
 }
 
 .booking-item:hover {
-  background: rgba(255, 215, 0, 0.1); /* subtle gold highlight */
-  color: #fff; /* keep text white on hover */
+  background-color: #111;
 }
 
-/* Inputs in admin form */
-input, select, textarea {
-  background: #111;
-  border: 1px solid #d4af37;
-  color: #d4af37;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-/* Status messages */
 #status {
-  margin-top: 15px;
+  margin-top: 10px;
   font-weight: bold;
+  color: #FFD700;
 }
 
-/* Ensure partner form fits well on mobile */
+/* ---------- Responsive ---------- */
 @media (max-width: 600px) {
   main {
     padding: 10px;
     max-width: 100%;
   }
-}
-
-/* Ensure white text inside the assign box (applies to all screens) */
-.assign-driver-select {
-  color: #fff; /* White text */
-  background-color: #000; /* Optional: black background */
 }
