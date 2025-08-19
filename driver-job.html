@@ -103,6 +103,9 @@ function showJobs(jobs) {
     jobDiv.style.backgroundColor = '#111';
 
     jobDiv.innerHTML = `
+      <p><strong>Name:</strong> ${job.bookingData.name || 'N/A'}</p>
+      <p><strong>Email:</strong> ${job.bookingData.email || 'N/A'}</p>
+      <p><strong>Phone:</strong> ${job.bookingData.phone || 'N/A'}</p>
       <p><strong>Pickup:</strong> ${job.bookingData.pickup}</p>
       <p><strong>Dropoff:</strong> ${job.bookingData.dropoff}</p>
       <p><strong>Pickup Time:</strong> ${new Date(job.bookingData.datetime).toLocaleString()}</p>
