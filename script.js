@@ -103,12 +103,13 @@ document.getElementById('calculateFare').addEventListener('click', function () {
   });
 });
 
-document.getElementById('payNow').addEventListener('click', async function () {
-  // ---------- Refresh Button ----------
+// ---------- Refresh Button ----------
 const refreshBtn = document.getElementById('refreshBtn');
 refreshBtn.addEventListener('click', () => {
   location.reload();
 });
+
+document.getElementById('payNow').addEventListener('click', async 
   const spinner = document.getElementById('loadingSpinner');
   spinner.style.display = 'block'; // show spinner
 
