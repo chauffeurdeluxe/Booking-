@@ -109,7 +109,7 @@ refreshBtn.addEventListener('click', () => {
   location.reload();
 });
 
-document.getElementById('payNow').addEventListener('click', async 
+ document.getElementById('payNow').addEventListener('click', async function() {
   const spinner = document.getElementById('loadingSpinner');
   spinner.style.display = 'block'; // show spinner
 
