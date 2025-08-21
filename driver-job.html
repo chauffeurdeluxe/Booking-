@@ -215,6 +215,12 @@ async function markJobCompleted(jobId) {
     return false;
   }
 }
+    // 🔄 Auto-refresh jobs every 30 seconds if logged in
+setInterval(() => {
+  if (driverEmail) {
+    loadJobs();
+  }
+}, 30000); // 30,000 ms = 30 seconds
 </script>
 </body>
 </html>
