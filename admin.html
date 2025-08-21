@@ -67,17 +67,18 @@
     <datalist id="drivers"></datalist>
 
     <div class="button-group">
-  <button id="assignBtn" class="btn">Assign Job</button>
-  <button id="refreshBtn" class="btn">Refresh</button>
-  </div>
+      <button id="assignBtn" class="btn">Assign Job</button>
+      <button id="refreshBtn" class="btn">Refresh</button>
+    </div>
 
-  <div id="status" class="status"></div>
+    <div id="status" class="status"></div>
   </main>
 
   <script>
     const API_BASE = 'https://server-qdh1.onrender.com';
     const pendingBookingsDiv = document.getElementById('pendingBookings');
     const assignBtn = document.getElementById('assignBtn');
+    const refreshBtn = document.getElementById('refreshBtn'); // ✅ added
     const statusDiv = document.getElementById('status');
     const driversDatalist = document.getElementById('drivers');
 
@@ -183,7 +184,7 @@
           statusDiv.classList.remove('error');
 
           loadPendingBookings();
-          } else {
+        } else {
           statusDiv.textContent = `❌ Error: ${result.error || 'Failed to assign job.'}`;
           statusDiv.classList.add('error');
         }
@@ -193,11 +194,17 @@
       }
     });
 
+    // ✅ Add refresh button listener
+    refreshBtn.addEventListener('click', () => {
+      statusDiv.textContent = "🔄 Refreshing bookings...";
+      loadPendingBookings();
+    });
+
     loadPendingBookings();
     loadDrivers();
 
     // Auto-refresh pending bookings every 30 seconds
     setInterval(loadPendingBookings, 30000);
-    </script>
-    </body>
-    </html>
+  </script>
+</body>
+</html>
