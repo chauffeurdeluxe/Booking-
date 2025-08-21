@@ -177,7 +177,9 @@
         if (response.ok) {
           statusDiv.textContent = `✅ Job assigned successfully! Job ID: ${result.jobId}`;
           statusDiv.classList.remove('error');
-        } else {
+
+          loadPendingBookings();
+          } else {
           statusDiv.textContent = `❌ Error: ${result.error || 'Failed to assign job.'}`;
           statusDiv.classList.add('error');
         }
