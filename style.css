@@ -101,6 +101,18 @@ button:hover {
 #assignBtn {
   margin-top: 12px;
 }
+/* ---------- Button Group for Admin ---------- */
+.button-group {
+  display: flex;              /* Arrange buttons side by side */
+  gap: 10px;                  /* Space between buttons */
+  justify-content: center;    /* Center buttons horizontally */
+  margin-top: 12px;           /* Match spacing above buttons */
+}
+
+.button-group .btn {
+  flex: 1;                    /* Make buttons same width (optional) */
+  max-width: 200px;           /* Optional max width for responsiveness */
+}
 
 /* ---------- Fare Summary ---------- */
 #fareSummary {
