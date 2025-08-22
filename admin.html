@@ -24,11 +24,16 @@
     <h1 class="section-title">Pending Bookings</h1>
     <div id="pendingBookings" class="booking-list">Loading bookings...</div>
 
-    <h1 class="section-title">Completed Jobs</h1>
-    <div id="completedBookings" class="booking-list">Loading completed jobs...</div>
+    <!-- Completed Jobs Toggle -->
+    <button id="showCompletedBtn" class="btn">Show Completed Jobs</button>
+    <div id="completedContainer" style="display:none;">
+      <h1 class="section-title">Completed Jobs</h1>
+      <div id="completedBookings" class="booking-list">Loading completed jobs...</div>
+    </div>
 
     <h1 class="section-title">Assign Job</h1>
 
+    <!-- Hidden customer info aligned with server -->
     <input type="hidden" id="id" />
 
     <label class="form-label" for="name">Customer Name:</label>
@@ -85,8 +90,12 @@
     const statusDiv = document.getElementById('status');
     const driversDatalist = document.getElementById('drivers');
 
+    const showCompletedBtn = document.getElementById('showCompletedBtn');
+    const completedContainer = document.getElementById('completedContainer');
+
     let pendingBookings = [];
 
+    // ---------------- Pending Bookings ----------------
     async function loadPendingBookings() {
       pendingBookingsDiv.textContent = 'Loading bookings...';
       try {
@@ -114,6 +123,7 @@
       });
     }
 
+    // ---------------- Completed Bookings ----------------
     async function loadCompletedBookings() {
       completedBookingsDiv.textContent = 'Loading completed jobs...';
       try {
@@ -145,6 +155,7 @@
       });
     }
 
+    // ---------------- Populate Form ----------------
     function populateForm(booking) {
       document.getElementById('id').value = booking.id || '';
       document.getElementById('name').value = booking.name;
@@ -160,22 +171,7 @@
       document.getElementById('notes').value = booking.notes || '';
     }
 
-    function clearForm() {
-      document.getElementById('id').value = '';
-      document.getElementById('name').value = '';
-      document.getElementById('email').value = '';
-      document.getElementById('phone').value = '';
-      document.getElementById('pickup').value = '';
-      document.getElementById('dropoff').value = '';
-      document.getElementById('datetime').value = '';
-      document.getElementById('vehicleType').value = '';
-      document.getElementById('totalFare').value = '';
-      document.getElementById('distanceKm').value = '';
-      document.getElementById('durationMin').value = '';
-      document.getElementById('notes').value = '';
-      document.getElementById('driverEmail').value = '';
-    }
-
+    // ---------------- Load Drivers ----------------
     async function loadDrivers() {
       try {
         const res = await fetch(`${API_BASE}/drivers`);
@@ -191,6 +187,7 @@
       }
     }
 
+    // ---------------- Assign Job ----------------
     assignBtn.addEventListener('click', async () => {
       statusDiv.textContent = '';
 
@@ -233,7 +230,7 @@
         if (response.ok) {
           statusDiv.textContent = `✅ Job assigned successfully! Job ID: ${result.jobId}`;
           statusDiv.classList.remove('error');
-          clearForm();  // <-- Clear form after assignment
+          clearForm();
           loadPendingBookings();
           loadCompletedBookings();
         } else {
@@ -246,22 +243,51 @@
       }
     });
 
+    // ---------------- Clear Form ----------------
+    function clearForm() {
+      document.getElementById('id').value = '';
+      document.getElementById('name').value = '';
+      document.getElementById('email').value = '';
+      document.getElementById('phone').value = '';
+      document.getElementById('pickup').value = '';
+      document.getElementById('dropoff').value = '';
+      document.getElementById('datetime').value = '';
+      document.getElementById('vehicleType').value = '';
+      document.getElementById('totalFare').value = '';
+      document.getElementById('distanceKm').value = '';
+      document.getElementById('durationMin').value = '';
+      document.getElementById('notes').value = '';
+      document.getElementById('driverEmail').value = '';
+    }
+
+    // ---------------- Refresh ----------------
     refreshBtn.addEventListener('click', () => {
       statusDiv.textContent = "🔄 Refreshing bookings...";
-      clearForm(); // <-- Clear form on refresh
       loadPendingBookings();
       loadCompletedBookings();
       setTimeout(() => { statusDiv.textContent = ''; }, 1500);
     });
 
+    // ---------------- Toggle Completed Jobs ----------------
+    showCompletedBtn.addEventListener('click', () => {
+      if (completedContainer.style.display === 'none') {
+        completedContainer.style.display = 'block';
+        showCompletedBtn.textContent = 'Hide Completed Jobs';
+        loadCompletedBookings();
+      } else {
+        completedContainer.style.display = 'none';
+        showCompletedBtn.textContent = 'Show Completed Jobs';
+      }
+    });
+
+    // ---------------- Init ----------------
     loadPendingBookings();
-    loadCompletedBookings();
     loadDrivers();
 
-    // Auto-refresh pending bookings every 30 seconds
+    // Auto-refresh every 30 seconds
     setInterval(() => {
       loadPendingBookings();
-      loadCompletedBookings();
+      if (completedContainer.style.display !== 'none') loadCompletedBookings();
     }, 30000);
   </script>
 </body>
