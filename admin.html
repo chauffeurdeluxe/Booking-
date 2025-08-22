@@ -228,12 +228,14 @@ function renderCompletedBookings(completed) {
     });
 
     // ✅ Add refresh button listener
-    refreshBtn.addEventListener('click', () => {
-      statusDiv.textContent = "🔄 Refreshing bookings...";
-      loadPendingBookings();
-    });
+   refreshBtn.addEventListener('click', () => {
+  statusDiv.textContent = "🔄 Refreshing bookings...";
+  loadPendingBookings();
+  loadCompletedBookings();
+});
 
     loadPendingBookings();
+    loadCompletedBookings();
     loadDrivers();
 
     // Auto-refresh pending bookings every 30 seconds
