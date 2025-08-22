@@ -111,6 +111,36 @@
         div.addEventListener('click', () => populateForm(booking));
         pendingBookingsDiv.appendChild(div);
       });
+
+      const completedBookingsDiv = document.getElementById('completedBookings');
+
+async function loadCompletedBookings() {
+  try {
+    const res = await fetch(`${API_BASE}/completed-jobs`);
+    const completed = await res.json();
+    if (!completed || completed.length === 0) {
+      completedBookingsDiv.textContent = 'No completed jobs.';
+    } else {
+      renderCompletedBookings(completed);
+    }
+  } catch (err) {
+    console.error(err);
+    completedBookingsDiv.textContent = 'Failed to load completed jobs.';
+  }
+}
+
+function renderCompletedBookings(completed) {
+  completedBookingsDiv.innerHTML = '';
+  completed.forEach((job) => {
+    const div = document.createElement('div');
+    div.className = 'booking-item';
+    div.innerHTML = `
+      <strong>${job.name}</strong> - ${job.pickup} → ${job.dropoff} 
+      (${job.datetime})<br>
+      Driver: ${job.driverEmail || 'N/A'} | Fare: $${job.totalFare}
+    `;
+    completedBookingsDiv.appendChild(div);
+  });
     }
 
     function populateForm(booking) {
