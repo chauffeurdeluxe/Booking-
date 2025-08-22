@@ -80,14 +80,16 @@
   <script>
     const API_BASE = 'https://server-qdh1.onrender.com';
     const pendingBookingsDiv = document.getElementById('pendingBookings');
+    const completedBookingsDiv = document.getElementById('completedBookings');
     const assignBtn = document.getElementById('assignBtn');
-    const refreshBtn = document.getElementById('refreshBtn'); // ✅ added
+    const refreshBtn = document.getElementById('refreshBtn');
     const statusDiv = document.getElementById('status');
     const driversDatalist = document.getElementById('drivers');
 
     let pendingBookings = [];
 
     async function loadPendingBookings() {
+      pendingBookingsDiv.textContent = 'Loading bookings...';
       try {
         const res = await fetch(`${API_BASE}/pending-bookings`);
         pendingBookings = await res.json();
@@ -98,7 +100,7 @@
         }
       } catch (err) {
         console.error(err);
-        pendingBookingsDiv.textContent = 'No pending bookings.';
+        pendingBookingsDiv.textContent = 'Failed to load pending bookings.';
       }
     }
 
@@ -113,35 +115,35 @@
       });
     }
 
-      const completedBookingsDiv = document.getElementById('completedBookings');
-
-async function loadCompletedBookings() {
-  try {
-    const res = await fetch(`${API_BASE}/completed-jobs`);
-    const completed = await res.json();
-    if (!completed || completed.length === 0) {
-      completedBookingsDiv.textContent = 'No completed jobs.';
-    } else {
-      renderCompletedBookings(completed);
+    async function loadCompletedBookings() {
+      completedBookingsDiv.textContent = 'Loading completed jobs...';
+      try {
+        const res = await fetch(`${API_BASE}/completed-jobs`);
+        const completed = await res.json();
+        if (!completed || completed.length === 0) {
+          completedBookingsDiv.textContent = 'No completed jobs.';
+        } else {
+          renderCompletedBookings(completed);
+        }
+      } catch (err) {
+        console.error(err);
+        completedBookingsDiv.textContent = 'Failed to load completed jobs.';
+      }
     }
-  } catch (err) {
-    console.error(err);
-    completedBookingsDiv.textContent = 'Failed to load completed jobs.';
-  }
-}
 
-function renderCompletedBookings(completed) {
-  completedBookingsDiv.innerHTML = '';
-  completed.forEach((job) => {
-    const div = document.createElement('div');
-    div.className = 'booking-item';
-    div.innerHTML = `
-      <strong>${job.name}</strong> - ${job.pickup} → ${job.dropoff} 
-      (${job.datetime})<br>
-      Driver: ${job.driverEmail || 'N/A'} | Fare: $${job.totalFare}
-    `;
-    completedBookingsDiv.appendChild(div);
-  });
+    function renderCompletedBookings(completed) {
+      completedBookingsDiv.innerHTML = '';
+      completed.forEach((job) => {
+        const b = job.bookingData;
+        const div = document.createElement('div');
+        div.className = 'booking-item';
+        div.innerHTML = `
+          <strong>${b.name}</strong> - ${b.pickup} → ${b.dropoff} 
+          (${b.datetime})<br>
+          Driver: ${job.driverEmail || 'N/A'} | Fare: $${b.totalFare}
+        `;
+        completedBookingsDiv.appendChild(div);
+      });
     }
 
     function populateForm(booking) {
@@ -216,8 +218,8 @@ function renderCompletedBookings(completed) {
         if (response.ok) {
           statusDiv.textContent = `✅ Job assigned successfully! Job ID: ${result.jobId}`;
           statusDiv.classList.remove('error');
-
           loadPendingBookings();
+          loadCompletedBookings();
         } else {
           statusDiv.textContent = `❌ Error: ${result.error || 'Failed to assign job.'}`;
           statusDiv.classList.add('error');
@@ -228,19 +230,22 @@ function renderCompletedBookings(completed) {
       }
     });
 
-    // ✅ Add refresh button listener
-   refreshBtn.addEventListener('click', () => {
-  statusDiv.textContent = "🔄 Refreshing bookings...";
-  loadPendingBookings();
-  loadCompletedBookings();
-});
+    refreshBtn.addEventListener('click', () => {
+      statusDiv.textContent = "🔄 Refreshing bookings...";
+      loadPendingBookings();
+      loadCompletedBookings();
+      setTimeout(() => { statusDiv.textContent = ''; }, 1500);
+    });
 
     loadPendingBookings();
     loadCompletedBookings();
     loadDrivers();
 
     // Auto-refresh pending bookings every 30 seconds
-    setInterval(loadPendingBookings, 30000);
+    setInterval(() => {
+      loadPendingBookings();
+      loadCompletedBookings();
+    }, 30000);
   </script>
 </body>
 </html>
