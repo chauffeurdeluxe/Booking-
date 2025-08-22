@@ -154,16 +154,17 @@ button:hover {
 
 /* ---------- Admin & Driver Specific ---------- */
 .booking-item {
+  background-color: #000000; /* black background */
+  color: #B9975B; /* gold text */
+  border: 1px solid #B9975B; /* gold border to make boxes visible */
   padding: 10px;
-  border: 1px solid #d4af37;
   margin-bottom: 10px;
-  cursor: pointer;
-  border-radius: 6px;
-  color: #fff;
+  border-radius: 5px;
 }
 
 .booking-item:hover {
-  background-color: #111;
+  background-color: #1a1a1a; /* slightly lighter black */
+  cursor: pointer;
 }
 
 #status {
