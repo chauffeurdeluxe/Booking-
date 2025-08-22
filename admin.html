@@ -29,7 +29,6 @@
 
     <h1 class="section-title">Assign Job</h1>
 
-    <!-- Hidden customer info aligned with server -->
     <input type="hidden" id="id" />
 
     <label class="form-label" for="name">Customer Name:</label>
@@ -161,6 +160,22 @@
       document.getElementById('notes').value = booking.notes || '';
     }
 
+    function clearForm() {
+      document.getElementById('id').value = '';
+      document.getElementById('name').value = '';
+      document.getElementById('email').value = '';
+      document.getElementById('phone').value = '';
+      document.getElementById('pickup').value = '';
+      document.getElementById('dropoff').value = '';
+      document.getElementById('datetime').value = '';
+      document.getElementById('vehicleType').value = '';
+      document.getElementById('totalFare').value = '';
+      document.getElementById('distanceKm').value = '';
+      document.getElementById('durationMin').value = '';
+      document.getElementById('notes').value = '';
+      document.getElementById('driverEmail').value = '';
+    }
+
     async function loadDrivers() {
       try {
         const res = await fetch(`${API_BASE}/drivers`);
@@ -218,6 +233,7 @@
         if (response.ok) {
           statusDiv.textContent = `✅ Job assigned successfully! Job ID: ${result.jobId}`;
           statusDiv.classList.remove('error');
+          clearForm();  // <-- Clear form after assignment
           loadPendingBookings();
           loadCompletedBookings();
         } else {
@@ -232,6 +248,7 @@
 
     refreshBtn.addEventListener('click', () => {
       statusDiv.textContent = "🔄 Refreshing bookings...";
+      clearForm(); // <-- Clear form on refresh
       loadPendingBookings();
       loadCompletedBookings();
       setTimeout(() => { statusDiv.textContent = ''; }, 1500);
