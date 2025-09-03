@@ -74,6 +74,25 @@ input[type="datetime-local"] {
 -webkit-appearance: none;
 }
 
+/* ✅ Fix Registration & Insurance Expiry alignment */
+input[type="date"] {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 44px; /* force same height as text inputs */
+  box-sizing: border-box;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #d4af37;
+  background-color: #111;
+  color: #fff;
+  font-size: 16px;
+  font-family: 'Georgia', serif;
+  appearance: none;
+  -webkit-appearance: none;
+  line-height: normal; /* fix Safari vertical centering */
+}
+
 /* Textarea specific */
 textarea {
   resize: vertical;
