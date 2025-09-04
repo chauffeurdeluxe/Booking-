@@ -68,13 +68,23 @@
   </div>
 
   <script>
-     // Hide spinner on page load to prevent it from showing after returning from Stripe cancel
-  document.addEventListener('DOMContentLoaded', function() {
+     // Hide spinner on normal page load and when coming back from Stripe cancel
+  function hideSpinner() {
     const spinner = document.getElementById('loadingSpinner');
     if (spinner) spinner.style.display = 'none';
-  });
+  }
 
-  function initAutocomplete() {
+  // Normal page load
+  document.addEventListener('DOMContentLoaded', hideSpinner);
+
+  // Page show event for back/forward cache
+  window.addEventListener('pageshow', function(event) {
+    if (event.persisted) {
+      hideSpinner();
+    }
+  });
+  
+    function initAutocomplete() {
     const pickupInput = document.getElementById("pickup");
     const dropoffInput = document.getElementById("dropoff");
 
