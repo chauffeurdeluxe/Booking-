@@ -68,20 +68,26 @@
   </div>
 
   <script>
-    function initAutocomplete() {
-      const pickupInput = document.getElementById("pickup");
-      const dropoffInput = document.getElementById("dropoff");
+     // Hide spinner on page load to prevent it from showing after returning from Stripe cancel
+  document.addEventListener('DOMContentLoaded', function() {
+    const spinner = document.getElementById('loadingSpinner');
+    if (spinner) spinner.style.display = 'none';
+  });
 
-      if (pickupInput) {
-        new google.maps.places.Autocomplete(pickupInput, { componentRestrictions: { country: 'au' } });
-      }
+  function initAutocomplete() {
+    const pickupInput = document.getElementById("pickup");
+    const dropoffInput = document.getElementById("dropoff");
 
-      if (dropoffInput) {
-        new google.maps.places.Autocomplete(dropoffInput, { componentRestrictions: { country: 'au' } });
-      }
+    if (pickupInput) {
+      new google.maps.places.Autocomplete(pickupInput, { componentRestrictions: { country: 'au' } });
     }
 
-    document.getElementById('calculateFare').addEventListener('click', function () {
+    if (dropoffInput) {
+      new google.maps.places.Autocomplete(dropoffInput, { componentRestrictions: { country: 'au' } });
+    }
+  }
+      
+     document.getElementById('calculateFare').addEventListener('click', function () {
       const vehicleType = document.getElementById('vehicleType').value;
       const pickup = document.getElementById('pickup').value;
       const dropoff = document.getElementById('dropoff').value;
