@@ -65,6 +65,19 @@
   <main>
 
     <script>
+        // Tab toggle
+  function showTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    if (tab === 'pointToPoint') {
+      document.getElementById('pointToPointForm').style.display = 'block';
+      document.querySelector('.tab-button:nth-child(1)').classList.add('active');
+    } else {
+      document.getElementById('hourlyForm').style.display = 'block';
+      document.querySelector('.tab-button:nth-child(2)').classList.add('active');
+    }
+  }
+
   // Hourly fare calculation
   document.getElementById('calculateHourlyFare').addEventListener('click', function () {
     const vehicleType = document.getElementById('hourlyVehicleType').value;
