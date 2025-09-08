@@ -23,6 +23,79 @@
   </header>
 
   <main>
+  <!-- Tabs -->
+  <div class="tab-container">
+    <button type="button" class="tab-button active" onclick="showTab('pointToPoint')">Point-to-Point</button>
+    <button type="button" class="tab-button" onclick="showTab('hourly')">By the Hour</button>
+  </div>
+
+  <!-- Point-to-Point Booking (your existing form, wrapped) -->
+  <div id="pointToPointForm" class="tab-content active">
+    <form id="bookingForm">
+      <!-- 🔹 Your entire existing form goes here unchanged -->
+    </form>
+  </div>
+
+  <!-- Hourly Booking (new form) -->
+  <div id="hourlyForm" class="tab-content" style="display:none;">
+    <form id="hourlyBookingForm">
+      <input type="text" id="hourlyName" name="name" placeholder="Full Name" required />
+      <input type="email" id="hourlyEmail" name="email" placeholder="Email" required />
+      <input type="tel" id="hourlyPhone" name="phone" placeholder="Phone Number" required />
+
+      <select id="hourlyVehicle" required>
+        <option value="">Select Vehicle Class</option>
+        <option value="business">Business Class</option>
+        <option value="suv">Business Van/SUV</option>
+        <option value="first">First Class</option>
+      </select>
+
+      <input type="text" id="hourlyPickup" placeholder="Pickup Location" required />
+
+      <div class="form-group">
+        <label for="hourlyPickupTime" style="display:block; margin-bottom:6px; color:#FFD700; font-weight:bold;">
+          Pickup Date & Time
+        </label>
+        <input type="datetime-local" id="hourlyPickupTime" required />
+      </div>
+
+      <label for="hours" style="display:block; margin-bottom:6px; color:#FFD700; font-weight:bold;">
+        Number of Hours
+      </label>
+      <select id="hours" required>
+        <option value="2">2 Hours</option>
+        <option value="3">3 Hours</option>
+        <option value="4">4 Hours</option>
+        <option value="5">5 Hours</option>
+        <option value="6">6 Hours</option>
+        <option value="8">8 Hours</option>
+      </select>
+
+      <button type="button" id="calculateHourlyFare" style="margin-top:10px;">Calculate Hourly Fare</button>
+
+      <div id="hourlyFareSummary" style="margin:10px 0; color:gold; font-weight:bold; font-size:18px;"></div>
+
+      <button type="button" id="hourlyPayNow">Pay Now</button>
+    </form>
+  </div>
+</main>
+
+<script>
+  // Tab toggle
+  function showTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    if (tab === 'pointToPoint') {
+      document.getElementById('pointToPointForm').style.display = 'block';
+      document.querySelector('.tab-button:nth-child(1)').classList.add('active');
+    } else {
+      document.getElementById('hourlyForm').style.display = 'block';
+      document.querySelector('.tab-button:nth-child(2)').classList.add('active');
+    }
+  }
+</script>
+
+  <main>
     <form id="bookingForm">
       <input type="text" id="name" name="name" placeholder="Full Name" required />
       <input type="email" id="email" name="email" placeholder="Email" required />
