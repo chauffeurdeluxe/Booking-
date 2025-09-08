@@ -288,6 +288,90 @@
       document.querySelector('.tab-button:nth-child(2)').classList.add('active');
     }
   }
+ 
+  // Hourly fare calculation
+  document.getElementById('calculateHourlyFare').addEventListener('click', function () {
+    const vehicleType = document.getElementById('hourlyVehicleType').value;
+    const hours = parseInt(document.getElementById('hours').value, 10);
+
+    if (!vehicleType || !hours) {
+      alert('Please select a vehicle type and enter hours.');
+      return;
+    }
+
+    const rates = {
+      business: 150,
+      suv: 200,
+      first: 250
+    };
+
+    const fare = rates[vehicleType] * hours;
+
+    document.getElementById('hourlyFareSummary').innerHTML = `
+      Estimated Fare: $${fare.toFixed(2)} for ${hours} hour(s)
+    `;
+
+    document.getElementById('hourlyFareSummary').setAttribute('data-fare', fare);
+  });
+
+  // Hourly booking Stripe payment
+  document.getElementById('payHourlyNow').addEventListener('click', async function () {
+    const spinner = document.getElementById('loadingSpinner');
+    spinner.style.display = 'flex';
+
+    const name = document.getElementById('hourlyName').value;
+    const phone = document.getElementById('hourlyPhone').value;
+    const email = document.getElementById('hourlyEmail').value;
+    const pickup = document.getElementById('hourlyPickup').value;
+    const pickupTime = document.getElementById('hourlyPickupTime').value;
+    const vehicleType = document.getElementById('hourlyVehicleType').value;
+    const hours = document.getElementById('hours').value;
+
+    const fareSummary = document.getElementById('hourlyFareSummary');
+    const fare = fareSummary.getAttribute('data-fare');
+
+    if (!name || !phone || !email || !pickup || !pickupTime || !vehicleType || !fare) {
+      spinner.style.display = 'none';
+      alert('Please fill out all details and calculate fare before proceeding.');
+      return;
+    }
+
+    const bookingData = {
+      name,
+      phone,
+      email,
+      pickup,
+      dropoff: "Hourly Booking", // not used, but required by server
+      datetime: pickupTime,
+      vehicleType,
+      hours,
+      totalFare: parseFloat(fare),
+      distanceKm: 0,
+      durationMin: hours * 60,
+      notes: "Hourly service booking"
+    };
+
+    try {
+      const response = await fetch('https://server-qdh1.onrender.com/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingData)
+      });
+
+      const data = await response.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Payment session failed. Please try again.');
+        spinner.style.display = 'none';
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Something went wrong. Please try again.');
+      spinner.style.display = 'none';
+    }
+  });
   </script>
 </body>
 </html>
