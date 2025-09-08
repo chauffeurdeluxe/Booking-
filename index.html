@@ -22,7 +22,7 @@
     <p class="tagline">Driven by Distinction. Defined by Elegance.</p>
   </header>
 
-  <main>
+<main>
   <!-- Tabs -->
   <div class="tab-container">
     <button type="button" class="tab-button active" onclick="showTab('pointToPoint')">Point-to-Point</button>
@@ -36,63 +36,118 @@
     </form>
   </div>
 
-  <!-- Hourly Booking (new form) -->
   <div id="hourlyForm" class="tab-content" style="display:none;">
-    <form id="hourlyBookingForm">
-      <input type="text" id="hourlyName" name="name" placeholder="Full Name" required />
-      <input type="email" id="hourlyEmail" name="email" placeholder="Email" required />
-      <input type="tel" id="hourlyPhone" name="phone" placeholder="Phone Number" required />
+  <form id="hourlyBookingForm">
+    <input type="text" id="hourlyName" name="name" placeholder="Full Name" required />
+    <input type="email" id="hourlyEmail" name="email" placeholder="Email" required />
+    <input type="tel" id="hourlyPhone" name="phone" placeholder="Phone Number" required />
 
-      <select id="hourlyVehicle" required>
-        <option value="">Select Vehicle Class</option>
-        <option value="business">Business Class</option>
-        <option value="suv">Business Van/SUV</option>
-        <option value="first">First Class</option>
-      </select>
+    <select id="hourlyVehicleType" required>
+      <option value="">Select Vehicle Class</option>
+      <option value="business">Business Class - $150/hr</option>
+      <option value="suv">Business Van/SUV - $200/hr</option>
+      <option value="first">First Class - $250/hr</option>
+    </select>
 
-      <input type="text" id="hourlyPickup" placeholder="Pickup Location" required />
+    <label style="display:block; margin-top:10px;">Number of Hours</label>
+    <input type="number" id="hours" name="hours" min="1" max="12" required />
 
-      <div class="form-group">
-        <label for="hourlyPickupTime" style="display:block; margin-bottom:6px; color:#FFD700; font-weight:bold;">
-          Pickup Date & Time
-        </label>
-        <input type="datetime-local" id="hourlyPickupTime" required />
-      </div>
+    <input type="text" id="hourlyPickup" placeholder="Pickup Location" required />
 
-      <label for="hours" style="display:block; margin-bottom:6px; color:#FFD700; font-weight:bold;">
-        Number of Hours
-      </label>
-      <select id="hours" required>
-        <option value="2">2 Hours</option>
-        <option value="3">3 Hours</option>
-        <option value="4">4 Hours</option>
-        <option value="5">5 Hours</option>
-        <option value="6">6 Hours</option>
-        <option value="8">8 Hours</option>
-      </select>
+    <input type="datetime-local" id="hourlyPickupTime" required />
 
-      <button type="button" id="calculateHourlyFare" style="margin-top:10px;">Calculate Hourly Fare</button>
+    <button type="button" id="calculateHourlyFare" style="margin-top:10px;">Calculate Fare</button>
+    <div id="hourlyFareSummary" style="margin-top:10px; color:gold; font-weight:bold;"></div>
 
-      <div id="hourlyFareSummary" style="margin:10px 0; color:gold; font-weight:bold; font-size:18px;"></div>
+    <button type="button" id="payHourlyNow">Pay Now</button>
+  </form>
+</div>
+  <main>
 
-      <button type="button" id="hourlyPayNow">Pay Now</button>
-    </form>
-  </div>
-</main>
+    <script>
+  // Hourly fare calculation
+  document.getElementById('calculateHourlyFare').addEventListener('click', function () {
+    const vehicleType = document.getElementById('hourlyVehicleType').value;
+    const hours = parseInt(document.getElementById('hours').value, 10);
 
-<script>
-  // Tab toggle
-  function showTab(tab) {
-    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-    if (tab === 'pointToPoint') {
-      document.getElementById('pointToPointForm').style.display = 'block';
-      document.querySelector('.tab-button:nth-child(1)').classList.add('active');
-    } else {
-      document.getElementById('hourlyForm').style.display = 'block';
-      document.querySelector('.tab-button:nth-child(2)').classList.add('active');
+    if (!vehicleType || !hours) {
+      alert('Please select a vehicle type and enter hours.');
+      return;
     }
-  }
+
+    const rates = {
+      business: 150,
+      suv: 200,
+      first: 250
+    };
+
+    const fare = rates[vehicleType] * hours;
+
+    document.getElementById('hourlyFareSummary').innerHTML = `
+      Estimated Fare: $${fare.toFixed(2)} for ${hours} hour(s)
+    `;
+
+    document.getElementById('hourlyFareSummary').setAttribute('data-fare', fare);
+  });
+
+  // Hourly booking Stripe payment
+  document.getElementById('payHourlyNow').addEventListener('click', async function () {
+    const spinner = document.getElementById('loadingSpinner');
+    spinner.style.display = 'flex';
+
+    const name = document.getElementById('hourlyName').value;
+    const phone = document.getElementById('hourlyPhone').value;
+    const email = document.getElementById('hourlyEmail').value;
+    const pickup = document.getElementById('hourlyPickup').value;
+    const pickupTime = document.getElementById('hourlyPickupTime').value;
+    const vehicleType = document.getElementById('hourlyVehicleType').value;
+    const hours = document.getElementById('hours').value;
+
+    const fareSummary = document.getElementById('hourlyFareSummary');
+    const fare = fareSummary.getAttribute('data-fare');
+
+    if (!name || !phone || !email || !pickup || !pickupTime || !vehicleType || !fare) {
+      spinner.style.display = 'none';
+      alert('Please fill out all details and calculate fare before proceeding.');
+      return;
+    }
+
+    const bookingData = {
+      name,
+      phone,
+      email,
+      pickup,
+      dropoff: "Hourly Booking", // not used, but required by server
+      datetime: pickupTime,
+      vehicleType,
+      hours,
+      totalFare: parseFloat(fare),
+      distanceKm: 0,
+      durationMin: hours * 60,
+      notes: "Hourly service booking"
+    };
+
+    try {
+      const response = await fetch('https://server-qdh1.onrender.com/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingData)
+      });
+
+      const data = await response.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Payment session failed. Please try again.');
+        spinner.style.display = 'none';
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Something went wrong. Please try again.');
+      spinner.style.display = 'none';
+    }
+  });
 </script>
 
   <main>
