@@ -35,42 +35,6 @@
         <option value="first">First Class</option>
       </select>
 
-      <!-- Booking Type Toggle -->
-<div style="margin-bottom:20px; text-align:center;">
-  <label>
-    <input type="radio" name="bookingType" value="point" checked>
-    Point-to-Point
-  </label>
-  <label style="margin-bottom:20px; text-align:center;">
-    <input type="radio" name="bookingType" value="hourly">
-    By the Hour
-  </label>
-</div>
-
-<!-- Point-to-Point Section (default visible) -->
-<div id="pointSection">
-  <label for="pickup">Pickup Location</label>
-  <input type="text" id="pickup" name="pickup" placeholder="Enter pickup address">
-
-  <label for="dropoff">Dropoff Location</label>
-  <input type="text" id="dropoff" name="dropoff" placeholder="Enter dropoff address">
-
-  <label for="pickupTime">Pickup Date & Time</label>
-  <input type="datetime-local" id="pickupTime" name="pickupTime">
-</div>
-
-<!-- Hourly Booking Section (hidden initially) -->
-<div id="hourlySection" style="display:none;">
-  <label for="pickupHourly">Pickup Location</label>
-  <input type="text" id="pickupHourly" name="pickupHourly" placeholder="Enter pickup address">
-
-  <label for="pickupTimeHourly">Pickup Date & Time</label>
-  <input type="datetime-local" id="pickupTimeHourly" name="pickupTimeHourly">
-
-  <label for="hours">Number of Hours</label>
-  <input type="number" id="hours" name="hours" min="2" max="12" value="2">
-</div>
-
       <input type="text" id="pickup" placeholder="Pickup Location" required />
       <input type="text" id="dropoff" placeholder="Dropoff Location" required />
 
@@ -278,41 +242,6 @@
         spinner.style.display = 'none';
       }
     });
-
-    // Hourly rates (example, adjust as needed)
-const hourlyRates = {
-  business: 110,   // per hour
-  van: 150,
-  first: 180
-};
-
-// Toggle sections
-document.querySelectorAll('input[name="bookingType"]').forEach((radio) => {
-  radio.addEventListener('change', (e) => {
-    if (e.target.value === 'point') {
-      document.getElementById('pointSection').style.display = 'block';
-      document.getElementById('hourlySection').style.display = 'none';
-    } else {
-      document.getElementById('pointSection').style.display = 'none';
-      document.getElementById('hourlySection').style.display = 'block';
-    }
-  });
-});
-
-// Example fare calculation hook for hourly
-function calculateHourlyFare(vehicleType, hours) {
-  let baseRate = hourlyRates[vehicleType] || 0;
-  let fare = baseRate * hours;
-
-  // Early/late surcharge
-  const pickupTime = new Date(document.getElementById('pickupTimeHourly').value);
-  const hour = pickupTime.getHours();
-  if (hour < 6 || hour > 22) {
-    fare += 30;
-  }
-
-  return fare;
-}
   </script>
 </body>
 </html>
