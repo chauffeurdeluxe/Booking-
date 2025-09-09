@@ -209,6 +209,6 @@ button:hover {
 }
 
   #payNowHourly {
-  margin-bottom: 20px;  /* lift button above iPhone bottom bar */
+  margin-bottom: calc(env(safe-area-inset-bottom) + 20px);
 }
 }
