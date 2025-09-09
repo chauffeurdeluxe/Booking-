@@ -211,4 +211,9 @@ button:hover {
 #payHourlyNow {
   margin-bottom: calc(env(safe-area-inset-bottom) + 20px);
 }
+
+    /* ✅ Fix for iPhone notch pushing logo too high */
+  header {
+    padding-top: calc(env(safe-area-inset-top) + 10px);
+  }
 }
