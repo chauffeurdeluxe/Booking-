@@ -8,32 +8,38 @@ body {
   text-align: center;
 }
 
+/* Header alignment fix */
 header {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  text-align: center;
+  margin-bottom: 15px;
 }
 
 .header-top {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: center;       /* vertically centers logo + text */
+  justify-content: center;   /* horizontally centers both */
+  gap: 10px;                 /* space between logo and text */
 }
 
 .header-top img {
-  height: 50px;
+  height: 50px;              /* adjust logo size */
+  width: auto;
+  display: block;
 }
 
-h1 {
-  font-size: 2em;
+.header-top h1 {
+  font-size: 22px;
+  color: gold;
   margin: 0;
+  font-weight: 700;
+  font-family: serif;
 }
 
-p.tagline {
+.tagline {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #FFD700;
   font-style: italic;
-  font-size: 1em;
-  margin-top: 5px;
 }
 
 /* ---------- Main Form Containers ---------- */
