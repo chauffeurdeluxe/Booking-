@@ -202,4 +202,9 @@ button:hover {
   input, select, textarea, button {
     max-width: 100%;
   }
+
+  /* ✅ Fix for iPhone home bar overlap */
+#payNow {
+  margin-bottom: calc(env(safe-area-inset-bottom) + 20px);
+}
 }
