@@ -208,7 +208,7 @@ button:hover {
   margin-bottom: calc(env(safe-area-inset-bottom) + 20px);
 }
 
-#payNowHourly {
-  margin-bottom: 20px;  /* lift button above iPhone bottom bar */
+#payHourlyNow {
+  margin-bottom: calc(env(safe-area-inset-bottom) + 20px);
 }
 }
