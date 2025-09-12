@@ -35,11 +35,13 @@
       <h2>Your Assigned Jobs</h2>
       <div id="jobsList" style="text-align: left;"></div>
 
- <!-- ADDED Refresh Button -->
-  <button id="refreshJobs" 
-          style="margin-top: 20px; background-color: #d4af37; color: #000; border: 2px solid #000; padding: 10px; cursor: pointer;">
-    🔄 Refresh Jobs
-  </button>
+      <h2>Completed Jobs History</h2>
+      <div id="completedJobsList" style="text-align: left;"></div>
+
+      <button id="refreshJobs" 
+              style="margin-top: 20px; background-color: #d4af37; color: #000; border: 2px solid #000; padding: 10px; cursor: pointer;">
+        🔄 Refresh Jobs
+      </button>
       
       <button id="logoutBtn" style="margin-top: 20px; background-color: #000; color: #d4af37; border: 2px solid #d4af37; padding: 10px; cursor: pointer;">Logout</button>
     </section>
@@ -50,6 +52,7 @@ const loginForm = document.getElementById('loginForm');
 const loginSection = document.getElementById('loginSection');
 const jobsSection = document.getElementById('jobsSection');
 const jobsList = document.getElementById('jobsList');
+const completedJobsList = document.getElementById('completedJobsList');
 const loginError = document.getElementById('loginError');
 const logoutBtn = document.getElementById('logoutBtn');
 
@@ -69,6 +72,7 @@ loginForm.addEventListener('submit', async (e) => {
 logoutBtn.addEventListener('click', () => {
   driverEmail = '';
   jobsList.innerHTML = '';
+  completedJobsList.innerHTML = '';
   loginSection.style.display = 'block';
   jobsSection.style.display = 'none';
   loginForm.reset();
@@ -84,6 +88,7 @@ async function loadJobs() {
     const data = await response.json();
     if (response.ok) {
       showJobs(data.jobs);
+      showCompletedJobs(data.completedJobs || []);
       loginSection.style.display = 'none';
       jobsSection.style.display = 'block';
     } else {
@@ -123,7 +128,6 @@ function showJobs(jobs) {
     const btnDiv = document.createElement('div');
     btnDiv.style.marginTop = '10px';
 
-    // Confirm button
     const confirmBtn = document.createElement('button');
     confirmBtn.textContent = '✅ Confirm';
     confirmBtn.style.marginRight = '10px';
@@ -134,7 +138,7 @@ function showJobs(jobs) {
     confirmBtn.style.cursor = 'pointer';
 
     confirmBtn.onclick = async () => {
-      const success = await respondToJob(job.id, true); // triggers admin email
+      const success = await respondToJob(job.id, true);
       if (success) {
         confirmBtn.disabled = true;
         confirmBtn.style.opacity = 0.5;
@@ -150,14 +154,13 @@ function showJobs(jobs) {
 
         completeBtn.onclick = async () => {
           const completed = await markJobCompleted(job.id);
-          if (completed) jobDiv.remove();
+          if (completed) await loadJobs();
         };
 
         btnDiv.appendChild(completeBtn);
       }
     };
 
-    // Refuse button
     const refuseBtn = document.createElement('button');
     refuseBtn.textContent = '❌ Refuse';
     refuseBtn.style.backgroundColor = '#000';
@@ -167,7 +170,7 @@ function showJobs(jobs) {
     refuseBtn.style.cursor = 'pointer';
 
     refuseBtn.onclick = async () => {
-      const success = await respondToJob(job.id, false); // triggers admin email
+      const success = await respondToJob(job.id, false);
       if (success) jobDiv.remove();
     };
 
@@ -176,6 +179,30 @@ function showJobs(jobs) {
     jobDiv.appendChild(btnDiv);
 
     jobsList.appendChild(jobDiv);
+  });
+}
+
+function showCompletedJobs(completedJobs) {
+  if (!completedJobs || completedJobs.length === 0) {
+    completedJobsList.innerHTML = '<p>No completed jobs yet.</p>';
+    return;
+  }
+  completedJobsList.innerHTML = '';
+  completedJobs.forEach(job => {
+    const jobDiv = document.createElement('div');
+    jobDiv.style.border = '1px solid #444';
+    jobDiv.style.padding = '10px';
+    jobDiv.style.marginBottom = '10px';
+    jobDiv.style.borderRadius = '6px';
+    jobDiv.style.backgroundColor = '#222';
+
+    jobDiv.innerHTML = `
+      <p><strong>Name:</strong> ${job.bookingData.name || 'N/A'}</p>
+      <p><strong>Pickup:</strong> ${job.bookingData.pickup}</p>
+      <p><strong>Dropoff:</strong> ${job.bookingData.dropoff}</p>
+      <p><strong>Completed At:</strong> ${new Date(job.updated_at).toLocaleString()}</p>
+    `;
+    completedJobsList.appendChild(jobDiv);
   });
 }
 
@@ -188,12 +215,7 @@ async function respondToJob(jobId, confirmed) {
       body: JSON.stringify({ driverEmail, jobId, confirmed })
     });
     const data = await response.json();
-    if (response.ok) {
-      return true;
-    } else {
-      alert(data.error || 'Failed to send response.');
-      return false;
-    }
+    return response.ok;
   } catch (err) {
     alert('Network error. Please try again.');
     return false;
@@ -221,12 +243,10 @@ async function markJobCompleted(jobId) {
     return false;
   }
 }
-    // 🔄 Auto-refresh jobs every 30 seconds if logged in
+
 setInterval(() => {
-  if (driverEmail) {
-    loadJobs();
-  }
-}, 30000); // 30,000 ms = 30 seconds
+  if (driverEmail) loadJobs();
+}, 30000);
 </script>
 </body>
 </html>
