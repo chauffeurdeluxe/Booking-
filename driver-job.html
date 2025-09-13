@@ -88,7 +88,7 @@ async function loadJobs() {
     const data = await response.json();
     if (response.ok) {
       showJobs(data.jobs);
-      showCompletedJobs(data.completedJobs || []);
+      showCompletedJobs(data.completed || []);
       loginSection.style.display = 'none';
       jobsSection.style.display = 'block';
     } else {
