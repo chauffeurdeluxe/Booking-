@@ -190,19 +190,52 @@
 
   // ----------------- LOAD DRIVERS -----------------
 async function loadDrivers() {
+  const defaultDrivers = [
+    "farahjnr@gmail.com",
+    "driver2@example.com",
+    "driver3@example.com",
+    "driver4@example.com",
+    "driver5@example.com",
+    "driver6@example.com",
+    "driver7@example.com",
+    "driver8@example.com",
+    "driver9@example.com",
+    "driver10@example.com",
+    "driver11@example.com",
+    "driver12@example.com",
+    "driver13@example.com",
+    "driver14@example.com",
+    "driver15@example.com"
+  ];
+
+  // Clear current options
+  driverSelect.innerHTML = '<option value="">-- Select Driver --</option>';
+
+  // Add hardcoded drivers
+  defaultDrivers.forEach(email => {
+    const option = document.createElement('option');
+    option.value = email;
+    option.textContent = email;
+    driverSelect.appendChild(option);
+  });
+
+  // Try to fetch extra drivers from server
   try {
     const res = await fetch(`${API_BASE}/drivers`);
+    if (!res.ok) throw new Error('Server error');
     const drivers = await res.json();
 
-    driverSelect.innerHTML = '<option value="">-- Select Driver --</option>';
-    drivers.forEach(driver => {
-      const option = document.createElement('option');
-      option.value = driver.email;
-      option.textContent = driver.email;
-      driverSelect.appendChild(option);
+    const existing = new Set(defaultDrivers);
+    drivers.forEach(d => {
+      if (!existing.has(d.email)) {
+        const option = document.createElement('option');
+        option.value = d.email;
+        option.textContent = d.email;
+        driverSelect.appendChild(option);
+      }
     });
   } catch (err) {
-    console.error('Failed to load drivers:', err);
+    console.warn('Failed to load drivers from server, using default list', err);
   }
 }
 
