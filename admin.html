@@ -105,7 +105,7 @@
   async function loadPendingBookings() {
     pendingBookingsDiv.textContent = 'Loading pending bookings...';
     try {
-      const res = await fetch(`${API_BASE}/pending-bookings`);
+      const res = await fetch(`${API_BASE}/pending-jobs`);
       const pendingBookings = await res.json();
 
       if (!pendingBookings || pendingBookings.length === 0) {
