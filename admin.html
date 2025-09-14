@@ -64,11 +64,11 @@
     <label>Dropoff Location:</label><input type="text" id="dropoff" class="form-field"/>
     <label>Date & Time:</label><input type="datetime-local" id="datetime" class="form-field"/>
     <label>Vehicle Type:</label><input type="text" id="vehicleType" class="form-field"/>
-    <label>Total Fare:</label><input type="number" id="totalFare" class="form-field"/>
+        <label>Total Fare:</label><input type="number" id="totalFare" class="form-field"/>
     <label>Distance (km):</label><input type="number" id="distanceKm" class="form-field"/>
     <label>Duration (min):</label><input type="number" id="durationMin" class="form-field"/>
     <label>Notes:</label><textarea id="notes" class="form-field"></textarea>
-        <label>Assign to Driver Email:</label>
+    <label>Assign to Driver Email:</label>
     <select id="driverEmail" class="form-field">
       <option value="">-- Select Driver --</option>
     </select>
@@ -164,7 +164,7 @@ async function loadCompletedBookings() {
       const b = job.bookingData || job;
       const div = document.createElement('div');
       div.className = 'booking-item';
-      div.innerHTML = `<strong>${b.customername}</strong> - ${b.pickup} → ${b.dropoff} (${b.pickuptime})<br>Driver: ${job.assignedto || job.driverEmail || 'N/A'} | Fare: $${b.fare}`;
+      div.innerHTML = `<strong>${b.customername}</strong> - ${b.pickup} → ${b.dropoff} (${b.pickuptime})<br>Driver: ${job.assignedto || 'N/A'} | Fare: $${b.fare}`;
       completedBookingsDiv.appendChild(div);
     });
   } catch (err) {
@@ -173,18 +173,15 @@ async function loadCompletedBookings() {
   }
 }
 
-  // ----------------- LOAD DRIVERS -----------------
+// ----------------- LOAD DRIVERS -----------------
 async function loadDrivers() {
   const defaultDrivers = [
     "farahjnr@gmail.com","driver2@example.com","driver3@example.com","driver4@example.com","driver5@example.com",
     "driver6@example.com","driver7@example.com","driver8@example.com","driver9@example.com","driver10@example.com",
-    "driver11@example.com","driver12@example.com","driver13@example.com","driver14@example.com","driver15@example.com"
+    "driver11@gmail.com","driver12@example.com","driver13@example.com","driver14@example.com","driver15@example.com"
   ];
 
-  // Clear current options
   driverSelect.innerHTML = '<option value="">-- Select Driver --</option>';
-
-  // Add hardcoded drivers
   defaultDrivers.forEach(email => {
     const option = document.createElement('option');
     option.value = email;
@@ -192,7 +189,6 @@ async function loadDrivers() {
     driverSelect.appendChild(option);
   });
 
-  // Try to fetch extra drivers from server
   try {
     const res = await fetch(`${API_BASE}/drivers`);
     if (!res.ok) throw new Error('Server error');
@@ -229,10 +225,10 @@ function populateForm(booking) {
   document.getElementById('driverEmail').value = booking.assignedto || '';
 }
 
-// ----------------- ASSIGN JOB -----------------
+  // ----------------- ASSIGN JOB -----------------
 assignBtn.addEventListener('click', async () => {
   statusDiv.textContent = '';
-  
+
   const bookingData = {
     id: document.getElementById('id').value,
     customername: document.getElementById('name').value.trim(),
@@ -307,6 +303,5 @@ setInterval(() => {
   loadCompletedBookings();
 }, 30000);
 </script>
-
 </body>
 </html>
