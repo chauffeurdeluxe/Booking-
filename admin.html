@@ -68,25 +68,9 @@
     <label>Distance (km):</label><input type="number" id="distanceKm" class="form-field"/>
     <label>Duration (min):</label><input type="number" id="durationMin" class="form-field"/>
     <label>Notes:</label><textarea id="notes" class="form-field"></textarea>
-    
-    <label>Assign to Driver Email:</label>
+        <label>Assign to Driver Email:</label>
     <select id="driverEmail" class="form-field">
-    <option value="">-- Select Driver --</option>
-    <option value="farahjnr@gmail.com">farahjnr@gmail.com</option>
-    <option value="driver2@example.com">driver2@example.com</option>
-    <option value="driver3@example.com">driver3@example.com</option>
-    <option value="driver4@example.com">driver4@example.com</option>
-    <option value="driver5@example.com">driver5@example.com</option>
-    <option value="driver6@example.com">driver6@example.com</option>
-    <option value="driver7@example.com">driver7@example.com</option>
-    <option value="driver8@example.com">driver8@example.com</option>
-    <option value="driver9@example.com">driver9@example.com</option>
-    <option value="driver10@example.com">driver10@example.com</option>
-    <option value="driver11@example.com">driver11@example.com</option>
-    <option value="driver12@example.com">driver12@example.com</option>
-    <option value="driver13@example.com">driver13@example.com</option>
-    <option value="driver14@example.com">driver14@example.com</option>
-    <option value="driver15@example.com">driver15@example.com</option>
+      <option value="">-- Select Driver --</option>
     </select>
     <div>
       <button id="assignBtn" class="btn">Assign Job</button>
@@ -180,7 +164,7 @@ async function loadCompletedBookings() {
       const b = job.bookingData || job;
       const div = document.createElement('div');
       div.className = 'booking-item';
-      div.innerHTML = `<strong>${b.customername}</strong> - ${b.pickup} → ${b.dropoff} (${b.pickuptime})<br>Driver: ${job.driverEmail || b.assignedto || 'N/A'} | Fare: $${b.fare}`;
+      div.innerHTML = `<strong>${b.customername}</strong> - ${b.pickup} → ${b.dropoff} (${b.pickuptime})<br>Driver: ${job.assignedto || job.driverEmail || 'N/A'} | Fare: $${b.fare}`;
       completedBookingsDiv.appendChild(div);
     });
   } catch (err) {
@@ -189,7 +173,7 @@ async function loadCompletedBookings() {
   }
 }
 
-// ----------------- LOAD DRIVERS -----------------
+  // ----------------- LOAD DRIVERS -----------------
 async function loadDrivers() {
   const defaultDrivers = [
     "farahjnr@gmail.com","driver2@example.com","driver3@example.com","driver4@example.com","driver5@example.com",
@@ -324,5 +308,5 @@ setInterval(() => {
 }, 30000);
 </script>
 
-  </body>
+</body>
 </html>
