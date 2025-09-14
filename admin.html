@@ -162,13 +162,14 @@ async function loadCompletedBookings() {
 
     completedBookingsDiv.innerHTML = '';
     completed.forEach(job => {
-  const b = job.bookingData; // use the JSON stored in completed_jobs
-  const div = document.createElement('div');
-  div.className = 'booking-item';
-  div.innerHTML = `<strong>${b.customername}</strong> - ${b.pickup} → ${b.dropoff} (${b.pickuptime})<br>
-                   Driver: ${job.driverEmail || 'N/A'} | Fare: $${b.fare}`;
-  completedBookingsDiv.appendChild(div);
-});
+      const div = document.createElement('div');
+      div.className = 'booking-item';
+      div.innerHTML = `
+        <strong>${job.customername}</strong> - ${job.pickup} → ${job.dropoff} (${job.pickuptime})<br>
+        Driver: ${job.assignedto || 'N/A'} | Fare: $${job.fare}
+      `;
+      completedBookingsDiv.appendChild(div);
+    });
   } catch (err) {
     console.error(err);
     completedBookingsDiv.textContent = 'Failed to load completed jobs.';
