@@ -23,7 +23,6 @@
     .btn { padding: 8px 12px; background: black; color: gold; border: none; cursor: pointer; margin-right: 5px; }
     .btn:hover { background: #B9975B; color: black; }
     .status { margin-top: 10px; }
-    .error { color: red; }
   </style>
 </head>
 <body>
@@ -71,7 +70,22 @@
       <label>Notes:</label><textarea id="notes" class="form-field"></textarea>
       <label>Assign to Driver Email:</label>
       <select id="driverEmail" class="form-field">
-        <option value="">-- Select Driver --</option>
+      <option value="">-- Select Driver --</option>
+      <option value="farahjnr@gmail.com">farahjnr@gmail.com</option>
+      <option value="driver2@example.com">driver2@example.com</option>
+      <option value="driver3@example.com">driver3@example.com</option>
+      <option value="driver4@example.com">driver4@example.com</option>
+      <option value="driver5@example.com">driver5@example.com</option>
+      <option value="driver6@example.com">driver6@example.com</option>
+      <option value="driver7@example.com">driver7@example.com</option>
+      <option value="driver8@example.com">driver8@example.com</option>
+      <option value="driver9@example.com">driver9@example.com</option>
+      <option value="driver10@example.com">driver10@example.com</option>
+      <option value="driver11@example.com">driver11@example.com</option>
+      <option value="driver12@example.com">driver12@example.com</option>
+      <option value="driver13@example.com">driver13@example.com</option>
+      <option value="driver14@example.com">driver14@example.com</option>
+      <option value="driver15@example.com">driver15@example.com</option>
       </select>
       <div>
         <button id="assignBtn" class="btn">Assign Job</button>
@@ -99,7 +113,7 @@
     const completedBookingsDiv = document.getElementById('completedBookings');
     const assignBtn = document.getElementById('assignBtn');
     const statusDiv = document.getElementById('status');
-    const driverSelect = document.getElementById('driverEmail');
+    const driversDatalist = document.getElementById('drivers');
 
     let pendingBookings = [];
 
@@ -118,6 +132,7 @@
             div.textContent = `${booking.name} - ${booking.pickup} → ${booking.dropoff} (${booking.datetime})`;
             div.addEventListener('click', () => {
               populateForm(booking);
+              // Switch to Assign Job tab when clicked
               document.querySelector('.tab[data-tab="assignTab"]').click();
             });
             pendingBookingsDiv.appendChild(div);
@@ -156,12 +171,11 @@
       try {
         const res = await fetch(`${API_BASE}/drivers`);
         const drivers = await res.json();
-        driverSelect.innerHTML = '<option value="">-- Select Driver --</option>';
+        driversDatalist.innerHTML = '';
         drivers.forEach(driver => {
           const option = document.createElement('option');
           option.value = driver.email;
-          option.textContent = driver.name || driver.email;
-          driverSelect.appendChild(option);
+          driversDatalist.appendChild(option);
         });
       } catch (err) {
         console.error('Failed to load drivers:', err);
@@ -185,6 +199,7 @@
 
     assignBtn.addEventListener('click', async () => {
       statusDiv.textContent = '';
+
       const bookingData = {
         id: document.getElementById('id').value,
         name: document.getElementById('name').value.trim(),
@@ -199,17 +214,20 @@
         durationMin: parseFloat(document.getElementById('durationMin').value) || 0,
         notes: document.getElementById('notes').value.trim()
       };
-      const driverEmail = driverSelect.value.trim();
+
+      const driverEmail = document.getElementById('driverEmail').value.trim();
+
       if (!bookingData.pickup || !bookingData.dropoff || !bookingData.datetime || !bookingData.vehicleType || !bookingData.totalFare) {
         statusDiv.textContent = 'Please fill in all required booking details.';
         statusDiv.classList.add('error');
         return;
       }
       if (!driverEmail) {
-        statusDiv.textContent = 'Please select a driver email.';
+        statusDiv.textContent = 'Please enter or select a driver email.';
         statusDiv.classList.add('error');
         return;
       }
+
       try {
         const response = await fetch(`${API_BASE}/assign-job`, {
           method: 'POST',
@@ -217,11 +235,13 @@
           body: JSON.stringify({ driverEmail, bookingData })
         });
         const result = await response.json();
+
         if (response.ok) {
           statusDiv.textContent = `✅ Job assigned successfully! Job ID: ${result.jobId}`;
           statusDiv.classList.remove('error');
           loadPendingBookings();
           loadCompletedBookings();
+          // Clear form after assigning
           document.querySelectorAll('#assignTab .form-field').forEach(f => f.value = '');
         } else {
           statusDiv.textContent = `❌ Error: ${result.error || 'Failed to assign job.'}`;
@@ -246,5 +266,6 @@
       loadCompletedBookings();
     }, 30000);
   </script>
+
 </body>
 </html>
