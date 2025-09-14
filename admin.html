@@ -70,22 +70,7 @@
       <label>Notes:</label><textarea id="notes" class="form-field"></textarea>
       <label>Assign to Driver Email:</label>
       <select id="driverEmail" class="form-field">
-      <option value="">-- Select Driver --</option>
-      <option value="farahjnr@gmail.com">farahjnr@gmail.com</option>
-      <option value="driver2@example.com">driver2@example.com</option>
-      <option value="driver3@example.com">driver3@example.com</option>
-      <option value="driver4@example.com">driver4@example.com</option>
-      <option value="driver5@example.com">driver5@example.com</option>
-      <option value="driver6@example.com">driver6@example.com</option>
-      <option value="driver7@example.com">driver7@example.com</option>
-      <option value="driver8@example.com">driver8@example.com</option>
-      <option value="driver9@example.com">driver9@example.com</option>
-      <option value="driver10@example.com">driver10@example.com</option>
-      <option value="driver11@example.com">driver11@example.com</option>
-      <option value="driver12@example.com">driver12@example.com</option>
-      <option value="driver13@example.com">driver13@example.com</option>
-      <option value="driver14@example.com">driver14@example.com</option>
-      <option value="driver15@example.com">driver15@example.com</option>
+        <option value="">-- Select Driver --</option>
       </select>
       <div>
         <button id="assignBtn" class="btn">Assign Job</button>
@@ -93,16 +78,18 @@
       <div id="status" class="status"></div>
     </div>
   </main>
+
     <script type="module">
-    // ---------------- SUPABASE SETUP ----------------
+    // ----------------- SUPABASE SETUP -----------------
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // from env or config
-    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // from env or config
+    // Replace these with safe env variables in your server setup
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ---------------- TABS ----------------
+    // ----------------- TAB SWITCHING -----------------
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
 
@@ -119,8 +106,9 @@
     const completedBookingsDiv = document.getElementById('completedBookings');
     const assignBtn = document.getElementById('assignBtn');
     const statusDiv = document.getElementById('status');
+    const driverSelect = document.getElementById('driverEmail');
 
-    // ---------------- LOAD PENDING BOOKINGS ----------------
+    // ----------------- LOAD PENDING BOOKINGS -----------------
     async function loadPendingBookings() {
       pendingBookingsDiv.textContent = 'Loading pending bookings...';
       try {
@@ -138,6 +126,7 @@
         }
 
         pendingBookingsDiv.innerHTML = '';
+
         pendingBookings.forEach(booking => {
           const div = document.createElement('div');
           div.className = 'booking-item';
@@ -169,7 +158,7 @@
       }
     }
 
-    // ---------------- LOAD COMPLETED BOOKINGS ----------------
+    // ----------------- LOAD COMPLETED BOOKINGS -----------------
     async function loadCompletedBookings() {
       completedBookingsDiv.textContent = 'Loading completed jobs...';
       try {
@@ -187,10 +176,10 @@
         }
 
         completedBookingsDiv.innerHTML = '';
-        completed.forEach(job => {
+        completed.forEach(b => {
           const div = document.createElement('div');
           div.className = 'booking-item';
-          div.innerHTML = `<strong>${job.customername}</strong> - ${job.pickup} → ${job.dropoff} (${job.pickuptime})<br>Driver: ${job.driveremail || 'N/A'} | Fare: $${job.fare}`;
+          div.innerHTML = `<strong>${b.customername}</strong> - ${b.pickup} → ${b.dropoff} (${b.pickuptime})<br>Driver: ${b.driveremail || 'N/A'} | Fare: $${b.fare}`;
           completedBookingsDiv.appendChild(div);
         });
       } catch (err) {
@@ -199,17 +188,15 @@
       }
     }
 
-    // ---------------- LOAD DRIVERS ----------------
+    // ----------------- LOAD DRIVERS -----------------
     async function loadDrivers() {
       try {
         const { data: drivers, error } = await supabase
           .from('drivers')
-          .select('email')
-          .order('email');
+          .select('email');
 
         if (error) throw error;
 
-        const driverSelect = document.getElementById('driverEmail');
         driverSelect.innerHTML = '<option value="">-- Select Driver --</option>';
         drivers.forEach(driver => {
           const option = document.createElement('option');
@@ -222,7 +209,7 @@
       }
     }
 
-    // ---------------- POPULATE FORM ----------------
+          // ----------------- POPULATE FORM -----------------
     function populateForm(booking) {
       document.getElementById('id').value = booking.id || '';
       document.getElementById('name').value = booking.name || '';
@@ -237,7 +224,8 @@
       document.getElementById('durationMin').value = booking.durationMin || '';
       document.getElementById('notes').value = booking.notes || '';
     }
-          // ---------------- ASSIGN JOB ----------------
+
+    // ----------------- ASSIGN JOB -----------------
     assignBtn.addEventListener('click', async () => {
       statusDiv.textContent = '';
 
@@ -255,17 +243,16 @@
         duration_min: parseFloat(document.getElementById('durationMin').value) || 0,
         notes: document.getElementById('notes').value.trim(),
         driveremail: document.getElementById('driverEmail').value.trim(),
-        status: 'assigned'
+        status: 'completed'
       };
 
-      // Validation
       if (!bookingData.pickup || !bookingData.dropoff || !bookingData.pickuptime || !bookingData.vehicletype || !bookingData.fare) {
         statusDiv.textContent = 'Please fill in all required booking details.';
         statusDiv.classList.add('error');
         return;
       }
       if (!bookingData.driveremail) {
-        statusDiv.textContent = 'Please select a driver email.';
+        statusDiv.textContent = 'Please select a driver.';
         statusDiv.classList.add('error');
         return;
       }
@@ -276,7 +263,7 @@
           .from('bookings')
           .update({
             driveremail: bookingData.driveremail,
-            status: 'assigned'
+            status: bookingData.status
           })
           .eq('id', bookingData.id);
 
@@ -285,35 +272,29 @@
         statusDiv.textContent = `✅ Job assigned successfully!`;
         statusDiv.classList.remove('error');
 
-        // Reload tables
+        // Refresh booking lists
         loadPendingBookings();
         loadCompletedBookings();
 
         // Clear form
         document.querySelectorAll('#assignTab .form-field').forEach(f => f.value = '');
-
       } catch (err) {
         console.error(err);
-        statusDiv.textContent = `❌ Failed to assign job.`;
+        statusDiv.textContent = '🚫 Failed to assign job.';
         statusDiv.classList.add('error');
       }
     });
 
-    // ---------------- REFRESH BUTTONS ----------------
-    document.getElementById('refreshPending').addEventListener('click', loadPendingBookings);
-    document.getElementById('refreshCompleted').addEventListener('click', loadCompletedBookings);
-
-    // ---------------- INITIAL LOAD ----------------
+    // ----------------- INITIAL LOAD -----------------
     loadPendingBookings();
     loadCompletedBookings();
     loadDrivers();
 
-    // ---------------- AUTO REFRESH EVERY 30s ----------------
+    // Auto-refresh every 30 seconds
     setInterval(() => {
       loadPendingBookings();
       loadCompletedBookings();
     }, 30000);
-
   </script>
 </body>
 </html>
