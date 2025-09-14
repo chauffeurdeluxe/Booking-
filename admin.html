@@ -189,22 +189,22 @@
   }
 
   // ----------------- LOAD DRIVERS -----------------
-  async function loadDrivers() {
-    try {
-      const res = await fetch(`${API_BASE}/drivers`);
-      const drivers = await res.json();
+async function loadDrivers() {
+  try {
+    const res = await fetch(`${API_BASE}/drivers`);
+    const drivers = await res.json();
 
-      driverSelect.innerHTML = '<option value="">-- Select Driver --</option>';
-      drivers.forEach(driver => {
-        const option = document.createElement('option');
-        option.value = driver.email;
-        option.textContent = driver.email;
-        driverSelect.appendChild(option);
-      });
-    } catch (err) {
-      console.error('Failed to load drivers:', err);
-    }
+    driverSelect.innerHTML = '<option value="">-- Select Driver --</option>';
+    drivers.forEach(driver => {
+      const option = document.createElement('option');
+      option.value = driver.email;
+      option.textContent = driver.email;
+      driverSelect.appendChild(option);
+    });
+  } catch (err) {
+    console.error('Failed to load drivers:', err);
   }
+}
 
   // ----------------- POPULATE FORM -----------------
   function populateForm(booking) {
