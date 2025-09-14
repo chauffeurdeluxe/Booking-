@@ -11,203 +11,244 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" href="icon.png" type="image/png" />
+  <!-- Google Maps (API key safely kept) -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD7RaWa6dXSoDxXq3DWfeuwHuD-TmI2I9U&libraries=places&callback=initAutocomplete" async defer></script>
+
   <style>
-    .tab-container { display:flex; justify-content:center; gap:10px; margin:18px 0; padding:0 10px; }
-    .tab-button { padding:10px 18px; background:black; color:gold; border:2px solid #FFD700; border-radius:6px; cursor:pointer; font-weight:700; font-family:inherit; transition: background .15s ease, color .15s ease; }
-    .tab-button.active { background:#FFD700; color:#000; }
-    .tab-content { display:none; }
-    .tab-content.active { display:block; }
+    .tab-container { display: flex; justify-content: center; gap: 10px; margin: 18px 0; padding: 0 10px; }
+    .tab-button { padding: 10px 18px; background: black; color: gold; border: 2px solid #FFD700; border-radius: 6px; cursor: pointer; font-weight: 700; font-family: inherit; transition: background .15s ease, color .15s ease; }
+    .tab-button.active { background: #FFD700; color: #000; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
     form input, form select, form textarea, form button { font-family: inherit; }
-    #loadingSpinner { position: fixed; top:0; left:0; right:0; bottom:0; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,0.4); z-index:9999; }
-    .spinner { width:48px; height:48px; border-radius:50%; border:5px solid #fff; border-top-color:#FFD700; animation:spin 1s linear infinite; }
+    #loadingSpinner { position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); z-index: 9999; }
+    .spinner { width: 48px; height: 48px; border-radius: 50%; border: 5px solid #fff; border-top-color: #FFD700; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
-<header>
-  <div class="header-top">
-    <img src="icon.png" alt="Chauffeur de Luxe Logo" />
-    <h1>Chauffeur De Luxe</h1>
-  </div>
-  <p class="tagline">Driven by Distinction. Defined by Elegance.</p>
-</header>
+  <header>
+    <div class="header-top">
+      <img src="icon.png" alt="Chauffeur de Luxe Logo" />
+      <h1>Chauffeur De Luxe</h1>
+    </div>
+    <p class="tagline">Driven by Distinction. Defined by Elegance.</p>
+  </header>
 
-<main>
-  <div class="tab-container" role="tablist" aria-label="Booking types">
-    <button type="button" id="tabPoint" class="tab-button active" aria-controls="pointToPointForm" aria-selected="true">Point-to-Point</button>
-    <button type="button" id="tabHourly" class="tab-button" aria-controls="hourlyForm" aria-selected="false">By the Hour</button>
-  </div>
+  <main>
+    <div class="tab-container" role="tablist" aria-label="Booking types">
+      <button type="button" id="tabPoint" class="tab-button active" aria-controls="pointToPointForm" aria-selected="true">Point-to-Point</button>
+      <button type="button" id="tabHourly" class="tab-button" aria-controls="hourlyForm" aria-selected="false">By the Hour</button>
+    </div>
 
-  <div id="pointToPointForm" class="tab-content active" aria-hidden="false">
-    <form id="bookingForm">
-      <input type="text" id="name" name="name" placeholder="Full Name" required />
-      <input type="email" id="email" name="email" placeholder="Email" required />
-      <input type="tel" id="phone" name="phone" placeholder="Phone Number" required />
-      <select id="vehicleType" required>
-        <option value="">Select Vehicle Class</option>
-        <option value="business">Business Class</option>
-        <option value="suv">Business Van/SUV</option>
-        <option value="first">First Class</option>
-      </select>
-      <input type="text" id="pickup" placeholder="Pickup Location" required />
-      <input type="text" id="dropoff" placeholder="Dropoff Location" required />
-      <div class="form-group">
-        <label for="pickupTime" style="display:block; margin-bottom:6px; color:#FFD700; font-weight:bold;">Pickup Date & Time</label>
-        <input type="datetime-local" id="pickupTime" required />
-      </div>
-      <textarea id="notes" name="notes" placeholder="Any special instructions or requests?" rows="2" style="width:100%; max-width:100%; box-sizing:border-box; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #ccc; font-family:inherit; font-size:16px;"></textarea>
-      <button type="button" id="calculateFare" style="margin-bottom:10px;">Calculate Fare</button>
-      <div id="fareSummary" style="margin-bottom:10px; color:gold; font-weight:bold; font-size:18px;"></div>
-      <button type="button" id="payNow">Pay Now</button>
-    </form>
-  </div>
+    <div id="pointToPointForm" class="tab-content active" aria-hidden="false">
+      <form id="bookingForm">
+        <input type="text" id="name" name="name" placeholder="Full Name" required />
+        <input type="email" id="email" name="email" placeholder="Email" required />
+        <input type="tel" id="phone" name="phone" placeholder="Phone Number" required />
 
-  <div id="hourlyForm" class="tab-content" aria-hidden="true">
-    <form id="hourlyBookingForm">
-      <input type="text" id="hourlyName" name="name" placeholder="Full Name" required />
-      <input type="email" id="hourlyEmail" name="email" placeholder="Email" required />
-      <input type="tel" id="hourlyPhone" name="phone" placeholder="Phone Number" required />
-      <select id="hourlyVehicleType" required>
-        <option value="">Select Vehicle Class</option>
-        <option value="business">Business Class</option>
-        <option value="suv">Business Van/SUV</option>
-        <option value="first">First Class</option>
-      </select>
-      <label style="display:block; margin-top:10px; color:#FFD700; font-weight:bold;">Number of Hours</label>
-      <input type="number" id="hours" name="hours" min="1" max="12" value="2" required />
-      <input type="text" id="hourlyPickup" placeholder="Pickup Location" required />
-      <div class="form-group">
-        <label for="hourlyPickupTime" style="display:block; margin-bottom:6px; color:#FFD700; font-weight:bold;">Pickup Date & Time</label>
-        <input type="datetime-local" id="hourlyPickupTime" required />
-      </div>
-      <textarea id="hourlyNotes" name="hourlyNotes" placeholder="Any special instructions or requests?" rows="2" style="width:100%; max-width:100%; box-sizing:border-box; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #ccc; font-family:inherit; font-size:16px;"></textarea>
-      <button type="button" id="calculateHourlyFare" style="margin-top:10px;">Calculate Fare</button>
-      <div id="hourlyFareSummary" style="margin-top:10px; color:gold; font-weight:bold; font-size:18px;"></div>
-      <button type="button" id="payHourlyNow">Pay Now</button>
-    </form>
-  </div>
-</main>
+        <select id="vehicleType" required>
+          <option value="">Select Vehicle Class</option>
+          <option value="business">Business Class</option>
+          <option value="suv">Business Van/SUV</option>
+          <option value="first">First Class</option>
+        </select>
 
-<div id="loadingSpinner">
-  <div class="spinner"></div>
-</div>
+        <input type="text" id="pickup" placeholder="Pickup Location" required />
+        <input type="text" id="dropoff" placeholder="Dropoff Location" required />
 
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+        <div class="form-group">
+          <label for="pickupTime" style="display:block; margin-bottom:6px; color:#FFD700; font-weight:bold;">
+            Pickup Date & Time
+          </label>
+          <input type="datetime-local" id="pickupTime" required />
+        </div>
 
-  const supabaseUrl = 'YOUR_SUPABASE_URL';
-  const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
-  const supabase = createClient(supabaseUrl, supabaseKey);
+        <textarea id="notes" name="notes" placeholder="Any special instructions or requests?" rows="2" style="width: 100%; max-width: 100%; box-sizing: border-box; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; font-size: 16px;"></textarea>
 
-  function showTab(tabName) {
-    const pointDiv = document.getElementById('pointToPointForm');
-    const hourlyDiv = document.getElementById('hourlyForm');
-    const tabPointBtn = document.getElementById('tabPoint');
-    const tabHourlyBtn = document.getElementById('tabHourly');
-    if (tabName === 'point') {
-      pointDiv.classList.add('active'); pointDiv.setAttribute('aria-hidden','false');
-      hourlyDiv.classList.remove('active'); hourlyDiv.setAttribute('aria-hidden','true');
-      tabPointBtn.classList.add('active'); tabHourlyBtn.classList.remove('active');
-      tabPointBtn.setAttribute('aria-selected','true'); tabHourlyBtn.setAttribute('aria-selected','false');
-      if (typeof initAutocomplete==='function'){try{initAutocomplete()}catch(e){}}
-    } else {
-      hourlyDiv.classList.add('active'); hourlyDiv.setAttribute('aria-hidden','false');
-      pointDiv.classList.remove('active'); pointDiv.setAttribute('aria-hidden','true');
-      tabHourlyBtn.classList.add('active'); tabPointBtn.classList.remove('active');
-      tabHourlyBtn.setAttribute('aria-selected','true'); tabPointBtn.setAttribute('aria-selected','false');
+        <button type="button" id="calculateFare" style="margin-bottom: 10px;">Calculate Fare</button>
+        <div id="fareSummary" style="margin-bottom: 10px; color: gold; font-weight: bold; font-size: 18px;"></div>
+        <button type="button" id="payNow">Pay Now</button>
+      </form>
+    </div>
+
+    <div id="hourlyForm" class="tab-content" aria-hidden="true">
+      <form id="hourlyBookingForm">
+        <input type="text" id="hourlyName" name="name" placeholder="Full Name" required />
+        <input type="email" id="hourlyEmail" name="email" placeholder="Email" required />
+        <input type="tel" id="hourlyPhone" name="phone" placeholder="Phone Number" required />
+
+        <select id="hourlyVehicleType" required>
+          <option value="">Select Vehicle Class</option>
+          <option value="business">Business Class</option>
+          <option value="suv">Business Van/SUV</option>
+          <option value="first">First Class</option>
+        </select>
+
+        <label style="display:block; margin-top:10px; color:#FFD700; font-weight:bold;">Number of Hours</label>
+        <input type="number" id="hours" name="hours" min="1" max="12" value="2" required />
+        <input type="text" id="hourlyPickup" placeholder="Pickup Location" required />
+
+        <div class="form-group">
+          <label for="hourlyPickupTime" style="display:block; margin-bottom:6px; color:#FFD700; font-weight:bold;">
+            Pickup Date & Time
+          </label>
+          <input type="datetime-local" id="hourlyPickupTime" required />
+        </div>
+
+        <textarea id="hourlyNotes" name="hourlyNotes" placeholder="Any special instructions or requests?" rows="2" style="width: 100%; max-width: 100%; box-sizing: border-box; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; font-size: 16px;"></textarea>
+
+        <button type="button" id="calculateHourlyFare" style="margin-top:10px;">Calculate Fare</button>
+        <div id="hourlyFareSummary" style="margin-top:10px; color:gold; font-weight:bold; font-size:18px;"></div>
+        <button type="button" id="payHourlyNow">Pay Now</button>
+      </form>
+    </div>
+  </main>
+
+  <div id="loadingSpinner"><div class="spinner"></div></div>
+
+  <script>
+    // ---------------- TAB TOGGLE ----------------
+    function showTab(tabName) {
+      const pointDiv = document.getElementById('pointToPointForm');
+      const hourlyDiv = document.getElementById('hourlyForm');
+      const tabPointBtn = document.getElementById('tabPoint');
+      const tabHourlyBtn = document.getElementById('tabHourly');
+
+      if (tabName === 'point') {
+        pointDiv.classList.add('active');
+        pointDiv.setAttribute('aria-hidden', 'false');
+        hourlyDiv.classList.remove('active');
+        hourlyDiv.setAttribute('aria-hidden', 'true');
+        tabPointBtn.classList.add('active');
+        tabHourlyBtn.classList.remove('active');
+        tabPointBtn.setAttribute('aria-selected', 'true');
+        tabHourlyBtn.setAttribute('aria-selected', 'false');
+        if (typeof initAutocomplete === 'function') { try { initAutocomplete(); } catch(e){} }
+      } else {
+        hourlyDiv.classList.add('active');
+        hourlyDiv.setAttribute('aria-hidden', 'false');
+        pointDiv.classList.remove('active');
+        pointDiv.setAttribute('aria-hidden', 'true');
+        tabHourlyBtn.classList.add('active');
+        tabPointBtn.classList.remove('active');
+        tabHourlyBtn.setAttribute('aria-selected', 'true');
+        tabPointBtn.setAttribute('aria-selected', 'false');
+      }
+      const topEl = document.querySelector('main'); if(topEl) topEl.scrollIntoView({behavior:'smooth'});
     }
-    const topEl = document.querySelector('main'); if(topEl) topEl.scrollIntoView({behavior:'smooth'});
-  }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('tabPoint').addEventListener('click', ()=>showTab('point'));
-    document.getElementById('tabHourly').addEventListener('click', ()=>showTab('hourly'));
-    showTab('point');
-  });
-
-  function initAutocomplete() {
-    ['pickup','dropoff','hourlyPickup'].forEach(id=>{
-      const el = document.getElementById(id);
-      if(el){try{new google.maps.places.Autocomplete(el,{componentRestrictions:{country:'au'}})}catch(e){}}
+    document.addEventListener('DOMContentLoaded', function(){
+      document.getElementById('tabPoint').addEventListener('click', () => showTab('point'));
+      document.getElementById('tabHourly').addEventListener('click', () => showTab('hourly'));
+      showTab('point');
     });
-  }
 
-  async function saveBookingToSupabase(bookingData) {
-    const { data, error } = await supabase.from('bookings').insert([bookingData]);
-    if(error){console.error(error); alert('Error saving booking.'); return false;}
-    return true;
-  }
+    // ---------------- GOOGLE PLACES ----------------
+    function initAutocomplete() {
+      const pickupInput = document.getElementById("pickup");
+      const dropoffInput = document.getElementById("dropoff");
+      if(pickupInput){ try{ new google.maps.places.Autocomplete(pickupInput,{componentRestrictions:{country:'au'}}); }catch(e){} }
+      if(dropoffInput){ try{ new google.maps.places.Autocomplete(dropoffInput,{componentRestrictions:{country:'au'}}); }catch(e){} }
+      const hourlyPickupInput = document.getElementById("hourlyPickup");
+      if(hourlyPickupInput){ try{ new google.maps.places.Autocomplete(hourlyPickupInput,{componentRestrictions:{country:'au'}}); }catch(e){} }
+    }
 
-  document.getElementById('calculateFare').addEventListener('click', async ()=>{
-    const vehicleType = document.getElementById('vehicleType').value;
-    const pickup = document.getElementById('pickup').value;
-    const dropoff = document.getElementById('dropoff').value;
-    const pickupTime = document.getElementById('pickupTime').value;
-    if(!pickup||!dropoff||!vehicleType||!pickupTime){alert('Please fill in pickup, dropoff, vehicle type, and pickup time.');return;}
-    const service = new google.maps.DistanceMatrixService();
-    service.getDistanceMatrix({origins:[pickup],destinations:[dropoff],travelMode:'DRIVING',unitSystem:google.maps.UnitSystem.METRIC},(response,status)=>{
-      if(status!=='OK'){alert('Error calculating distance: '+status);return;}
-      const el=response.rows[0].elements[0];
-      if(el.status!=='OK'){alert('Could not calculate distance for the provided locations.');return;}
-      const distanceKm=parseFloat(el.distance.text.replace(/[^0-9.]/g,''));
-      const durationMin=el.duration.value/60;
-      const perKmRate=(distanceKm>20)?2.75:3.50; const perMinRate=0.90;
-      const multipliers={business:1.0,suv:1.4,first:1.8}; const minFare={business:110,suv:145,first:200};
-      let fareCore=(distanceKm*perKmRate+durationMin*perMinRate)*multipliers[vehicleType];
-      fareCore=Math.max(fareCore,minFare[vehicleType]);
-      const gstRate=0.10; const taxRate=0.10; const profitRate=0.25; let fare=fareCore*(1+gstRate+taxRate+profitRate);
-      const pickupHour=new Date(pickupTime).getHours(); if(pickupHour<5||pickupHour>=22) fare+=30;
-      if(pickup.toLowerCase().includes('airport')) fare+=14;
-      fare=fare.toFixed(2);
-      const summary=document.getElementById('fareSummary'); summary.innerHTML=`<div>Estimated Fare: $${fare}</div><div>Distance: ${distanceKm.toFixed(2)} km</div><div>Estimated Time: ${durationMin.toFixed(0)} min</div>`;
-      summary.dataset.fare=fare; summary.dataset.distance=distanceKm.toFixed(2); summary.dataset.duration=durationMin.toFixed(0);
+    // ---------------- POINT-TO-POINT FARE ----------------
+    document.getElementById('calculateFare').addEventListener('click', function() {
+      const vehicleType = document.getElementById('vehicleType').value;
+      const pickup = document.getElementById('pickup').value;
+      const dropoff = document.getElementById('dropoff').value;
+      const pickupTime = document.getElementById('pickupTime').value;
+      if(!pickup||!dropoff||!vehicleType||!pickupTime){alert('Please fill in pickup, dropoff, vehicle type, and pickup time.'); return;}
+      const service = new google.maps.DistanceMatrixService();
+      service.getDistanceMatrix({ origins:[pickup], destinations:[dropoff], travelMode:'DRIVING', unitSystem:google.maps.UnitSystem.METRIC }, function(response,status){
+        if(status!=='OK'){alert('Error calculating distance: '+status); return;}
+        const el = response.rows[0].elements[0];
+        if(el.status!=='OK'){alert('Could not calculate distance for the provided locations.'); return;}
+        const distanceKm = parseFloat(el.distance.text.replace(/[^0-9.]/g,'')); 
+        const durationMin = el.duration.value/60;
+        const perKmRate=(distanceKm>20)?2.75:3.50; 
+        const perMinRate=0.9;
+        const multipliers={business:1.0,suv:1.4,first:1.8};
+        const minFare={business:110,suv:145,first:200};
+        let fareCore=(distanceKm*perKmRate+durationMin*perMinRate)*multipliers[vehicleType];
+        fareCore=Math.max(fareCore,minFare[vehicleType]);
+        const gstRate=0.10, taxRate=0.10, profitRate=0.25;
+        let fare=fareCore*(1+gstRate+taxRate+profitRate);
+        const pickupHour=new Date(pickupTime).getHours();
+        if(pickupHour<5||pickupHour>=22) fare+=30;
+        if(pickup.toLowerCase().includes("airport")){ fare+=14; }
+        fare=fare.toFixed(2);
+        document.getElementById('fareSummary').innerHTML=`<div>Estimated Fare: $${fare}</div><div>Distance: ${distanceKm.toFixed(2)} km</div><div>Estimated Time: ${durationMin.toFixed(0)} min</div>`;
+        const fareSummary=document.getElementById('fareSummary');
+        fareSummary.setAttribute('data-fare',fare);
+        fareSummary.setAttribute('data-distance',distanceKm.toFixed(2));
+        fareSummary.setAttribute('data-duration',durationMin.toFixed(0));
+      });
     });
-  });
 
-  document.getElementById('payNow').addEventListener('click', async ()=>{
-    const spinner=document.getElementById('loadingSpinner'); spinner.style.display='flex';
-    const name=document.getElementById('name').value; const phone=document.getElementById('phone').value;
-    const email=document.getElementById('email').value; const pickup=document.getElementById('pickup').value;
-    const dropoff=document.getElementById('dropoff').value; const pickupTime=document.getElementById('pickupTime').value;
-    const vehicleType=document.getElementById('vehicleType').value; const notes=document.getElementById('notes').value;
-    const fareSummary=document.getElementById('fareSummary');
-    const fare=fareSummary.dataset.fare; const distanceKm=fareSummary.dataset.distance; const durationMin=fareSummary.dataset.duration;
-    if(!name||!phone||!email||!pickup||!dropoff||!pickupTime||!vehicleType||!fare){spinner.style.display='none'; alert('Please fill out all details and calculate fare before proceeding.'); return;}
-    const bookingData={name, phone, email, pickup, dropoff, datetime:pickupTime, vehicleType, totalFare:parseFloat(fare), distanceKm, durationMin, notes};
-    const saved = await saveBookingToSupabase(bookingData);
-    if(saved){ alert('Booking saved! Redirecting to payment...'); window.location.href = '/payment-page'; spinner.style.display='none'; }
-    else spinner.style.display='none';
-  });
+    // ---------------- HOURLY FARE ----------------
+    document.getElementById('calculateHourlyFare').addEventListener('click', function() {
+      const vehicleType = document.getElementById('hourlyVehicleType').value;
+      const hours = parseInt(document.getElementById('hours').value,10);
+      if(!vehicleType||!hours||hours<1){alert('Please select a vehicle type and enter a valid number of hours.');return;}
+      const rates={business:150,suv:200,first:250};
+      const fare=rates[vehicleType]*hours;
+      document.getElementById('hourlyFareSummary').innerHTML=`Estimated Fare: $${fare.toFixed(2)} for ${hours} hour(s)`;
+      document.getElementById('hourlyFareSummary').setAttribute('data-fare',fare.toFixed(2));
+      document.getElementById('hourlyFareSummary').setAttribute('data-hours',hours);
+    });
 
-  document.getElementById('calculateHourlyFare').addEventListener('click', ()=>{
-    const vehicleType=document.getElementById('hourlyVehicleType').value;
-    const hours=parseInt(document.getElementById('hours').value,10);
-    if(!vehicleType||!hours||hours<1){alert('Please select a vehicle type and enter a valid number of hours.');return;}
-    const rates={business:150,suv:200,first:250};
-    const fare=rates[vehicleType]*hours;
-    const summary=document.getElementById('hourlyFareSummary');
-    summary.innerHTML=`Estimated Fare: $${fare.toFixed(2)} for ${hours} hour(s)`;
-    summary.dataset.fare=fare.toFixed(2); summary.dataset.hours=hours;
-  });
+    // ---------------- SUPABASE BOOKING PAY ----------------
+    async function submitBooking(bookingData) {
+      const spinner = document.getElementById('loadingSpinner');
+      spinner.style.display='flex';
+      try{
+        const response=await fetch('/api/create-booking',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(bookingData)});
+        const data=await response.json();
+        if(data.checkoutUrl){window.location.href=data.checkoutUrl;} 
+        else{alert('Payment session failed. Please try again.'); spinner.style.display='none';}
+      }catch(err){console.error(err);alert('Something went wrong. Please try again.'); spinner.style.display='none';}
+    }
 
-  document.getElementById('payHourlyNow').addEventListener('click', async ()=>{
-    const spinner=document.getElementById('loadingSpinner'); spinner.style.display='flex';
-    const name=document.getElementById('hourlyName').value; const phone=document.getElementById('hourlyPhone').value;
-    const email=document.getElementById('hourlyEmail').value; const pickup=document.getElementById('hourlyPickup').value;
-    const pickupTime=document.getElementById('hourlyPickupTime').value; const vehicleType=document.getElementById('hourlyVehicleType').value;
-    const hours=document.getElementById('hours').value; const notes=document.getElementById('hourlyNotes').value;
-    const fareSummary=document.getElementById('hourlyFareSummary'); const fare=fareSummary.dataset.fare;
-    if(!name||!phone||!email||!pickup||!pickupTime||!vehicleType||!fare){spinner.style.display='none'; alert('Please fill out all details and calculate fare before proceeding.'); return;}
-    const bookingData={name, phone, email, pickup, dropoff:"Hourly Booking", datetime:pickupTime, vehicleType, hours, notes, totalFare:parseFloat(fare), distanceKm:0, durationMin:parseInt(hours,10)*60};
-    const saved = await saveBookingToSupabase(bookingData);
-    if(saved){ alert('Booking saved! Redirecting to payment...'); window.location.href='/payment-page'; spinner.style.display='none'; }
-    else spinner.style.display='none';
-  });
+    document.getElementById('payNow').addEventListener('click', function(){
+      const name=document.getElementById('name').value;
+      const phone=document.getElementById('phone').value;
+      const email=document.getElementById('email').value;
+      const pickup=document.getElementById('pickup').value;
+      const dropoff=document.getElementById('dropoff').value;
+      const pickupTime=document.getElementById('pickupTime').value;
+      const vehicleType=document.getElementById('vehicleType').value;
+      const notes=document.getElementById('notes').value;
+      const fareSummary=document.getElementById('fareSummary');
+      const fare=fareSummary.getAttribute('data-fare');
+      const distanceKm=fareSummary.getAttribute('data-distance');
+      const durationMin=fareSummary.getAttribute('data-duration');
+      if(!name||!phone||!email||!pickup||!dropoff||!pickupTime||!vehicleType||!fare){alert('Please fill out all details and calculate fare before proceeding.'); return;}
+      const bookingData={name,phone,email,pickup,dropoff,datetime:pickupTime,vehicleType,totalFare:parseFloat(fare),distanceKm,durationMin,notes,type:'point-to-point',status:'pending'};
+      submitBooking(bookingData);
+    });
 
-  function hideSpinner(){const spinner=document.getElementById('loadingSpinner'); if(spinner) spinner.style.display='none';}
-  document.addEventListener('DOMContentLoaded', hideSpinner);
-  window.addEventListener('pageshow', function(event){if(event.persisted){hideSpinner();}});
-</script>
+    document.getElementById('payHourlyNow').addEventListener('click', function(){
+      const name=document.getElementById('hourlyName').value;
+      const phone=document.getElementById('hourlyPhone').value;
+      const email=document.getElementById('hourlyEmail').value;
+      const pickup=document.getElementById('hourlyPickup').value;
+      const pickupTime=document.getElementById('hourlyPickupTime').value;
+      const vehicleType=document.getElementById('hourlyVehicleType').value;
+      const hours=parseInt(document.getElementById('hours').value,10);
+      const notes=document.getElementById('hourlyNotes').value;
+      const fareSummary=document.getElementById('hourlyFareSummary');
+      const fare=fareSummary.getAttribute('data-fare');
+      if(!name||!phone||!email||!pickup||!pickupTime||!vehicleType||!fare){alert('Please fill out all details and calculate fare before proceeding.'); return;}
+      const bookingData={name,phone,email,pickup,dropoff:'Hourly Booking',datetime:pickupTime,vehicleType,hours,notes,totalFare:parseFloat(fare),distanceKm:0,durationMin:hours*60,type:'hourly',status:'pending'};
+      submitBooking(bookingData);
+    });
+
+    function hideSpinner(){const spinner=document.getElementById('loadingSpinner');if(spinner) spinner.style.display='none';}
+    document.addEventListener('DOMContentLoaded',hideSpinner);
+    window.addEventListener('pageshow', function(event){if(event.persisted){hideSpinner();}});
+  </script>
 </body>
 </html>
