@@ -22,54 +22,55 @@
     .form-field { width: 100%; margin-bottom: 10px; padding: 5px; }
     .btn { padding: 8px 12px; background: black; color: gold; border: none; cursor: pointer; margin-right: 5px; }
     .btn:hover { background: #B9975B; color: black; }
-    .status { margin-top: 10px; }
+    .status { margin-top: 10px; font-weight: bold; }
+    .status.error { color: red; }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="header-top">
-      <img src="icon.png" alt="Chauffeur de Luxe Logo" />
-      <h1>Chauffeur De Luxe</h1>
-    </div>
-    <p class="tagline">Driven by Distinction. Defined by Elegance.</p>
-  </header>
+<header>
+  <div class="header-top">
+    <img src="icon.png" alt="Chauffeur de Luxe Logo" />
+    <h1>Chauffeur De Luxe</h1>
+  </div>
+  <p class="tagline">Driven by Distinction. Defined by Elegance.</p>
+</header>
 
-  <div class="tabs">
-    <div class="tab active" data-tab="pendingTab">Pending Bookings</div>
-    <div class="tab" data-tab="completedTab">Completed Jobs</div>
-    <div class="tab" data-tab="assignTab">Assign Job</div>
+<div class="tabs">
+  <div class="tab active" data-tab="pendingTab">Pending Bookings</div>
+  <div class="tab" data-tab="completedTab">Completed Jobs</div>
+  <div class="tab" data-tab="assignTab">Assign Job</div>
+</div>
+
+<main>
+  <!-- Pending Bookings Tab -->
+  <div id="pendingTab" class="tab-content active">
+    <div id="pendingBookings">Loading pending bookings...</div>
+    <button id="refreshPending" class="btn">Refresh</button>
   </div>
 
-  <main>
-    <!-- Pending Bookings Tab -->
-    <div id="pendingTab" class="tab-content active">
-      <div id="pendingBookings">Loading pending bookings...</div>
-      <button id="refreshPending" class="btn">Refresh</button>
-    </div>
+  <!-- Completed Jobs Tab -->
+  <div id="completedTab" class="tab-content">
+    <div id="completedBookings">Loading completed jobs...</div>
+    <button id="refreshCompleted" class="btn">Refresh</button>
+  </div>
 
-    <!-- Completed Jobs Tab -->
-    <div id="completedTab" class="tab-content">
-      <div id="completedBookings">Loading completed jobs...</div>
-      <button id="refreshCompleted" class="btn">Refresh</button>
-    </div>
-
-    <!-- Assign Job Tab -->
-    <div id="assignTab" class="tab-content">
-      <input type="hidden" id="id" />
-      <label>Customer Name:</label><input type="text" id="name" class="form-field"/>
-      <label>Customer Email:</label><input type="email" id="email" class="form-field"/>
-      <label>Customer Phone:</label><input type="tel" id="phone" class="form-field"/>
-      <label>Pickup Location:</label><input type="text" id="pickup" class="form-field"/>
-      <label>Dropoff Location:</label><input type="text" id="dropoff" class="form-field"/>
-      <label>Date & Time:</label><input type="datetime-local" id="datetime" class="form-field"/>
-      <label>Vehicle Type:</label><input type="text" id="vehicleType" class="form-field"/>
-      <label>Total Fare:</label><input type="number" id="totalFare" class="form-field"/>
-      <label>Distance (km):</label><input type="number" id="distanceKm" class="form-field"/>
-      <label>Duration (min):</label><input type="number" id="durationMin" class="form-field"/>
-      <label>Notes:</label><textarea id="notes" class="form-field"></textarea>
-      <label>Assign to Driver Email:</label>
-      <select id="driverEmail" class="form-field">
+  <!-- Assign Job Tab -->
+  <div id="assignTab" class="tab-content">
+    <input type="hidden" id="id" />
+    <label>Customer Name:</label><input type="text" id="name" class="form-field"/>
+    <label>Customer Email:</label><input type="email" id="email" class="form-field"/>
+    <label>Customer Phone:</label><input type="tel" id="phone" class="form-field"/>
+    <label>Pickup Location:</label><input type="text" id="pickup" class="form-field"/>
+    <label>Dropoff Location:</label><input type="text" id="dropoff" class="form-field"/>
+    <label>Date & Time:</label><input type="datetime-local" id="datetime" class="form-field"/>
+    <label>Vehicle Type:</label><input type="text" id="vehicleType" class="form-field"/>
+    <label>Total Fare:</label><input type="number" id="totalFare" class="form-field"/>
+    <label>Distance (km):</label><input type="number" id="distanceKm" class="form-field"/>
+    <label>Duration (min):</label><input type="number" id="durationMin" class="form-field"/>
+    <label>Notes:</label><textarea id="notes" class="form-field"></textarea>
+    <label>Assign to Driver Email:</label>
+    <select id="driverEmail" class="form-field">
       <option value="">-- Select Driver --</option>
       <option value="farahjnr@gmail.com">farahjnr@gmail.com</option>
       <option value="driver2@example.com">driver2@example.com</option>
@@ -86,186 +87,169 @@
       <option value="driver13@example.com">driver13@example.com</option>
       <option value="driver14@example.com">driver14@example.com</option>
       <option value="driver15@example.com">driver15@example.com</option>
-      </select>
-      <div>
-        <button id="assignBtn" class="btn">Assign Job</button>
-      </div>
-      <div id="status" class="status"></div>
+    </select>
+    <div>
+      <button id="assignBtn" class="btn">Assign Job</button>
     </div>
-  </main>
+    <div id="status" class="status"></div>
+  </div>
+</main>
 
-  <script>
-    const API_BASE = 'https://server-qdh1.onrender.com';
+<script>
+const API_BASE = 'https://server-qdh1.onrender.com';
 
-    const tabs = document.querySelectorAll('.tab');
-    const tabContents = document.querySelectorAll('.tab-content');
+// Tabs logic
+const tabs = document.querySelectorAll('.tab');
+const tabContents = document.querySelectorAll('.tab-content');
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    tabContents.forEach(tc => tc.classList.remove('active'));
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
 
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        tabContents.forEach(tc => tc.classList.remove('active'));
-        document.getElementById(tab.dataset.tab).classList.add('active');
+const pendingBookingsDiv = document.getElementById('pendingBookings');
+const completedBookingsDiv = document.getElementById('completedBookings');
+const assignBtn = document.getElementById('assignBtn');
+const statusDiv = document.getElementById('status');
+
+let pendingBookings = [];
+
+// Load pending bookings
+async function loadPendingBookings() {
+  pendingBookingsDiv.textContent = 'Loading pending bookings...';
+  try {
+    const res = await fetch(`${API_BASE}/pending-bookings`);
+    pendingBookings = await res.json();
+    if (!pendingBookings || pendingBookings.length === 0) {
+      pendingBookingsDiv.textContent = 'No pending bookings.';
+    } else {
+      pendingBookingsDiv.innerHTML = '';
+      pendingBookings.forEach(booking => {
+        const div = document.createElement('div');
+        div.className = 'booking-item';
+        div.textContent = `${booking.name} - ${booking.pickup} → ${booking.dropoff} (${booking.datetime})`;
+        div.addEventListener('click', () => {
+          populateForm(booking);
+          document.querySelector('.tab[data-tab="assignTab"]').click();
+        });
+        pendingBookingsDiv.appendChild(div);
       });
+    }
+  } catch (err) {
+    console.error(err);
+    pendingBookingsDiv.textContent = 'Failed to load pending bookings.';
+  }
+}
+
+// Load completed jobs
+async function loadCompletedBookings() {
+  completedBookingsDiv.textContent = 'Loading completed jobs...';
+  try {
+    const res = await fetch(`${API_BASE}/completed-jobs`);
+    const completed = await res.json();
+    if (!completed || completed.length === 0) {
+      completedBookingsDiv.textContent = 'No completed jobs.';
+    } else {
+      completedBookingsDiv.innerHTML = '';
+      completed.forEach(job => {
+        const b = job.bookingData;
+        const div = document.createElement('div');
+        div.className = 'booking-item';
+        div.innerHTML = `<strong>${b.name}</strong> - ${b.pickup} → ${b.dropoff} (${b.datetime})<br>Driver: ${job.driverEmail || 'N/A'} | Fare: $${b.totalFare}`;
+        completedBookingsDiv.appendChild(div);
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    completedBookingsDiv.textContent = 'Failed to load completed jobs.';
+  }
+}
+
+// Populate assign form
+function populateForm(booking) {
+  document.getElementById('id').value = booking.id || '';
+  document.getElementById('name').value = booking.name;
+  document.getElementById('email').value = booking.email;
+  document.getElementById('phone').value = booking.phone;
+  document.getElementById('pickup').value = booking.pickup;
+  document.getElementById('dropoff').value = booking.dropoff;
+  document.getElementById('datetime').value = booking.datetime;
+  document.getElementById('vehicleType').value = booking.vehicleType;
+  document.getElementById('totalFare').value = booking.totalFare || '';
+  document.getElementById('distanceKm').value = booking.distanceKm || '';
+  document.getElementById('durationMin').value = booking.durationMin || '';
+  document.getElementById('notes').value = booking.notes || '';
+}
+
+// Assign job
+assignBtn.addEventListener('click', async () => {
+  statusDiv.textContent = '';
+  const bookingData = {
+    id: document.getElementById('id').value,
+    name: document.getElementById('name').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    pickup: document.getElementById('pickup').value.trim(),
+    dropoff: document.getElementById('dropoff').value.trim(),
+    datetime: document.getElementById('datetime').value,
+    vehicleType: document.getElementById('vehicleType').value.trim(),
+    totalFare: parseFloat(document.getElementById('totalFare').value) || 0,
+    distanceKm: parseFloat(document.getElementById('distanceKm').value) || 0,
+    durationMin: parseFloat(document.getElementById('durationMin').value) || 0,
+    notes: document.getElementById('notes').value.trim()
+  };
+  const driverEmail = document.getElementById('driverEmail').value.trim();
+
+  if (!bookingData.pickup || !bookingData.dropoff || !bookingData.datetime || !bookingData.vehicleType || !bookingData.totalFare) {
+    statusDiv.textContent = 'Please fill in all required booking details.';
+    statusDiv.classList.add('error');
+    return;
+  }
+  if (!driverEmail) {
+    statusDiv.textContent = 'Please select a driver email.';
+    statusDiv.classList.add('error');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/assign-job`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ driverEmail, bookingData })
     });
+    const result = await response.json();
 
-    const pendingBookingsDiv = document.getElementById('pendingBookings');
-    const completedBookingsDiv = document.getElementById('completedBookings');
-    const assignBtn = document.getElementById('assignBtn');
-    const statusDiv = document.getElementById('status');
-    const driversDatalist = document.getElementById('drivers');
-
-    let pendingBookings = [];
-
-    async function loadPendingBookings() {
-      pendingBookingsDiv.textContent = 'Loading pending bookings...';
-      try {
-        const res = await fetch(`${API_BASE}/pending-bookings`);
-        pendingBookings = await res.json();
-        if (!pendingBookings || pendingBookings.length === 0) {
-          pendingBookingsDiv.textContent = 'No pending bookings.';
-        } else {
-          pendingBookingsDiv.innerHTML = '';
-          pendingBookings.forEach(booking => {
-            const div = document.createElement('div');
-            div.className = 'booking-item';
-            div.textContent = `${booking.name} - ${booking.pickup} → ${booking.dropoff} (${booking.datetime})`;
-            div.addEventListener('click', () => {
-              populateForm(booking);
-              // Switch to Assign Job tab when clicked
-              document.querySelector('.tab[data-tab="assignTab"]').click();
-            });
-            pendingBookingsDiv.appendChild(div);
-          });
-        }
-      } catch (err) {
-        console.error(err);
-        pendingBookingsDiv.textContent = 'Failed to load pending bookings.';
-      }
-    }
-
-    async function loadCompletedBookings() {
-      completedBookingsDiv.textContent = 'Loading completed jobs...';
-      try {
-        const res = await fetch(`${API_BASE}/completed-jobs`);
-        const completed = await res.json();
-        if (!completed || completed.length === 0) {
-          completedBookingsDiv.textContent = 'No completed jobs.';
-        } else {
-          completedBookingsDiv.innerHTML = '';
-          completed.forEach(job => {
-            const b = job.bookingData;
-            const div = document.createElement('div');
-            div.className = 'booking-item';
-            div.innerHTML = `<strong>${b.name}</strong> - ${b.pickup} → ${b.dropoff} (${b.datetime})<br>Driver: ${job.driverEmail || 'N/A'} | Fare: $${b.totalFare}`;
-            completedBookingsDiv.appendChild(div);
-          });
-        }
-      } catch (err) {
-        console.error(err);
-        completedBookingsDiv.textContent = 'Failed to load completed jobs.';
-      }
-    }
-
-    async function loadDrivers() {
-      try {
-        const res = await fetch(`${API_BASE}/drivers`);
-        const drivers = await res.json();
-        driversDatalist.innerHTML = '';
-        drivers.forEach(driver => {
-          const option = document.createElement('option');
-          option.value = driver.email;
-          driversDatalist.appendChild(option);
-        });
-      } catch (err) {
-        console.error('Failed to load drivers:', err);
-      }
-    }
-
-    function populateForm(booking) {
-      document.getElementById('id').value = booking.id || '';
-      document.getElementById('name').value = booking.name;
-      document.getElementById('email').value = booking.email;
-      document.getElementById('phone').value = booking.phone;
-      document.getElementById('pickup').value = booking.pickup;
-      document.getElementById('dropoff').value = booking.dropoff;
-      document.getElementById('datetime').value = booking.datetime;
-      document.getElementById('vehicleType').value = booking.vehicleType;
-      document.getElementById('totalFare').value = booking.totalFare || '';
-      document.getElementById('distanceKm').value = booking.distanceKm || '';
-      document.getElementById('durationMin').value = booking.durationMin || '';
-      document.getElementById('notes').value = booking.notes || '';
-    }
-
-    assignBtn.addEventListener('click', async () => {
-      statusDiv.textContent = '';
-
-      const bookingData = {
-        id: document.getElementById('id').value,
-        name: document.getElementById('name').value.trim(),
-        email: document.getElementById('email').value.trim(),
-        phone: document.getElementById('phone').value.trim(),
-        pickup: document.getElementById('pickup').value.trim(),
-        dropoff: document.getElementById('dropoff').value.trim(),
-        datetime: document.getElementById('datetime').value,
-        vehicleType: document.getElementById('vehicleType').value.trim(),
-        totalFare: parseFloat(document.getElementById('totalFare').value) || 0,
-        distanceKm: parseFloat(document.getElementById('distanceKm').value) || 0,
-        durationMin: parseFloat(document.getElementById('durationMin').value) || 0,
-        notes: document.getElementById('notes').value.trim()
-      };
-
-      const driverEmail = document.getElementById('driverEmail').value.trim();
-
-      if (!bookingData.pickup || !bookingData.dropoff || !bookingData.datetime || !bookingData.vehicleType || !bookingData.totalFare) {
-        statusDiv.textContent = 'Please fill in all required booking details.';
-        statusDiv.classList.add('error');
-        return;
-      }
-      if (!driverEmail) {
-        statusDiv.textContent = 'Please enter or select a driver email.';
-        statusDiv.classList.add('error');
-        return;
-      }
-
-      try {
-        const response = await fetch(`${API_BASE}/assign-job`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ driverEmail, bookingData })
-        });
-        const result = await response.json();
-
-        if (response.ok) {
-          statusDiv.textContent = `✅ Job assigned successfully! Job ID: ${result.jobId}`;
-          statusDiv.classList.remove('error');
-          loadPendingBookings();
-          loadCompletedBookings();
-          // Clear form after assigning
-          document.querySelectorAll('#assignTab .form-field').forEach(f => f.value = '');
-        } else {
-          statusDiv.textContent = `❌ Error: ${result.error || 'Failed to assign job.'}`;
-          statusDiv.classList.add('error');
-        }
-      } catch (error) {
-        statusDiv.textContent = '🚫 Network or server error.';
-        statusDiv.classList.add('error');
-      }
-    });
-
-    document.getElementById('refreshPending').addEventListener('click', loadPendingBookings);
-    document.getElementById('refreshCompleted').addEventListener('click', loadCompletedBookings);
-
-    // Initial load
-    loadPendingBookings();
-    loadCompletedBookings();
-    loadDrivers();
-
-    setInterval(() => {
+    if (response.ok) {
+      statusDiv.textContent = `✅ Job assigned successfully! Job ID: ${result.jobId}`;
+      statusDiv.classList.remove('error');
       loadPendingBookings();
       loadCompletedBookings();
-    }, 30000);
-  </script>
+      document.querySelectorAll('#assignTab .form-field').forEach(f => f.value = '');
+    } else {
+      statusDiv.textContent = `❌ Error: ${result.error || 'Failed to assign job.'}`;
+      statusDiv.classList.add('error');
+    }
+  } catch (error) {
+    statusDiv.textContent = '🚫 Network or server error.';
+    statusDiv.classList.add('error');
+  }
+});
+
+// Refresh buttons
+document.getElementById('refreshPending').addEventListener('click', loadPendingBookings);
+document.getElementById('refreshCompleted').addEventListener('click', loadCompletedBookings);
+
+// Initial load
+loadPendingBookings();
+loadCompletedBookings();
+setInterval(() => {
+  loadPendingBookings();
+  loadCompletedBookings();
+}, 30000);
+</script>
 
 </body>
 </html>
