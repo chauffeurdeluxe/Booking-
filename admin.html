@@ -22,7 +22,7 @@
     .form-field { width: 100%; margin-bottom: 10px; padding: 5px; }
     .btn { padding: 8px 12px; background: black; color: gold; border: none; cursor: pointer; margin-right: 5px; }
     .btn:hover { background: #B9975B; color: black; }
-    .status { margin-top: 10px; color: red; }
+    .status { margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -68,6 +68,7 @@
     <label>Distance (km):</label><input type="number" id="distanceKm" class="form-field"/>
     <label>Duration (min):</label><input type="number" id="durationMin" class="form-field"/>
     <label>Notes:</label><textarea id="notes" class="form-field"></textarea>
+
     <label>Assign to Driver Email:</label>
     <select id="driverEmail" class="form-field">
       <option value="">-- Select Driver --</option>
@@ -85,6 +86,7 @@ const API_BASE = 'https://server-qdh1.onrender.com'; // Replace with your server
 // ----------------- TAB SWITCHING -----------------
 const tabs = document.querySelectorAll('.tab');
 const tabContents = document.querySelectorAll('.tab-content');
+
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
     tabs.forEach(t => t.classList.remove('active'));
@@ -100,12 +102,11 @@ const assignBtn = document.getElementById('assignBtn');
 const statusDiv = document.getElementById('status');
 const driverSelect = document.getElementById('driverEmail');
 
-  // ----------------- LOAD PENDING BOOKINGS -----------------
+// ----------------- LOAD PENDING BOOKINGS -----------------
 async function loadPendingBookings() {
   pendingBookingsDiv.textContent = 'Loading pending bookings...';
   try {
     const res = await fetch(`${API_BASE}/pending-jobs`);
-    if (!res.ok) throw new Error('Failed to fetch pending jobs');
     const pendingBookings = await res.json();
 
     if (!pendingBookings || pendingBookings.length === 0) {
@@ -118,7 +119,7 @@ async function loadPendingBookings() {
     pendingBookings.forEach(booking => {
       const div = document.createElement('div');
       div.className = 'booking-item';
-      div.textContent = `${booking.customername} - ${booking.pickup} → ${booking.dropoff} (${new Date(booking.pickuptime).toLocaleString()})`;
+      div.textContent = `${booking.customername} - ${booking.pickup} → ${booking.dropoff} (${booking.pickuptime})`;
 
       div.addEventListener('click', () => {
         populateForm({
@@ -152,21 +153,19 @@ async function loadCompletedBookings() {
   completedBookingsDiv.textContent = 'Loading completed jobs...';
   try {
     const res = await fetch(`${API_BASE}/completed-jobs`);
-    if (!res.ok) throw new Error('Failed to fetch completed jobs');
-    const completedJobs = await res.json();
+    const completed = await res.json();
 
-    if (!completedJobs || completedJobs.length === 0) {
+    if (!completed || completed.length === 0) {
       completedBookingsDiv.textContent = 'No completed jobs.';
       return;
     }
 
     completedBookingsDiv.innerHTML = '';
-    completedJobs.forEach(job => {
-      const b = job.bookingData;
+    completed.forEach(job => {
+      const b = job.bookingData || job;
       const div = document.createElement('div');
       div.className = 'booking-item';
-      div.innerHTML = `<strong>${b.customername}</strong> - ${b.pickup} → ${b.dropoff} (${new Date(b.pickuptime).toLocaleString()})<br>
-                       Driver: ${job.driverEmail || b.assignedto || 'N/A'} | Fare: $${b.fare}`;
+      div.innerHTML = `<strong>${b.customername}</strong> - ${b.pickup} → ${b.dropoff} (${b.pickuptime})<br>Driver: ${job.assignedto || job.driverEmail || 'N/A'} | Fare: $${b.fare}`;
       completedBookingsDiv.appendChild(div);
     });
   } catch (err) {
@@ -175,23 +174,42 @@ async function loadCompletedBookings() {
   }
 }
 
-// ----------------- LOAD DRIVERS -----------------
+  // ----------------- LOAD DRIVERS -----------------
 async function loadDrivers() {
+  const defaultDrivers = [
+    "farahjnr@gmail.com","driver2@example.com","driver3@example.com","driver4@example.com","driver5@example.com",
+    "driver6@example.com","driver7@example.com","driver8@example.com","driver9@example.com","driver10@example.com",
+    "driver11@example.com","driver12@example.com","driver13@example.com","driver14@example.com","driver15@example.com"
+  ];
+
+  // Clear current options
   driverSelect.innerHTML = '<option value="">-- Select Driver --</option>';
 
+  // Add hardcoded drivers
+  defaultDrivers.forEach(email => {
+    const option = document.createElement('option');
+    option.value = email;
+    option.textContent = email;
+    driverSelect.appendChild(option);
+  });
+
+  // Try to fetch extra drivers from server
   try {
     const res = await fetch(`${API_BASE}/drivers`);
-    if (!res.ok) throw new Error('Failed to fetch drivers');
+    if (!res.ok) throw new Error('Server error');
     const drivers = await res.json();
 
+    const existing = new Set(defaultDrivers);
     drivers.forEach(d => {
-      const option = document.createElement('option');
-      option.value = d.email;
-      option.textContent = d.email;
-      driverSelect.appendChild(option);
+      if (!existing.has(d.email)) {
+        const option = document.createElement('option');
+        option.value = d.email;
+        option.textContent = d.email;
+        driverSelect.appendChild(option);
+      }
     });
   } catch (err) {
-    console.warn('Failed to load drivers from server', err);
+    console.warn('Failed to load drivers from server, using default list', err);
   }
 }
 
@@ -212,10 +230,10 @@ function populateForm(booking) {
   document.getElementById('driverEmail').value = booking.assignedto || '';
 }
 
-  // ----------------- ASSIGN JOB -----------------
+// ----------------- ASSIGN JOB -----------------
 assignBtn.addEventListener('click', async () => {
   statusDiv.textContent = '';
-
+  
   const bookingData = {
     id: document.getElementById('id').value,
     customername: document.getElementById('name').value.trim(),
@@ -229,7 +247,8 @@ assignBtn.addEventListener('click', async () => {
     distance_km: parseFloat(document.getElementById('distanceKm').value) || 0,
     duration_min: parseFloat(document.getElementById('durationMin').value) || 0,
     notes: document.getElementById('notes').value.trim(),
-    assignedto: document.getElementById('driverEmail').value.trim()
+    assignedto: document.getElementById('driverEmail').value.trim(),
+    status: 'completed'
   };
 
   if (!bookingData.pickup || !bookingData.dropoff || !bookingData.pickuptime || !bookingData.vehicletype || !bookingData.fare) {
@@ -245,23 +264,23 @@ assignBtn.addEventListener('click', async () => {
   }
 
   try {
-    const res = await fetch(`${API_BASE}/assign-job`, {
+    const response = await fetch(`${API_BASE}/assign-job`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ bookingData })
     });
 
-    const result = await res.json();
+    const result = await response.json();
 
-    if (res.ok) {
-      statusDiv.textContent = '✅ Job assigned successfully!';
+    if (response.ok) {
+      statusDiv.textContent = `✅ Job assigned successfully!`;
       statusDiv.classList.remove('error');
 
-      // Refresh bookings
+      // Refresh booking lists
       loadPendingBookings();
       loadCompletedBookings();
 
-      // Clear form
+      // Clear form fields
       document.querySelectorAll('#assignTab .form-field').forEach(f => f.value = '');
     } else {
       statusDiv.textContent = `❌ Error: ${result.error || 'Failed to assign job.'}`;
@@ -283,7 +302,7 @@ loadPendingBookings();
 loadCompletedBookings();
 loadDrivers();
 
-// ----------------- AUTO REFRESH -----------------
+// ----------------- AUTO REFRESH EVERY 30 SECONDS -----------------
 setInterval(() => {
   loadPendingBookings();
   loadCompletedBookings();
