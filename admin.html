@@ -179,7 +179,7 @@
         const b = job.bookingData || job;
         const div = document.createElement('div');
         div.className = 'booking-item';
-        div.innerHTML = `<strong>${b.customername}</strong> - ${b.pickup} → ${b.dropoff} (${b.pickuptime})<br>Driver: ${b.driveremail || 'N/A'} | Fare: $${b.fare}`;
+        div.innerHTML = `<strong>${b.customername}</strong> - ${b.pickup} → ${b.dropoff} (${b.pickuptime})<br>Driver: ${b.assignedto || 'N/A'} | Fare: $${b.fare}`;
         completedBookingsDiv.appendChild(div);
       });
     } catch (err) {
