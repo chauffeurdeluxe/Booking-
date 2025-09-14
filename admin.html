@@ -118,31 +118,49 @@
     let pendingBookings = [];
 
     async function loadPendingBookings() {
-      pendingBookingsDiv.textContent = 'Loading pending bookings...';
-      try {
-        const res = await fetch(`${API_BASE}/pending-bookings`);
-        pendingBookings = await res.json();
-        if (!pendingBookings || pendingBookings.length === 0) {
-          pendingBookingsDiv.textContent = 'No pending bookings.';
-        } else {
-          pendingBookingsDiv.innerHTML = '';
-          pendingBookings.forEach(booking => {
-            const div = document.createElement('div');
-            div.className = 'booking-item';
-            div.textContent = `${booking.name} - ${booking.pickup} → ${booking.dropoff} (${booking.datetime})`;
-            div.addEventListener('click', () => {
-              populateForm(booking);
-              // Switch to Assign Job tab when clicked
-              document.querySelector('.tab[data-tab="assignTab"]').click();
-            });
-            pendingBookingsDiv.appendChild(div);
-          });
-        }
-      } catch (err) {
-        console.error(err);
-        pendingBookingsDiv.textContent = 'Failed to load pending bookings.';
-      }
+  pendingBookingsDiv.textContent = 'Loading pending bookings...';
+  try {
+    const res = await fetch(`${API_BASE}/pending-bookings`);
+    const pendingBookings = await res.json();
+
+    if (!pendingBookings || pendingBookings.length === 0) {
+      pendingBookingsDiv.textContent = 'No pending bookings.';
+      return;
     }
+
+    pendingBookingsDiv.innerHTML = '';
+
+    pendingBookings.forEach(booking => {
+      const div = document.createElement('div');
+      div.className = 'booking-item';
+      div.textContent = `${booking.customername} - ${booking.pickup} → ${booking.dropoff} (${booking.pickuptime})`;
+      
+      div.addEventListener('click', () => {
+        populateForm({
+          id: booking.id,
+          name: booking.customername,
+          email: booking.customeremail,
+          phone: booking.customerphone,
+          pickup: booking.pickup,
+          dropoff: booking.dropoff,
+          datetime: booking.pickuptime,
+          vehicleType: booking.vehicletype,
+          totalFare: booking.fare,
+          distanceKm: booking.distance_km || 0,
+          durationMin: booking.duration_min || 0,
+          notes: booking.notes || ''
+        });
+        // Switch to Assign Job tab
+        document.querySelector('.tab[data-tab="assignTab"]').click();
+      });
+
+      pendingBookingsDiv.appendChild(div);
+    });
+  } catch (err) {
+    console.error(err);
+    pendingBookingsDiv.textContent = 'Failed to load pending bookings.';
+  }
+}
 
     async function loadCompletedBookings() {
       completedBookingsDiv.textContent = 'Loading completed jobs...';
@@ -182,20 +200,20 @@
       }
     }
 
-    function populateForm(booking) {
-      document.getElementById('id').value = booking.id || '';
-      document.getElementById('name').value = booking.name;
-      document.getElementById('email').value = booking.email;
-      document.getElementById('phone').value = booking.phone;
-      document.getElementById('pickup').value = booking.pickup;
-      document.getElementById('dropoff').value = booking.dropoff;
-      document.getElementById('datetime').value = booking.datetime;
-      document.getElementById('vehicleType').value = booking.vehicleType;
-      document.getElementById('totalFare').value = booking.totalFare || '';
-      document.getElementById('distanceKm').value = booking.distanceKm || '';
-      document.getElementById('durationMin').value = booking.durationMin || '';
-      document.getElementById('notes').value = booking.notes || '';
-    }
+   function populateForm(booking) {
+  document.getElementById('id').value = booking.id || '';
+  document.getElementById('name').value = booking.name || '';
+  document.getElementById('email').value = booking.email || '';
+  document.getElementById('phone').value = booking.phone || '';
+  document.getElementById('pickup').value = booking.pickup || '';
+  document.getElementById('dropoff').value = booking.dropoff || '';
+  document.getElementById('datetime').value = booking.datetime || '';
+  document.getElementById('vehicleType').value = booking.vehicleType || '';
+  document.getElementById('totalFare').value = booking.totalFare || '';
+  document.getElementById('distanceKm').value = booking.distanceKm || '';
+  document.getElementById('durationMin').value = booking.durationMin || '';
+  document.getElementById('notes').value = booking.notes || '';
+   }
 
     assignBtn.addEventListener('click', async () => {
       statusDiv.textContent = '';
