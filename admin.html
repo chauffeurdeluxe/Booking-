@@ -110,47 +110,47 @@
     });
   });
 
-  const pendingBookingsDiv = document.getElementById('pendingBookings');
-  const completedBookingsDiv = document.getElementById('completedBookings');
-  const assignBtn = document.getElementById('assignBtn');
-  const statusDiv = document.getElementById('status');
-  const driverSelect = document.getElementById('driverEmail');
+const pendingBookingsDiv = document.getElementById('pendingBookings');
+const completedBookingsDiv = document.getElementById('completedBookings');
+const assignBtn = document.getElementById('assignBtn');
+const statusDiv = document.getElementById('status');
+const driverSelect = document.getElementById('driverEmail');
 
-  // ----------------- LOAD PENDING BOOKINGS -----------------
-  async function loadPendingBookings() {
-    pendingBookingsDiv.textContent = 'Loading pending bookings...';
-    try {
-      const res = await fetch(`${API_BASE}/pending-bookings`);
-      const pendingBookings = await res.json();
+// ----------------- LOAD PENDING BOOKINGS -----------------
+async function loadPendingBookings() {
+  pendingBookingsDiv.textContent = 'Loading pending bookings...';
+  try {
+    const res = await fetch(`${API_BASE}/pending-bookings`);
+    const pendingBookings = await res.json();
 
-      if (!pendingBookings || pendingBookings.length === 0) {
-        pendingBookingsDiv.textContent = 'No pending bookings.';
-        return;
-      }
-
-      pendingBookingsDiv.innerHTML = '';
-
-      pendingBookings.forEach(booking => {
-        const div = document.createElement('div');
-        div.className = 'booking-item';
-        div.textContent = `${booking.name} - ${booking.pickup} → ${booking.dropoff} (${booking.datetime})`;
-
-        div.addEventListener('click', () => {
-          populateForm(booking);
-          document.querySelector('.tab[data-tab="assignTab"]').click();
-        });
-
-        pendingBookingsDiv.appendChild(div);
-      });
-    } catch (err) {
-      console.error(err);
-      pendingBookingsDiv.textContent = 'Failed to load pending bookings.';
+    if (!pendingBookings || pendingBookings.length === 0) {
+      pendingBookingsDiv.textContent = 'No pending bookings.';
+      return;
     }
-  }
 
- // ----------------- LOAD COMPLETED BOOKINGS -----------------
+    pendingBookingsDiv.innerHTML = '';
+
+    pendingBookings.forEach(booking => {
+      const div = document.createElement('div');
+      div.className = 'booking-item';
+      div.textContent = `${booking.customername} - ${booking.pickup} → ${booking.dropoff} (${new Date(booking.pickuptime).toLocaleString()})`;
+
+      div.addEventListener('click', () => {
+        populateForm(booking);
+        document.querySelector('.tab[data-tab="assignTab"]').click();
+      });
+
+      pendingBookingsDiv.appendChild(div);
+    });
+  } catch (err) {
+    console.error(err);
+    pendingBookingsDiv.textContent = 'Failed to load pending bookings.';
+  }
+}
+
+// ----------------- LOAD COMPLETED BOOKINGS -----------------
 async function loadCompletedJobs() {
-  const container = document.getElementById('completedBookings');
+  const container = completedBookingsDiv;
   container.textContent = 'Loading completed jobs...';
 
   try {
@@ -178,32 +178,6 @@ async function loadCompletedJobs() {
   }
 }
 
-// Call this on page load
-loadCompletedJobs();
-
-  // ----------------- LOAD DRIVERS -----------------
-  async function loadDrivers() {
-    try {
-      const res = await fetch(`${API_BASE}/drivers`);
-      if (!res.ok) throw new Error('Server error');
-      const drivers = await res.json();
-
-      // Keep existing hardcoded options but avoid duplicates
-      const existing = new Set(Array.from(driverSelect.options).map(o => o.value));
-      drivers.forEach(d => {
-        if (!existing.has(d.email)) {
-          const option = document.createElement('option');
-          option.value = d.email;
-          option.textContent = d.email;
-          driverSelect.appendChild(option);
-          existing.add(d.email);
-        }
-      });
-    } catch (err) {
-      console.warn('Failed to load drivers from server, using default list', err);
-    }
-  }
-
 // ----------------- POPULATE FORM -----------------
 function populateForm(booking) {
   document.getElementById('id').value = booking.id || '';
@@ -212,7 +186,12 @@ function populateForm(booking) {
   document.getElementById('phone').value = booking.customerphone || '';
   document.getElementById('pickup').value = booking.pickup || '';
   document.getElementById('dropoff').value = booking.dropoff || '';
-  document.getElementById('datetime').value = booking.pickuptime || '';
+
+  // iPhone-friendly datetime-local formatting
+  document.getElementById('datetime').value = booking.pickuptime
+    ? new Date(booking.pickuptime).toISOString().slice(0,16)
+    : '';
+
   document.getElementById('vehicleType').value = booking.vehicletype || '';
   document.getElementById('totalFare').value = booking.fare || 0;
   document.getElementById('distanceKm').value = booking.distance_km || 0;
@@ -224,6 +203,8 @@ function populateForm(booking) {
 // ----------------- ASSIGN JOB -----------------
 assignBtn.addEventListener('click', async () => {
   statusDiv.textContent = '';
+
+  const driverEmail = document.getElementById('driverEmail').value.trim();
 
   const bookingData = {
     id: document.getElementById('id').value,
@@ -240,63 +221,63 @@ assignBtn.addEventListener('click', async () => {
     notes: document.getElementById('notes').value.trim()
   };
 
-    const driverEmail = document.getElementById('driverEmail').value.trim();
+  if (!bookingData.pickup || !bookingData.dropoff || !bookingData.pickuptime || !bookingData.vehicletype || !bookingData.fare) {
+    statusDiv.textContent = 'Please fill in all required booking details.';
+    statusDiv.classList.add('error');
+    return;
+  }
 
-    if (!bookingData.pickup || !bookingData.dropoff || !bookingData.datetime || !bookingData.vehicleType || !bookingData.totalFare) {
-      statusDiv.textContent = 'Please fill in all required booking details.';
-      statusDiv.classList.add('error');
-      return;
-    }
-    if (!driverEmail) {
-      statusDiv.textContent = 'Please enter or select a driver email.';
-      statusDiv.classList.add('error');
-      return;
-    }
+  if (!driverEmail) {
+    statusDiv.textContent = 'Please enter or select a driver email.';
+    statusDiv.classList.add('error');
+    return;
+  }
 
-    try {
-      const response = await fetch(`${API_BASE}/assign-job`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ driverEmail, bookingData })
-      });
+  try {
+    const response = await fetch(`${API_BASE}/assign-job`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ driverEmail, bookingData })
+    });
 
-      const result = await response.json();
+    const result = await response.json();
 
-      if (response.ok) {
-        statusDiv.textContent = `✅ Job assigned successfully! Job ID: ${result.jobId || bookingData.id}`;
-        statusDiv.classList.remove('error');
+    if (response.ok) {
+      statusDiv.textContent = `✅ Job assigned successfully! Job ID: ${result.jobId || bookingData.id}`;
+      statusDiv.classList.remove('error');
 
-        // Refresh booking lists
-        loadPendingBookings();
-        loadCompletedBookings();
+      // Refresh booking lists
+      loadPendingBookings();
+      loadCompletedJobs();
 
-        // Clear form fields
-        document.querySelectorAll('#assignTab .form-field').forEach(f => f.value = '');
-      } else {
-        statusDiv.textContent = `❌ Error: ${result.error || 'Failed to assign job.'}`;
-        statusDiv.classList.add('error');
-      }
-    } catch (err) {
-      console.error(err);
-      statusDiv.textContent = '🚫 Network or server error.';
+      // Clear form fields including hidden ID
+      document.querySelectorAll('#assignTab .form-field').forEach(f => f.value = '');
+      document.getElementById('id').value = '';
+    } else {
+      statusDiv.textContent = `❌ Error: ${result.error || 'Failed to assign job.'}`;
       statusDiv.classList.add('error');
     }
-  });
+  } catch (err) {
+    console.error(err);
+    statusDiv.textContent = '🚫 Network or server error.';
+    statusDiv.classList.add('error');
+  }
+});
 
-  // ----------------- REFRESH BUTTONS -----------------
-  document.getElementById('refreshPending').addEventListener('click', loadPendingBookings);
-  document.getElementById('refreshCompleted').addEventListener('click', loadCompletedBookings);
+// ----------------- REFRESH BUTTONS -----------------
+document.getElementById('refreshPending').addEventListener('click', loadPendingBookings);
+document.getElementById('refreshCompleted').addEventListener('click', loadCompletedJobs);
 
-  // ----------------- INITIAL LOAD -----------------
-  loadPendingBookings();
-  loadCompletedBookings();
-  loadDrivers();
+// ----------------- INITIAL LOAD -----------------
+loadPendingBookings();
+loadCompletedJobs();
+loadDrivers();
 
-  // ----------------- AUTO REFRESH EVERY 30 SECONDS -----------------
-  setInterval(() => {
-    loadPendingBookings();
-    loadCompletedBookings();
-  }, 30000);
+// ----------------- AUTO REFRESH EVERY 30 SECONDS (optional) -----------------
+// setInterval(() => {
+//   loadPendingBookings();
+//   loadCompletedJobs();
+// }, 30000);
 </script>
 </body>
 </html>
