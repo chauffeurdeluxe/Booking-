@@ -27,6 +27,18 @@
       <h2>Driver Login</h2>
       <form id="loginForm">
         <input type="email" id="driverEmail" placeholder="Enter your email" required />
+        
+        <!-- SET PASSWORD DIV -->
+        <div id="setPasswordDiv" style="display:none; margin-top:10px;">
+          <input type="password" id="newPassword" placeholder="Set your password" />
+          <input type="password" id="confirmPassword" placeholder="Confirm password" />
+          <button type="button" id="setPasswordBtn" 
+                  style="background-color:#d4af37; color:#000; border:none; padding:8px; cursor:pointer; margin-top:5px;">
+            Set Password
+          </button>
+          <div id="setPasswordError" style="color:#d4af37; margin-top:5px;"></div>
+        </div>
+
         <input type="password" id="driverPassword" placeholder="Enter your password" required />
         <button type="submit">Login</button>
       </form>
@@ -60,22 +72,46 @@
     const logoutBtn = document.getElementById('logoutBtn');
     const refreshJobs = document.getElementById('refreshJobs');
 
+    const setPasswordDiv = document.getElementById('setPasswordDiv');
+    const newPasswordInput = document.getElementById('newPassword');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const setPasswordBtn = document.getElementById('setPasswordBtn');
+    const setPasswordError = document.getElementById('setPasswordError');
+
     let driverEmail = '';
 
     // ---------------- DRIVER LOGIN ----------------
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       loginError.textContent = '';
+      setPasswordError.textContent = '';
 
       const email = document.getElementById('driverEmail').value.trim();
       const password = document.getElementById('driverPassword').value;
 
-      if (!email || !password) {
-        loginError.textContent = 'Please enter both email and password.';
+      if (!email) {
+        loginError.textContent = 'Please enter your email.';
         return;
       }
 
       try {
+        // Check if driver exists & has a password
+        const checkRes = await fetch('https://server-qdh1.onrender.com/check-driver', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        const checkData = await checkRes.json();
+
+        if (checkData.needsPassword) {
+          // Show Set Password fields
+          setPasswordDiv.style.display = 'block';
+          loginError.textContent = 'Please set your password first.';
+          return;
+        } 
+
+        // Normal login
         const res = await fetch('https://server-qdh1.onrender.com/driver-login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -98,6 +134,44 @@
       }
     });
 
+    // ---------------- SET PASSWORD ----------------
+    setPasswordBtn.addEventListener('click', async () => {
+      setPasswordError.textContent = '';
+      const newPass = newPasswordInput.value.trim();
+      const confirmPass = confirmPasswordInput.value.trim();
+      const email = document.getElementById('driverEmail').value.trim();
+
+      if (!newPass || !confirmPass) {
+        setPasswordError.textContent = 'Please enter and confirm your password.';
+        return;
+      }
+      if (newPass !== confirmPass) {
+        setPasswordError.textContent = 'Passwords do not match.';
+        return;
+      }
+
+      try {
+        const res = await fetch('https://server-qdh1.onrender.com/set-driver-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password: newPass })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          setPasswordError.textContent = data.error || 'Failed to set password.';
+          return;
+        }
+
+        setPasswordError.style.color = 'green';
+        setPasswordError.textContent = 'Password set successfully! Please log in.';
+        setPasswordDiv.style.display = 'none';
+      } catch (err) {
+        console.error(err);
+        setPasswordError.textContent = 'Network error. Try again.';
+      }
+    });
+
     // ---------------- LOGOUT ----------------
     logoutBtn.addEventListener('click', () => {
       driverEmail = '';
@@ -106,12 +180,14 @@
       loginSection.style.display = 'block';
       jobsSection.style.display = 'none';
       loginForm.reset();
+      setPasswordDiv.style.display = 'none';
+      setPasswordError.textContent = '';
     });
 
     // ---------------- LOAD JOBS ----------------
     async function loadJobs() {
       try {
-        const res = await fetch(`https://YOUR_SERVER_URL/driver-jobs?email=${driverEmail}`);
+        const res = await fetch('https://server-qdh1.onrender.com/driver-jobs?email=${driverEmail}`);
         const { assignedJobs, completedJobs } = await res.json();
 
         showJobs(assignedJobs || []);
@@ -231,7 +307,7 @@
     // ---------------- UPDATE JOB STATUS ----------------
     async function updateJobStatus(jobId, status) {
       try {
-        const res = await fetch(`https://YOUR_SERVER_URL/update-job`, {
+        const res = await fetch('https://server-qdh1.onrender.com/update-job`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ jobId, status, driverEmail })
@@ -252,6 +328,7 @@
     setInterval(() => {
       if (driverEmail) loadJobs();
     }, 30000);
+
   </script>
 </body>
 </html>
