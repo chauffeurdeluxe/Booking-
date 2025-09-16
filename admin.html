@@ -150,7 +150,7 @@
 
  // ----------------- LOAD COMPLETED BOOKINGS -----------------
 async function loadCompletedJobs() {
-  const container = document.getElementById('completedBookingsDiv');
+  const container = document.getElementById('completedBookings');
   container.textContent = 'Loading completed jobs...';
 
   try {
@@ -224,8 +224,6 @@ function populateForm(booking) {
 // ----------------- ASSIGN JOB -----------------
 assignBtn.addEventListener('click', async () => {
   statusDiv.textContent = '';
-
-  const driverEmail = document.getElementById('driverEmail').value.trim();
 
   const bookingData = {
     id: document.getElementById('id').value,
