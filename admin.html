@@ -204,41 +204,43 @@ loadCompletedJobs();
     }
   }
 
-  // ----------------- POPULATE FORM -----------------
-  function populateForm(booking) {
-    document.getElementById('id').value = booking.id || '';
-    document.getElementById('name').value = booking.name || '';
-    document.getElementById('email').value = booking.email || '';
-    document.getElementById('phone').value = booking.phone || '';
-    document.getElementById('pickup').value = booking.pickup || '';
-    document.getElementById('dropoff').value = booking.dropoff || '';
-    document.getElementById('datetime').value = booking.datetime || '';
-    document.getElementById('vehicleType').value = booking.vehicleType || '';
-    document.getElementById('totalFare').value = booking.totalFare || booking.fare || '';
-    document.getElementById('distanceKm').value = booking.distanceKm || booking.distance_km || '';
-    document.getElementById('durationMin').value = booking.durationMin || booking.duration_min || '';
-    document.getElementById('notes').value = booking.notes || '';
-    document.getElementById('driverEmail').value = booking.assignedto || '';
-  }
+// ----------------- POPULATE FORM -----------------
+function populateForm(booking) {
+  document.getElementById('id').value = booking.id || '';
+  document.getElementById('name').value = booking.customername || '';
+  document.getElementById('email').value = booking.customeremail || '';
+  document.getElementById('phone').value = booking.customerphone || '';
+  document.getElementById('pickup').value = booking.pickup || '';
+  document.getElementById('dropoff').value = booking.dropoff || '';
+  document.getElementById('datetime').value = booking.pickuptime || '';
+  document.getElementById('vehicleType').value = booking.vehicletype || '';
+  document.getElementById('totalFare').value = booking.fare || 0;
+  document.getElementById('distanceKm').value = booking.distance_km || 0;
+  document.getElementById('durationMin').value = booking.duration_min || 0;
+  document.getElementById('notes').value = booking.notes || '';
+  document.getElementById('driverEmail').value = booking.assignedto || '';
+}
 
-  // ----------------- ASSIGN JOB -----------------
-  assignBtn.addEventListener('click', async () => {
-    statusDiv.textContent = '';
+// ----------------- ASSIGN JOB -----------------
+assignBtn.addEventListener('click', async () => {
+  statusDiv.textContent = '';
 
-    const bookingData = {
-      id: document.getElementById('id').value,
-      name: document.getElementById('name').value.trim(),
-      email: document.getElementById('email').value.trim(),
-      phone: document.getElementById('phone').value.trim(),
-      pickup: document.getElementById('pickup').value.trim(),
-      dropoff: document.getElementById('dropoff').value.trim(),
-      datetime: document.getElementById('datetime').value,
-      vehicleType: document.getElementById('vehicleType').value.trim(),
-      totalFare: parseFloat(document.getElementById('totalFare').value) || 0,
-      distanceKm: parseFloat(document.getElementById('distanceKm').value) || 0,
-      durationMin: parseFloat(document.getElementById('durationMin').value) || 0,
-      notes: document.getElementById('notes').value.trim()
-    };
+  const driverEmail = document.getElementById('driverEmail').value.trim();
+
+  const bookingData = {
+    id: document.getElementById('id').value,
+    customername: document.getElementById('name').value.trim(),
+    customeremail: document.getElementById('email').value.trim(),
+    customerphone: document.getElementById('phone').value.trim(),
+    pickup: document.getElementById('pickup').value.trim(),
+    dropoff: document.getElementById('dropoff').value.trim(),
+    pickuptime: document.getElementById('datetime').value,
+    vehicletype: document.getElementById('vehicleType').value.trim(),
+    fare: parseFloat(document.getElementById('totalFare').value) || 0,
+    distance_km: parseFloat(document.getElementById('distanceKm').value) || 0,
+    duration_min: parseFloat(document.getElementById('durationMin').value) || 0,
+    notes: document.getElementById('notes').value.trim()
+  };
 
     const driverEmail = document.getElementById('driverEmail').value.trim();
 
