@@ -11,7 +11,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="icon" href="icon.png" type="image/png" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <header>
@@ -23,15 +22,18 @@
   </header>
 
   <main>
+    <!-- LOGIN SECTION -->
     <section id="loginSection">
       <h2>Driver Login</h2>
       <form id="loginForm">
         <input type="email" id="driverEmail" placeholder="Enter your email" required />
+        <input type="password" id="driverPassword" placeholder="Enter your password" required />
         <button type="submit">Login</button>
       </form>
       <div id="loginError" style="color: #d4af37; margin-top: 10px;"></div>
     </section>
 
+    <!-- JOBS SECTION -->
     <section id="jobsSection" style="display:none;">
       <h2>Your Assigned Jobs</h2>
       <div id="jobsList" style="text-align: left;"></div>
@@ -49,34 +51,54 @@
   </main>
 
   <script>
-    // ---------------------------
-    // SUPABASE CONFIG (update with your project keys)
-    // ---------------------------
-    const supabaseUrl = 'https://YOUR_PROJECT.supabase.co';
-    const supabaseKey = 'YOUR_SUPABASE_SERVICE_ROLE_KEY';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
     const loginForm = document.getElementById('loginForm');
+    const loginError = document.getElementById('loginError');
     const loginSection = document.getElementById('loginSection');
     const jobsSection = document.getElementById('jobsSection');
     const jobsList = document.getElementById('jobsList');
     const completedJobsList = document.getElementById('completedJobsList');
-    const loginError = document.getElementById('loginError');
     const logoutBtn = document.getElementById('logoutBtn');
+    const refreshJobs = document.getElementById('refreshJobs');
 
     let driverEmail = '';
 
+    // ---------------- DRIVER LOGIN ----------------
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       loginError.textContent = '';
-      driverEmail = document.getElementById('driverEmail').value.trim();
-      if (!driverEmail) {
-        loginError.textContent = 'Please enter your email.';
+
+      const email = document.getElementById('driverEmail').value.trim();
+      const password = document.getElementById('driverPassword').value;
+
+      if (!email || !password) {
+        loginError.textContent = 'Please enter both email and password.';
         return;
       }
-      await loadJobs();
+
+      try {
+        const res = await fetch('https://YOUR_SERVER_URL/driver-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          loginError.textContent = data.error || 'Login failed.';
+          return;
+        }
+
+        driverEmail = data.email;
+        loginSection.style.display = 'none';
+        jobsSection.style.display = 'block';
+        await loadJobs();
+      } catch (err) {
+        console.error(err);
+        loginError.textContent = 'Network error. Please try again.';
+      }
     });
 
+    // ---------------- LOGOUT ----------------
     logoutBtn.addEventListener('click', () => {
       driverEmail = '';
       jobsList.innerHTML = '';
@@ -86,35 +108,21 @@
       loginForm.reset();
     });
 
+    // ---------------- LOAD JOBS ----------------
     async function loadJobs() {
       try {
-        const { data: jobs, error } = await supabase
-          .from('jobs')
-          .select('*')
-          .eq('driverEmail', driverEmail)
-          .eq('status', 'assigned')
-          .order('datetime', { ascending: true });
+        const res = await fetch(`https://YOUR_SERVER_URL/driver-jobs?email=${driverEmail}`);
+        const { assignedJobs, completedJobs } = await res.json();
 
-        const { data: completed, error: completedError } = await supabase
-          .from('jobs')
-          .select('*')
-          .eq('driverEmail', driverEmail)
-          .eq('status', 'completed')
-          .order('updated_at', { ascending: false });
-
-        if (error) throw error;
-        if (completedError) throw completedError;
-
-        showJobs(jobs);
-        showCompletedJobs(completed || []);
-        loginSection.style.display = 'none';
-        jobsSection.style.display = 'block';
+        showJobs(assignedJobs || []);
+        showCompletedJobs(completedJobs || []);
       } catch (err) {
         console.error(err);
-        loginError.textContent = 'Failed to load jobs. Please try again.';
+        alert('Failed to load jobs.');
       }
     }
 
+    // ---------------- SHOW ASSIGNED JOBS ----------------
     function showJobs(jobs) {
       if (!jobs || jobs.length === 0) {
         jobsList.innerHTML = '<p>No jobs assigned yet.</p>';
@@ -130,15 +138,15 @@
         jobDiv.style.backgroundColor = '#111';
 
         jobDiv.innerHTML = `
-          <p><strong>Name:</strong> ${job.bookingData.name || 'N/A'}</p>
-          <p><strong>Email:</strong> ${job.bookingData.email || 'N/A'}</p>
-          <p><strong>Phone:</strong> ${job.bookingData.phone || 'N/A'}</p>
-          <p><strong>Pickup:</strong> ${job.bookingData.pickup}</p>
-          <p><strong>Dropoff:</strong> ${job.bookingData.dropoff}</p>
-          <p><strong>Pickup Time:</strong> ${new Date(job.bookingData.datetime).toLocaleString()}</p>
-          <p><strong>Vehicle Type:</strong> ${job.bookingData.vehicleType}</p>
-          <p><strong>Driver Payout:</strong> $${parseFloat(job.driverPay).toFixed(2)}</p>
-          <p><strong>Notes:</strong> ${job.bookingData.notes || 'None'}</p>
+          <p><strong>Name:</strong> ${job.customername || 'N/A'}</p>
+          <p><strong>Email:</strong> ${job.customeremail || 'N/A'}</p>
+          <p><strong>Phone:</strong> ${job.customerphone || 'N/A'}</p>
+          <p><strong>Pickup:</strong> ${job.pickup}</p>
+          <p><strong>Dropoff:</strong> ${job.dropoff}</p>
+          <p><strong>Pickup Time:</strong> ${new Date(job.pickuptime).toLocaleString()}</p>
+          <p><strong>Vehicle Type:</strong> ${job.vehicletype}</p>
+          <p><strong>Driver Payout:</strong> $${parseFloat(job.driverPay || 0).toFixed(2)}</p>
+          <p><strong>Notes:</strong> ${job.notes || 'None'}</p>
         `;
 
         const btnDiv = document.createElement('div');
@@ -154,27 +162,25 @@
         confirmBtn.style.cursor = 'pointer';
 
         confirmBtn.onclick = async () => {
-          const success = await respondToJob(job.id, true);
-          if (success) {
-            confirmBtn.disabled = true;
-            confirmBtn.style.opacity = 0.5;
+          await updateJobStatus(job.id, 'confirmed');
+          confirmBtn.disabled = true;
+          confirmBtn.style.opacity = 0.5;
 
-            const completeBtn = document.createElement('button');
-            completeBtn.textContent = '🏁 Complete';
-            completeBtn.style.backgroundColor = '#000';
-            completeBtn.style.color = '#d4af37';
-            completeBtn.style.border = '2px solid #d4af37';
-            completeBtn.style.padding = '8px';
-            completeBtn.style.cursor = 'pointer';
-            completeBtn.style.marginLeft = '10px';
+          const completeBtn = document.createElement('button');
+          completeBtn.textContent = '🏁 Complete';
+          completeBtn.style.backgroundColor = '#000';
+          completeBtn.style.color = '#d4af37';
+          completeBtn.style.border = '2px solid #d4af37';
+          completeBtn.style.padding = '8px';
+          completeBtn.style.cursor = 'pointer';
+          completeBtn.style.marginLeft = '10px';
 
-            completeBtn.onclick = async () => {
-              const completed = await markJobCompleted(job.id);
-              if (completed) await loadJobs();
-            };
+          completeBtn.onclick = async () => {
+            await updateJobStatus(job.id, 'completed');
+            await loadJobs();
+          };
 
-            btnDiv.appendChild(completeBtn);
-          }
+          btnDiv.appendChild(completeBtn);
         };
 
         const refuseBtn = document.createElement('button');
@@ -186,25 +192,25 @@
         refuseBtn.style.cursor = 'pointer';
 
         refuseBtn.onclick = async () => {
-          const success = await respondToJob(job.id, false);
-          if (success) jobDiv.remove();
+          await updateJobStatus(job.id, 'refused');
+          jobDiv.remove();
         };
 
         btnDiv.appendChild(confirmBtn);
         btnDiv.appendChild(refuseBtn);
         jobDiv.appendChild(btnDiv);
-
         jobsList.appendChild(jobDiv);
       });
     }
 
-    function showCompletedJobs(completedJobs) {
-      if (!completedJobs || completedJobs.length === 0) {
+    // ---------------- SHOW COMPLETED JOBS ----------------
+    function showCompletedJobs(jobs) {
+      if (!jobs || jobs.length === 0) {
         completedJobsList.innerHTML = '<p>No completed jobs yet.</p>';
         return;
       }
       completedJobsList.innerHTML = '';
-      completedJobs.forEach(job => {
+      jobs.forEach(job => {
         const jobDiv = document.createElement('div');
         jobDiv.style.border = '1px solid #444';
         jobDiv.style.padding = '10px';
@@ -213,51 +219,36 @@
         jobDiv.style.backgroundColor = '#222';
 
         jobDiv.innerHTML = `
-          <p><strong>Name:</strong> ${job.bookingData.name || 'N/A'}</p>
-          <p><strong>Pickup:</strong> ${job.bookingData.pickup}</p>
-          <p><strong>Dropoff:</strong> ${job.bookingData.dropoff}</p>
-          <p><strong>Completed At:</strong> ${new Date(job.updated_at).toLocaleString()}</p>
+          <p><strong>Name:</strong> ${job.customername || 'N/A'}</p>
+          <p><strong>Pickup:</strong> ${job.pickup}</p>
+          <p><strong>Dropoff:</strong> ${job.dropoff}</p>
+          <p><strong>Completed At:</strong> ${new Date(job.completedAt).toLocaleString()}</p>
         `;
         completedJobsList.appendChild(jobDiv);
       });
     }
 
-    async function respondToJob(jobId, confirmed) {
-      if (!driverEmail) return false;
+    // ---------------- UPDATE JOB STATUS ----------------
+    async function updateJobStatus(jobId, status) {
       try {
-        const { error } = await supabase
-          .from('jobs')
-          .update({ status: confirmed ? 'confirmed' : 'refused' })
-          .eq('id', jobId);
-
-        return !error;
+        const res = await fetch(`https://YOUR_SERVER_URL/update-job`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobId, status, driverEmail })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to update job');
+        return true;
       } catch (err) {
-        alert('Network error. Please try again.');
+        console.error(err);
+        alert('Failed to update job. Try again.');
         return false;
       }
     }
 
-    async function markJobCompleted(jobId) {
-      if (!driverEmail) return false;
-      try {
-        const { error } = await supabase
-          .from('jobs')
-          .update({ status: 'completed' })
-          .eq('id', jobId);
+    refreshJobs.addEventListener('click', loadJobs);
 
-        if (!error) {
-          alert('Job marked as completed ✅');
-          return true;
-        } else {
-          alert('Failed to mark job as completed.');
-          return false;
-        }
-      } catch (err) {
-        alert('Network error. Please try again.');
-        return false;
-      }
-    }
-
+    // Auto-refresh every 30s
     setInterval(() => {
       if (driverEmail) loadJobs();
     }, 30000);
