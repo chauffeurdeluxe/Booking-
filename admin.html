@@ -225,11 +225,14 @@ assignBtn.addEventListener('click', async () => {
   }
 
   try {
-    const response = await fetch(`${API_BASE}/assign-job`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ driverEmail, bookingData })
-    });
+   const response = await fetch(`${API_BASE}/assign-job`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ 
+    driverEmail, 
+    bookingId: bookingData.id  // <-- send only the booking ID
+  })
+});
 
     const result = await response.json();
     if (response.ok) {
