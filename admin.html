@@ -98,17 +98,17 @@
   const API_BASE = 'https://server-qdh1.onrender.com';
 
   // ----------------- TAB SWITCHING -----------------
-  const tabs = document.querySelectorAll('.tab');
-  const tabContents = document.querySelectorAll('.tab-content');
+const tabs = document.querySelectorAll('.tab');
+const tabContents = document.querySelectorAll('.tab-content');
 
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      tabContents.forEach(tc => tc.classList.remove('active'));
-      document.getElementById(tab.dataset.tab).classList.add('active');
-    });
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    tabContents.forEach(tc => tc.classList.remove('active'));
+    document.getElementById(tab.dataset.tab).classList.add('active');
   });
+});
 
 const pendingBookingsDiv = document.getElementById('pendingBookings');
 const completedBookingsDiv = document.getElementById('completedBookings');
@@ -129,7 +129,6 @@ async function loadPendingBookings() {
     }
 
     pendingBookingsDiv.innerHTML = '';
-
     pendingBookings.forEach(booking => {
       const div = document.createElement('div');
       div.className = 'booking-item';
@@ -150,31 +149,28 @@ async function loadPendingBookings() {
 
 // ----------------- LOAD COMPLETED BOOKINGS -----------------
 async function loadCompletedJobs() {
-  const container = completedBookingsDiv;
-  container.textContent = 'Loading completed jobs...';
-
+  completedBookingsDiv.textContent = 'Loading completed jobs...';
   try {
     const res = await fetch(`${API_BASE}/completed-jobs`);
     const completedJobs = await res.json();
 
     if (!completedJobs || completedJobs.length === 0) {
-      container.textContent = 'No completed jobs.';
+      completedBookingsDiv.textContent = 'No completed jobs.';
       return;
     }
 
-    container.innerHTML = '';
-
+    completedBookingsDiv.innerHTML = '';
     completedJobs.forEach(job => {
       const div = document.createElement('div');
       div.className = 'job-entry';
       div.innerHTML = `
         <strong>${job.customername}</strong> | ${job.pickup} → ${job.dropoff} | Fare: $${job.fare} | Driver: ${job.assignedto || 'N/A'} | Completed: ${job.completedAt ? new Date(job.completedAt).toLocaleString() : 'N/A'}
       `;
-      container.appendChild(div);
+      completedBookingsDiv.appendChild(div);
     });
   } catch (err) {
     console.error('Error loading completed jobs:', err);
-    container.textContent = 'Failed to load completed jobs.';
+    completedBookingsDiv.textContent = 'Failed to load completed jobs.';
   }
 }
 
@@ -186,12 +182,9 @@ function populateForm(booking) {
   document.getElementById('phone').value = booking.customerphone || '';
   document.getElementById('pickup').value = booking.pickup || '';
   document.getElementById('dropoff').value = booking.dropoff || '';
-
-  // iPhone-friendly datetime-local formatting
   document.getElementById('datetime').value = booking.pickuptime
     ? new Date(booking.pickuptime).toISOString().slice(0,16)
     : '';
-
   document.getElementById('vehicleType').value = booking.vehicletype || '';
   document.getElementById('totalFare').value = booking.fare || 0;
   document.getElementById('distanceKm').value = booking.distance_km || 0;
@@ -203,9 +196,7 @@ function populateForm(booking) {
 // ----------------- ASSIGN JOB -----------------
 assignBtn.addEventListener('click', async () => {
   statusDiv.textContent = '';
-
   const driverEmail = document.getElementById('driverEmail').value.trim();
-
   const bookingData = {
     id: document.getElementById('id').value,
     customername: document.getElementById('name').value.trim(),
@@ -241,16 +232,15 @@ assignBtn.addEventListener('click', async () => {
     });
 
     const result = await response.json();
-
     if (response.ok) {
       statusDiv.textContent = `✅ Job assigned successfully! Job ID: ${result.jobId || bookingData.id}`;
       statusDiv.classList.remove('error');
 
-      // Refresh booking lists
+      // Refresh bookings
       loadPendingBookings();
       loadCompletedJobs();
 
-      // Clear form fields including hidden ID
+      // Clear form
       document.querySelectorAll('#assignTab .form-field').forEach(f => f.value = '');
       document.getElementById('id').value = '';
     } else {
