@@ -394,7 +394,8 @@
             totalFare: parseFloat(fare),
             distanceKm,
             durationMin,
-            notes
+            notes,
+            bookingType: 'point-to-point'
           };
 
           console.debug('Creating checkout session for', bookingData);
@@ -483,6 +484,7 @@
             totalFare: parseFloat(fare),
             distanceKm: 0,
             durationMin: hours * 60,
+            bookingType: 'hourly'
           };
 
           console.debug('Creating hourly checkout session for', bookingData);
