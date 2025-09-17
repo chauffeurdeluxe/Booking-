@@ -196,9 +196,15 @@ function populateForm(booking) {
 // ----------------- ASSIGN JOB -----------------
 assignBtn.addEventListener('click', async () => {
   statusDiv.textContent = '';
+  statusDiv.classList.remove('error');
+
+  // Get driver email and booking ID
   const driverEmail = document.getElementById('driverEmail').value.trim();
+  const bookingId = document.getElementById('id').value.trim();
+
+  // Collect booking details (optional for display/logging)
   const bookingData = {
-    id: document.getElementById('id').value,
+    id: bookingId,
     customername: document.getElementById('name').value.trim(),
     customeremail: document.getElementById('email').value.trim(),
     customerphone: document.getElementById('phone').value.trim(),
@@ -212,47 +218,47 @@ assignBtn.addEventListener('click', async () => {
     notes: document.getElementById('notes').value.trim()
   };
 
-  if (!bookingData.pickup || !bookingData.dropoff || !bookingData.pickuptime || !bookingData.vehicletype || !bookingData.fare) {
-    statusDiv.textContent = 'Please fill in all required booking details.';
+  // Validation
+  if (!bookingId) {
+    statusDiv.textContent = 'Booking ID missing. Please select a pending booking.';
     statusDiv.classList.add('error');
     return;
   }
 
   if (!driverEmail) {
-    statusDiv.textContent = 'Please enter or select a driver email.';
+    statusDiv.textContent = 'Please select a driver email.';
     statusDiv.classList.add('error');
     return;
   }
 
   try {
-   const response = await fetch(`${API_BASE}/assign-job`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ 
-    driverEmail, 
-    bookingId // <-- send only the booking ID
-  })
-});
+    const response = await fetch(`${API_BASE}/assign-job`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ driverEmail, bookingId })
+    });
 
     const result = await response.json();
+
     if (response.ok) {
-      statusDiv.textContent = `✅ Job assigned successfully! Job ID: ${result.jobId || bookingData.id}`;
+      statusDiv.textContent = `✅ Job assigned successfully to ${driverEmail}!`;
       statusDiv.classList.remove('error');
 
-      // Refresh bookings
-      loadPendingBookings();
-      loadCompletedJobs();
+      // Refresh bookings lists
+      await loadPendingBookings();
+      await loadCompletedJobs();
 
-      // Clear form
+      // Clear assign form
       document.querySelectorAll('#assignTab .form-field').forEach(f => f.value = '');
       document.getElementById('id').value = '';
     } else {
+      console.error('Assign job failed:', result);
       statusDiv.textContent = `❌ Error: ${result.error || 'Failed to assign job.'}`;
       statusDiv.classList.add('error');
     }
   } catch (err) {
-    console.error(err);
-    statusDiv.textContent = '🚫 Network or server error.';
+    console.error('Network/server error during assign-job:', err);
+    statusDiv.textContent = '🚫 Network or server error. Check server logs.';
     statusDiv.classList.add('error');
   }
 });
