@@ -251,10 +251,9 @@ confirmBtn.onclick = async () => {
   if (success) {
     confirmBtn.disabled = true;
     confirmBtn.style.opacity = 0.5;
-    // Show Complete button only after confirm
+
+    // Show complete button after confirm
     completeBtn.style.display = 'inline-block';
-  } else {
-    alert('Failed to confirm job.');
   }
 };
 
@@ -267,14 +266,11 @@ completeBtn.style.color = '#d4af37';
 completeBtn.style.border = '2px solid #d4af37';
 completeBtn.style.padding = '8px';
 completeBtn.style.cursor = 'pointer';
-completeBtn.style.display = 'none'; // hidden until confirmed
-
+completeBtn.style.display = 'none'; // hidden until confirm
 completeBtn.onclick = async () => {
   const success = await updateJobStatus(job.id, 'completed');
   if (success) {
-    jobDiv.remove(); // remove from driver page after completion
-  } else {
-    alert('Failed to complete job.');
+    jobDiv.remove(); // remove only if server confirms
   }
 };
 
@@ -291,12 +287,10 @@ refuseBtn.onclick = async () => {
   if (success) jobDiv.remove();
 };
 
-// Add buttons to jobDiv
 btnDiv.appendChild(confirmBtn);
 btnDiv.appendChild(completeBtn);
 btnDiv.appendChild(refuseBtn);
 jobDiv.appendChild(btnDiv);
-jobsList.appendChild(jobDiv);
   });
 }
 
