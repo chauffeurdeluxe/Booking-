@@ -313,11 +313,18 @@ function showCompletedJobs(jobs) {
     jobDiv.style.backgroundColor = '#222';
 
     jobDiv.innerHTML = `
-      <p><strong>Name:</strong> ${job.customername || 'N/A'}</p>
       <p><strong>Pickup:</strong> ${job.pickup}</p>
       <p><strong>Dropoff:</strong> ${job.dropoff}</p>
       <p><strong>Completed At:</strong> ${new Date(job.completedAt).toLocaleString()}</p>
     `;
+
+    // Add driver payout styled like assigned jobs
+    const payoutP = document.createElement('p');
+    payoutP.innerHTML = `<strong>Driver Payout:</strong> $${parseFloat(job.driverPay || 0).toFixed(2)}`;
+    payoutP.style.color = '#d4af37';
+    payoutP.style.fontWeight = 'bold';
+    jobDiv.appendChild(payoutP);
+
     completedJobsList.appendChild(jobDiv);
   });
 }
