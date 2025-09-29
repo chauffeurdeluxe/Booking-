@@ -52,18 +52,18 @@ document.getElementById('calculateFare').addEventListener('click', function () {
     const durationMin = el.duration.value / 60; // convert seconds to minutes
     
     // Pricing logic
-    const perKmRate = (distanceKm > 20) ? 2.75 : 3.50;
+    const perKmRate = (distanceKm > 20) ? 2.50 : 3.75;
     const perMinRate = 0.90;
 
     const multipliers = {
-      business: 1.0,
+      business: 1.1,
       suv: 1.4,
       first: 1.8
     };
 
     const minFare = {
-      business: 110,
-      suv: 145,
+      business: 115,
+      suv: 135,
       first: 200
     };
 
