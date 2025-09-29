@@ -302,7 +302,7 @@
             const durationMin = el.duration.value / 60; // convert seconds to minutes
 
             // Pricing logic (kept same as original)
-            const perKmRate = (distanceKm > 20) ? 2.75 : 3.50;
+            const perKmRate = (distanceKm > 20) ? 2.50 : 3.50;
             const perMinRate = 0.90;
 
             const multipliers = {
@@ -312,8 +312,8 @@
             };
 
             const minFare = {
-              business: 110,
-              suv: 145,
+              business: 120,
+              suv: 150,
               first: 200
             };
 
@@ -322,7 +322,7 @@
 
             const gstRate = 0.10;
             const taxRate = 0.10;
-            const profitRate = 0.25;
+            const profitRate = 0.23;
             let fare = fareCore * (1 + gstRate + taxRate + profitRate);
 
             const pickupHour = new Date(pickupTime).getHours();
