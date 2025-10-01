@@ -200,7 +200,7 @@ button:hover {
 
 /* ---------- Completed Job Boxes ---------- */
 .job-entry {
-  background-color: #111;        /* dark background */
+  background-color: #000;        /* dark background */
   color: #d4af37;               /* gold text */
   margin: 10px 0;               /* spacing between boxes */
   padding: 12px;                /* inner padding */
