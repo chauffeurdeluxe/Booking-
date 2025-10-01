@@ -198,6 +198,24 @@ button:hover {
   color: #FFD700;
 }
 
+/* ---------- Completed Job Boxes ---------- */
+.job-entry {
+  background-color: #111;        /* dark background */
+  color: #d4af37;               /* gold text */
+  margin: 10px 0;               /* spacing between boxes */
+  padding: 12px;                /* inner padding */
+  border-radius: 8px;           /* rounded corners */
+  box-shadow: 0 3px 6px rgba(0,0,0,0.3); /* subtle shadow */
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.job-entry:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+  background-color: #222;       /* slightly lighter black on hover */
+}
+
+
 /* ---------- Responsive (LAST) ---------- */
 @media (max-width: 600px) {
   main {
