@@ -199,7 +199,7 @@ loginForm.addEventListener('submit', async (e) => {
       }
     }
 
-    // ---------------- SHOW ASSIGNED JOBS ----------------
+ // ---------------- SHOW ASSIGNED JOBS ----------------
 function showJobs(jobs) {
   if (!jobs || jobs.length === 0) {
     jobsList.innerHTML = '<p>No jobs assigned yet.</p>';
@@ -223,7 +223,7 @@ function showJobs(jobs) {
       <p><strong>Phone:</strong> ${job.customerphone || 'N/A'}</p>
       <p><strong>Pickup:</strong> ${job.pickup}</p>
       <p><strong>Dropoff:</strong> ${job.dropoff}</p>
-      <p><strong>Pickup Time:</strong> ${new Date(job.pickuptime).toLocaleString()}</p>
+      <p><strong>Pickup Time:</strong> ${job.pickuptime}</p>
       <p><strong>Vehicle Type:</strong> ${job.vehicletype}</p>
       <p><strong>Notes:</strong> ${job.notes || 'None'}</p>
     `;
@@ -235,63 +235,66 @@ function showJobs(jobs) {
 
     // Buttons container
     const btnDiv = document.createElement('div');
-btnDiv.style.marginTop = '10px';
+    btnDiv.style.marginTop = '10px';
 
-// Confirm button
-const confirmBtn = document.createElement('button');
-confirmBtn.textContent = '✅ Confirm';
-confirmBtn.style.marginRight = '10px';
-confirmBtn.style.backgroundColor = '#d4af37';
-confirmBtn.style.color = '#000';
-confirmBtn.style.border = 'none';
-confirmBtn.style.padding = '8px';
-confirmBtn.style.cursor = 'pointer';
+    // Confirm button
+    const confirmBtn = document.createElement('button');
+    confirmBtn.textContent = '✅ Confirm';
+    confirmBtn.style.marginRight = '10px';
+    confirmBtn.style.backgroundColor = '#d4af37';
+    confirmBtn.style.color = '#000';
+    confirmBtn.style.border = 'none';
+    confirmBtn.style.padding = '8px';
+    confirmBtn.style.cursor = 'pointer';
 
-confirmBtn.onclick = async () => {
-  const success = await updateJobStatus(job.id, 'confirmed');
-  if (success) {
-    confirmBtn.disabled = true;
-    confirmBtn.style.opacity = 0.5;
+    confirmBtn.onclick = async () => {
+      const success = await updateJobStatus(job.id, 'confirmed');
+      if (success) {
+        confirmBtn.disabled = true;
+        confirmBtn.style.opacity = 0.5;
 
-    // Show complete button after confirm
-    completeBtn.style.display = 'inline-block';
-  }
-};
+        // Show complete button after confirm
+        completeBtn.style.display = 'inline-block';
+      }
+    };
 
-// Complete button (hidden initially)
-const completeBtn = document.createElement('button');
-completeBtn.textContent = '🏁 Complete';
-completeBtn.style.marginRight = '10px';
-completeBtn.style.backgroundColor = '#000';
-completeBtn.style.color = '#d4af37';
-completeBtn.style.border = '2px solid #d4af37';
-completeBtn.style.padding = '8px';
-completeBtn.style.cursor = 'pointer';
-completeBtn.style.display = 'none'; // hidden until confirm
-completeBtn.onclick = async () => {
-  const success = await updateJobStatus(job.id, 'completed');
-  if (success) {
-    jobDiv.remove(); // remove only if server confirms
-  }
-};
+    // Complete button (hidden initially)
+    const completeBtn = document.createElement('button');
+    completeBtn.textContent = '🏁 Complete';
+    completeBtn.style.marginRight = '10px';
+    completeBtn.style.backgroundColor = '#000';
+    completeBtn.style.color = '#d4af37';
+    completeBtn.style.border = '2px solid #d4af37';
+    completeBtn.style.padding = '8px';
+    completeBtn.style.cursor = 'pointer';
+    completeBtn.style.display = 'none'; // hidden until confirm
+    completeBtn.onclick = async () => {
+      const success = await updateJobStatus(job.id, 'completed');
+      if (success) {
+        jobDiv.remove(); // remove only if server confirms
+      }
+    };
 
-// Refuse button
-const refuseBtn = document.createElement('button');
-refuseBtn.textContent = '❌ Refuse';
-refuseBtn.style.backgroundColor = '#000';
-refuseBtn.style.color = '#d4af37';
-refuseBtn.style.border = '2px solid #d4af37';
-refuseBtn.style.padding = '8px';
-refuseBtn.style.cursor = 'pointer';
-refuseBtn.onclick = async () => {
-  const success = await updateJobStatus(job.id, 'refused');
-  if (success) jobDiv.remove();
-};
+    // Refuse button
+    const refuseBtn = document.createElement('button');
+    refuseBtn.textContent = '❌ Refuse';
+    refuseBtn.style.backgroundColor = '#000';
+    refuseBtn.style.color = '#d4af37';
+    refuseBtn.style.border = '2px solid #d4af37';
+    refuseBtn.style.padding = '8px';
+    refuseBtn.style.cursor = 'pointer';
+    refuseBtn.onclick = async () => {
+      const success = await updateJobStatus(job.id, 'refused');
+      if (success) jobDiv.remove();
+    };
 
-btnDiv.appendChild(confirmBtn);
-btnDiv.appendChild(completeBtn);
-btnDiv.appendChild(refuseBtn);
-jobDiv.appendChild(btnDiv);
+    btnDiv.appendChild(confirmBtn);
+    btnDiv.appendChild(completeBtn);
+    btnDiv.appendChild(refuseBtn);
+    jobDiv.appendChild(btnDiv);
+
+    // IMPORTANT: append the jobDiv to the jobs list so it actually shows up
+    jobsList.appendChild(jobDiv);
   });
 }
 
