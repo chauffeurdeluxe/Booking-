@@ -267,7 +267,6 @@ function showJobs(jobs) {
     completeBtn.style.border = '2px solid #d4af37';
     completeBtn.style.padding = '8px';
     completeBtn.style.cursor = 'pointer';
-    completeBtn.style.display = 'none'; // hidden until confirm
     completeBtn.onclick = async () => {
       const success = await updateJobStatus(job.id, 'completed');
       if (success) {
@@ -287,6 +286,20 @@ function showJobs(jobs) {
       const success = await updateJobStatus(job.id, 'refused');
       if (success) jobDiv.remove();
     };
+
+    // ---------------- STATUS AWARE LOGIC ----------------
+if (job.status === 'assigned') {
+  // Newly assigned → show confirm & refuse
+  confirmBtn.style.display = 'inline-block';
+  completeBtn.style.display = 'none';
+} else if (job.status === 'confirmed') {
+  // Already confirmed → hide confirm, show complete & refuse
+  confirmBtn.style.display = 'none';
+  completeBtn.style.display = 'inline-block';
+} else if (job.status === 'completed') {
+  // Completed → remove from driver assigned list
+  return;
+}
 
     btnDiv.appendChild(confirmBtn);
     btnDiv.appendChild(completeBtn);
