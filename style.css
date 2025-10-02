@@ -264,7 +264,7 @@ button:hover {
 }
 
 #hours {
-  margin-bottom: 10px; /* keep some breathing room before next field */
+  margin-bottom: 6px; /* keep some breathing room before next field */
 }
 
   /* Extra safe area breathing room for iPhone bottom bar */
