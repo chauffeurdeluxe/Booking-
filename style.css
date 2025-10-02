@@ -240,4 +240,17 @@ button:hover {
   header {
     padding-top: calc(env(safe-area-inset-top) + 10px);
   }
+
+  #calculateFare,
+#calculateHourlyFare {
+  margin-top: 10px;
+}
+
+#fareSummary,
+#hourlyFareSummary {
+  margin-top: 10px;
+  color: gold;
+  font-weight: bold;
+  font-size: 18px;
+}
 }
