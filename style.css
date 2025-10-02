@@ -264,6 +264,7 @@ button:hover {
 }
 
 #hours {
+  margin-top: 4px;
   margin-bottom: 6px; /* keep some breathing room before next field */
 }
 
