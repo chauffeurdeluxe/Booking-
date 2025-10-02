@@ -253,4 +253,17 @@ button:hover {
   font-weight: bold;
   font-size: 18px;
 }
+
+  /* Number of Hours styling */
+#hourlyForm label[for="hours"] {
+  display: block;
+  margin-top: 6px;   /* tighten spacing */
+  margin-bottom: 4px;
+  color: #FFD700;
+  font-weight: bold;
+}
+
+#hours {
+  margin-bottom: 10px; /* keep some breathing room before next field */
+}
 }
