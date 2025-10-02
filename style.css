@@ -266,4 +266,13 @@ button:hover {
 #hours {
   margin-bottom: 10px; /* keep some breathing room before next field */
 }
+
+  /* Extra safe area breathing room for iPhone bottom bar */
+#hourlyForm form {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 30px);
+}
+
+#pointToPointForm form {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 30px);
+}
 }
