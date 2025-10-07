@@ -230,7 +230,7 @@ button:hover {
 /* ✅ Fix for iPhone home bar overlap (adjusted tighter for proper alignment) */
 #payNow,
 #payHourlyNow {
-  margin-bottom: calc(env(safe-area-inset-bottom) + 60px) !important;
+  margin-bottom: calc(env(safe-area-inset-bottom) + 80px) !important;
   padding-bottom: 20px !important;
 }
 
