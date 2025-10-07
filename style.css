@@ -227,13 +227,15 @@ button:hover {
     max-width: 100%;
   }
 
-  /* ✅ Fix for iPhone home bar overlap */
-#payNow {
-  margin-bottom: calc(env(safe-area-inset-bottom) + 20px);
+/* ✅ Fix for iPhone home bar overlap (adjusted tighter for proper alignment) */
+#payNow,
+#payHourlyNow {
+  margin-bottom: 10px !important;  /* tighten spacing */
+  padding-bottom: 10px !important;
 }
 
-#payHourlyNow {
-  margin-bottom: calc(env(safe-area-inset-bottom) + 20px);
+main {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 10px) !important;
 }
 
     /* ✅ Fix for iPhone notch pushing logo too high */
