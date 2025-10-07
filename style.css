@@ -256,18 +256,9 @@ main {
   font-size: 18px;
 }
 
-/* Number of Hours styling (tighter for better spacing) */
-#hourlyForm label[for="hours"] {
-  display: block;
-  margin-top: 2px;    /* reduced space above */
-  margin-bottom: 2px; /* closer to input */
-  color: #FFD700;
-  font-weight: bold;
-}
-
 #hours {
   margin-top: 0;      /* remove gap above input */
-  margin-bottom: 4px; /* small space below */
+  margin-bottom: 6px; /* small space below */
 }
 
   /* Extra safe area breathing room for iPhone bottom bar */
