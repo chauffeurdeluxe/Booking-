@@ -306,8 +306,8 @@
  
 
            // Pricing logic
-           const perKmRate = 3.75; // rate for distance <= 20km
-           const perMinRate = 0.90;
+           const perKmRate = 2.50; // rate for distance <= 20km
+           const perMinRate = 0.70;
 
            const multipliers = {
            business: 1.1,
@@ -329,8 +329,8 @@
          if (distanceKm < 10) {
          fare = 130; // fixed, no GST/tax/profit added
          } else {
-         // Over 10 km: start with $130, add per km + per min charges
-         fareCore = 130 + (distanceKm * perKmRate + durationMin * perMinRate);
+         // Over 10 km: start with $100, add per km + per min charges
+         fareCore = 100 + (distanceKm * perKmRate + durationMin * perMinRate);
   
          // Apply vehicle multiplier
          fareCore *= multipliers[vehicleType];
