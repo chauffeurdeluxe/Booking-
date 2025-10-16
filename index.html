@@ -342,6 +342,12 @@
               }
             }
 
+            // ✅ Add flat $130 rule (final override)
+            if (distanceKm < 10) {
+            fare = 130;
+            }
+
+
             fare = fare.toFixed(2);
 
             fareSummary.innerHTML = `
