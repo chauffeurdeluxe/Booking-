@@ -329,8 +329,8 @@
          if (distanceKm < 10) {
          fare = 130; // fixed, no GST/tax/profit added
          } else {
-         // Over 10 km: start with $100, add per km + per min charges
-         fareCore = 100 + (distanceKm * perKmRate + durationMin * perMinRate);
+         // Over 10 km: start with $50, add per km + per min charges
+         fareCore = 50 + (distanceKm * perKmRate + durationMin * perMinRate);
   
          // Apply vehicle multiplier
          fareCore *= multipliers[vehicleType];
