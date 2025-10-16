@@ -304,86 +304,63 @@
             const distanceKm = parseFloat(el.distance.text.replace(/[^0-9.]/g, ''));
             const durationMin = el.duration.value / 60; // convert seconds to minutes
 
-            // ---------- PRICING LOGIC (flat $130 for <10km, otherwise normal calc) ----------
-try {
-  // guard: ensure numeric values
-  const distanceKmNum = Number(distanceKm) || 0;
-  const durationMinNum = Number(durationMin) || 0;
-  const pickupStr = (pickup || '').toString();
-  const pickupTimeVal = pickupTime || '';
+            // Pricing logic (kept same as original)
+            const perKmRate = (distanceKm > 20) ? 2.50 : 3.75;
+            const perMinRate = 0.90;
 
-  const perKmRate = (distanceKmNum > 20) ? 2.50 : 3.75;
-  const perMinRate = 0.90;
+            const multipliers = {
+              business: 1.1,
+              suv: 1.4,
+              first: 1.8
+            };
 
-  const multipliers = { business: 1.1, suv: 1.4, first: 1.8 };
+            const minFare = {
+              business: 115,
+              suv: 135,
+              first: 200
+            };
 
-  const minFarePreTax = { business: 115, suv: 135, first: 200 };
+            let fareCore = (distanceKm * perKmRate + durationMin * perMinRate) * multipliers[vehicleType];
+            
 
-  let fareNumber;
+            const gstRate = 0.10;
+            const taxRate = 0.10;
+            const profitRate = 0.25;
+            let fare = fareCore * (1 + gstRate + taxRate + profitRate);
+            fareCore = Math.max(fareCore, minFare[vehicleType]);
 
-  // Short-trip flat fare (final). No extras added to flat fare.
-  if (distanceKmNum < 10) {
-    fareNumber = 130.00;
-  } else {
-    // Compute core pre-tax/pre-profit fare
-    let fareCore = (distanceKmNum * perKmRate + durationMinNum * perMinRate);
+            const pickupHour = new Date(pickupTime).getHours();
+            if (pickupHour < 5 || pickupHour >= 22) fare += 30;
 
-    // apply vehicle multiplier
-    if (multipliers[vehicleType]) {
-      fareCore = fareCore * multipliers[vehicleType];
-    } else {
-      // fallback multiplier if vehicleType missing
-      fareCore = fareCore * 1.0;
-    }
+            if (pickup.toLowerCase().includes("airport")) {
+              if (pickup.toLowerCase().includes("domestic")) {
+                fare += 9;
+              } else if (pickup.toLowerCase().includes("international")) {
+                fare += 14;
+              } else {
+                fare += 14;
+              }
+            }
 
-    // Ensure core meets the minimum pre-tax value for that vehicle
-    const minPre = minFarePreTax[vehicleType] || 0;
-    fareCore = Math.max(fareCore, minPre);
+            fare = fare.toFixed(2);
 
-    // Apply GST, tax and profit on top of the corrected fareCore
-    const gstRate = 0.10;
-    const taxRate = 0.10;
-    const profitRate = 0.25;
-    fareNumber = fareCore * (1 + gstRate + taxRate + profitRate);
+            fareSummary.innerHTML = `
+              <div>Estimated Fare: $${fare}</div>
+              <div>Distance: ${distanceKm.toFixed(2)} km</div>
+              <div>Estimated Time: ${durationMin.toFixed(0)} min</div>
+            `;
 
-    // Add night surcharge (after taxes/profit)
-    if (pickupTimeVal) {
-      const pickupHour = new Date(pickupTimeVal).getHours();
-      if (pickupHour < 5 || pickupHour >= 22) fareNumber += 30;
-    }
+            fareSummary.setAttribute('data-fare', fare);
+            fareSummary.setAttribute('data-distance', distanceKm.toFixed(2));
+            fareSummary.setAttribute('data-duration', durationMin.toFixed(0));
 
-    // Add airport surcharge(s)
-    const pickupLower = pickupStr.toLowerCase();
-    if (pickupLower.includes('airport')) {
-      if (pickupLower.includes('domestic')) {
-        fareNumber += 9;
-      } else if (pickupLower.includes('international')) {
-        fareNumber += 14;
-      } else {
-        fareNumber += 14;
-      }
-    }
-  }
-
-  // Final formatting: keep numeric math until this point, then format for display
-  const fareDisplay = Number(fareNumber).toFixed(2);
-
-  fareSummary.innerHTML = `
-    <div>Estimated Fare: $${fareDisplay}</div>
-    <div>Distance: ${distanceKmNum.toFixed(2)} km</div>
-    <div>Estimated Time: ${durationMinNum.toFixed(0)} min</div>
-  `;
-
-  fareSummary.setAttribute('data-fare', fareDisplay);
-  fareSummary.setAttribute('data-distance', distanceKmNum.toFixed(2));
-  fareSummary.setAttribute('data-duration', durationMinNum.toFixed(0));
-
-  console.debug('Fare calculated', { fareNumber, fareDisplay, distanceKmNum, durationMinNum, vehicleType });
-} catch (err) {
-  console.error('calculateFare error', err);
-  alert('Error calculating fare; see console for details.');
-}
+            console.debug('Fare calculated', { fare, distanceKm, durationMin });
           });
+        } catch (err) {
+          console.error('calculateFare error', err);
+          alert('Error calculating fare; see console for details.');
+        }
+      });
 
                // ---------------------------
       // Pay now (point-to-point)
