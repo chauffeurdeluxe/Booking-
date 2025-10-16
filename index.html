@@ -303,75 +303,70 @@
 
             const distanceKm = parseFloat(el.distance.text.replace(/[^0-9.]/g, ''));
             const durationMin = el.duration.value / 60; // convert seconds to minutes
+ 
 
-     try {
-  // Pricing logic
-  const perKmRate = (distanceKm > 20) ? 2.50 : 3.75;
-  const perMinRate = 0.90;
+            // Pricing logic (kept same as original)
+            const perKmRate = (distanceKm > 20) ? 2.50 : 3.75;
+            const perMinRate = 0.90;
 
-  const multipliers = {
-    business: 1.1,
-    suv: 1.4,
-    first: 1.8
-  };
+            const multipliers = {
+              business: 1.1,
+              suv: 1.4,
+              first: 1.8
+            };
 
-  const minFare = {
-    business: 115,
-    suv: 135,
-    first: 200
-  };
+            const minFare = {
+              business: 115,
+              suv: 135,
+              first: 200
+            };
 
-  let fare; // will hold the final fare
+            let fareCore = (distanceKm * perKmRate + durationMin * perMinRate) * multipliers[vehicleType];
+            
 
-  // UNDER 10 KM: flat $130
-  if (distanceKm < 10) {
-    fare = 130;
-  } else {
-    // OVER 10 KM: calculate normally
-    let fareCore = (distanceKm * perKmRate + durationMin * perMinRate) * multipliers[vehicleType];
+            const gstRate = 0.10;
+            const taxRate = 0.10;
+            const profitRate = 0.25;
+            let fare = fareCore * (1 + gstRate + taxRate + profitRate);
+            fareCore = Math.max(fareCore, minFare[vehicleType]);
 
-    // Ensure minimum starting fare
-    fareCore = Math.max(fareCore, 130, minFare[vehicleType]);
+            const pickupHour = new Date(pickupTime).getHours();
+            if (pickupHour < 5 || pickupHour >= 22) fare += 30;
 
-    // Apply GST, tax, and profit
-    const gstRate = 0.10;
-    const taxRate = 0.10;
-    const profitRate = 0.25;
-    fare = fareCore * (1 + gstRate + taxRate + profitRate);
-  }
+            if (pickup.toLowerCase().includes("airport")) {
+              if (pickup.toLowerCase().includes("domestic")) {
+                fare += 9;
+              } else if (pickup.toLowerCase().includes("international")) {
+                fare += 14;
+              } else {
+                fare += 14;
+              }
+            }
 
-  // Early/Late pickup surcharge
-  const pickupHour = new Date(pickupTime).getHours();
-  if (pickupHour < 5 || pickupHour >= 22) fare += 30;
+            // ✅ Add flat $130 rule (final override)
+            if (distanceKm < 10) {
+            fare = 130;
+            }
 
-  // Airport surcharge
-  if (pickup.toLowerCase().includes("airport")) {
-    if (pickup.toLowerCase().includes("domestic")) {
-      fare += 9;
-    } else {
-      fare += 14;
-    }
-  }
 
-  // Round final fare
-  fare = fare.toFixed(2);
+            fare = fare.toFixed(2);
 
-  // Update fare summary
-  fareSummary.innerHTML = `
-    <div>Estimated Fare: $${fare}</div>
-    <div>Distance: ${distanceKm.toFixed(2)} km</div>
-    <div>Estimated Time: ${durationMin.toFixed(0)} min</div>
-  `;
+            fareSummary.innerHTML = `
+              <div>Estimated Fare: $${fare}</div>
+              <div>Distance: ${distanceKm.toFixed(2)} km</div>
+              <div>Estimated Time: ${durationMin.toFixed(0)} min</div>
+            `;
 
-  fareSummary.setAttribute('data-fare', fare);
-  fareSummary.setAttribute('data-distance', distanceKm.toFixed(2));
-  fareSummary.setAttribute('data-duration', durationMin.toFixed(0));
+            fareSummary.setAttribute('data-fare', fare);
+            fareSummary.setAttribute('data-distance', distanceKm.toFixed(2));
+            fareSummary.setAttribute('data-duration', durationMin.toFixed(0));
 
-  console.debug('Fare calculated', { fare, distanceKm, durationMin });
-} catch (err) {
-  console.error('calculateFare error', err);
-  alert('Error calculating fare; see console for details.');
-}
+            console.debug('Fare calculated', { fare, distanceKm, durationMin });
+          });
+        } catch (err) {
+          console.error('calculateFare error', err);
+          alert('Error calculating fare; see console for details.');
+        }
       });
 
                // ---------------------------
