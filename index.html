@@ -328,6 +328,9 @@
             const taxRate = 0.10;
             const profitRate = 0.25;
 
+            // Declare fare here
+            let fare;
+
            // Apply minimum fares
           if (distanceKm < 10) {
           // Flat fare for short trips
@@ -335,7 +338,7 @@
           } else {
           // Over 10 km: ensure minimum starting fare $130 and vehicle minimum
           fareCore = Math.max(fareCore, 130, minFare[vehicleType]);
-          let fare = fareCore * (1 + gstRate + taxRate + profitRate);
+          fare = fareCore * (1 + gstRate + taxRate + profitRate);
           }
             
 
