@@ -310,9 +310,9 @@
            const perMinRate = 0.70;
 
            const multipliers = {
-           business: 1.1,
-           suv: 1.4,
-           first: 1.8
+           business: 1.0,
+           suv: 1.2,
+           first: 1.5
            };
 
            const minFare = {
@@ -330,7 +330,7 @@
          fare = 130; // fixed, no GST/tax/profit added
          } else {
          // Over 10 km: start with $50, add per km + per min charges
-         fareCore = 50 + (distanceKm * perKmRate + durationMin * perMinRate);
+         fareCore = 55 + (distanceKm * perKmRate + durationMin * perMinRate);
   
          // Apply vehicle multiplier
          fareCore *= multipliers[vehicleType];
