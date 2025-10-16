@@ -304,7 +304,7 @@
             const distanceKm = parseFloat(el.distance.text.replace(/[^0-9.]/g, ''));
             const durationMin = el.duration.value / 60; // convert seconds to minutes
 
-            try {
+     try {
   // Pricing logic
   const perKmRate = (distanceKm > 20) ? 2.50 : 3.75;
   const perMinRate = 0.90;
@@ -321,21 +321,24 @@
     first: 200
   };
 
-  // Calculate base fare
-  let fareCore = (distanceKm * perKmRate + durationMin * perMinRate) * multipliers[vehicleType];
+  let fare; // will hold the final fare
 
-  // Apply minimum fares and $130 floor for 10+ km
+  // UNDER 10 KM: flat $130
   if (distanceKm < 10) {
-    fareCore = 130; // under 10 km flat
+    fare = 130;
   } else {
-    fareCore = Math.max(fareCore, 130, minFare[vehicleType]); // over 10 km, min starting fare
-  }
+    // OVER 10 KM: calculate normally
+    let fareCore = (distanceKm * perKmRate + durationMin * perMinRate) * multipliers[vehicleType];
 
-  // Apply GST, tax, and profit
-  const gstRate = 0.10;
-  const taxRate = 0.10;
-  const profitRate = 0.25;
-  let fare = fareCore * (1 + gstRate + taxRate + profitRate);
+    // Ensure minimum starting fare
+    fareCore = Math.max(fareCore, 130, minFare[vehicleType]);
+
+    // Apply GST, tax, and profit
+    const gstRate = 0.10;
+    const taxRate = 0.10;
+    const profitRate = 0.25;
+    fare = fareCore * (1 + gstRate + taxRate + profitRate);
+  }
 
   // Early/Late pickup surcharge
   const pickupHour = new Date(pickupTime).getHours();
@@ -350,7 +353,7 @@
     }
   }
 
-  // Final rounding
+  // Round final fare
   fare = fare.toFixed(2);
 
   // Update fare summary
