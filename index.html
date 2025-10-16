@@ -334,7 +334,7 @@
            // Apply minimum fares
           if (distanceKm < 10) {
           // Flat fare for short trips
-          fareCore = 130;
+          fare = 130;
           } else {
           // Over 10 km: ensure minimum starting fare $130 and vehicle minimum
           fareCore = Math.max(fareCore, 130, minFare[vehicleType]);
