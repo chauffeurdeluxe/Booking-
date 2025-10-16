@@ -324,6 +324,10 @@
            // Calculate base fare
            let fareCore = (distanceKm * perKmRate + durationMin * perMinRate) * multipliers[vehicleType];
 
+            const gstRate = 0.10;
+            const taxRate = 0.10;
+            const profitRate = 0.25;
+
            // Apply minimum fares
           if (distanceKm < 10) {
           // Flat fare for short trips
@@ -333,11 +337,6 @@
           fareCore = Math.max(fareCore, 130, minFare[vehicleType]);
           let fare = fareCore * (1 + gstRate + taxRate + profitRate);
           }
-            
-
-            const gstRate = 0.10;
-            const taxRate = 0.10;
-            const profitRate = 0.25;
             
 
             const pickupHour = new Date(pickupTime).getHours();
