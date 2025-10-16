@@ -322,6 +322,10 @@
             };
 
             let fareCore = (distanceKm * perKmRate + durationMin * perMinRate) * multipliers[vehicleType];
+            // Ensure over 10 km has minimum starting fare of $130
+            if (distanceKm >= 10.1) {
+            fareCore = Math.max(fareCore, 130);
+            }
             
 
             const gstRate = 0.10;
