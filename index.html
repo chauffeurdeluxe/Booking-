@@ -304,69 +304,64 @@
             const distanceKm = parseFloat(el.distance.text.replace(/[^0-9.]/g, ''));
             const durationMin = el.duration.value / 60; // convert seconds to minutes
 
-            // ---------- PRICING LOGIC (updated for flat $130 under 10km) ----------
-try {
-  const perKmRate = (distanceKm > 20) ? 2.50 : 3.75;
-  const perMinRate = 0.90;
+         This is mine. Change it with yours? 
 
-  const multipliers = {
-    business: 1.1,
-    suv: 1.4,
-    first: 1.8
-  };
+ // Pricing logic (kept same as original)
+            const perKmRate = (distanceKm > 20) ? 2.50 : 3.75;
+            const perMinRate = 0.90;
 
-  const minFare = {
-    business: 115,
-    suv: 135,
-    first: 200
-  };
+            const multipliers = {
+              business: 1.1,
+              suv: 1.4,
+              first: 1.8
+            };
 
-  let fare;
+            const minFare = {
+              business: 115,
+              suv: 135,
+              first: 200
+            };
 
-  // ✅ Flat final price for short trips
-  if (distanceKm < 10) {
-    fare = 130.00;
-  } else {
-    // Standard calculation for 10km+
-    let fareCore = (distanceKm * perKmRate + durationMin * perMinRate) * multipliers[vehicleType];
-    fareCore = Math.max(fareCore, minFare[vehicleType]);
+            let fareCore = (distanceKm * perKmRate + durationMin * perMinRate) * multipliers[vehicleType];
+            
 
-    const gstRate = 0.10;
-    const taxRate = 0.10;
-    const profitRate = 0.25;
-    let fareCalculated = fareCore * (1 + gstRate + taxRate + profitRate);
+            const gstRate = 0.10;
+            const taxRate = 0.10;
+            const profitRate = 0.25;
+            let fare = fareCore * (1 + gstRate + taxRate + profitRate);
+            fareCore = Math.max(fareCore, minFare[vehicleType]);
 
-    const pickupHour = new Date(pickupTime).getHours();
-    if (pickupHour < 5 || pickupHour >= 22) fareCalculated += 30;
+            const pickupHour = new Date(pickupTime).getHours();
+            if (pickupHour < 5 || pickupHour >= 22) fare += 30;
 
-    if (pickup.toLowerCase().includes("airport")) {
-      if (pickup.toLowerCase().includes("domestic")) {
-        fareCalculated += 9;
-      } else {
-        fareCalculated += 14;
-      }
-    }
+            if (pickup.toLowerCase().includes("airport")) {
+              if (pickup.toLowerCase().includes("domestic")) {
+                fare += 9;
+              } else if (pickup.toLowerCase().includes("international")) {
+                fare += 14;
+              } else {
+                fare += 14;
+              }
+            }
 
-    fare = fareCalculated;
-  }
+            fare = fare.toFixed(2);
 
-  fare = fare.toFixed(2);
+            fareSummary.innerHTML = `
+              <div>Estimated Fare: $${fare}</div>
+              <div>Distance: ${distanceKm.toFixed(2)} km</div>
+              <div>Estimated Time: ${durationMin.toFixed(0)} min</div>
+            `;
 
-  fareSummary.innerHTML = `
-    <div>Estimated Fare: $${fare}</div>
-    <div>Distance: ${distanceKm.toFixed(2)} km</div>
-    <div>Estimated Time: ${durationMin.toFixed(0)} min</div>
-  `;
+            fareSummary.setAttribute('data-fare', fare);
+            fareSummary.setAttribute('data-distance', distanceKm.toFixed(2));
+            fareSummary.setAttribute('data-duration', durationMin.toFixed(0));
 
-  fareSummary.setAttribute('data-fare', fare);
-  fareSummary.setAttribute('data-distance', distanceKm.toFixed(2));
-  fareSummary.setAttribute('data-duration', durationMin.toFixed(0));
-
-  console.debug('Fare calculated', { fare, distanceKm, durationMin });
-} catch (err) {
-  console.error('calculateFare error', err);
-  alert('Error calculating fare; see console for details.');
-}
+            console.debug('Fare calculated', { fare, distanceKm, durationMin });
+          });
+        } catch (err) {
+          console.error('calculateFare error', err);
+          alert('Error calculating fare; see console for details.');
+        }
       });
 
                // ---------------------------
