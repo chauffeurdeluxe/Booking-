@@ -321,12 +321,13 @@
             };
 
             let fareCore = (distanceKm * perKmRate + durationMin * perMinRate) * multipliers[vehicleType];
+            let fare = fareCore * (1 + gstRate + taxRate + profitRate);
             fareCore = Math.max(fareCore, minFare[vehicleType]);
 
             const gstRate = 0.10;
             const taxRate = 0.10;
             const profitRate = 0.25;
-            let fare = fareCore * (1 + gstRate + taxRate + profitRate);
+            
 
             const pickupHour = new Date(pickupTime).getHours();
             if (pickupHour < 5 || pickupHour >= 22) fare += 30;
