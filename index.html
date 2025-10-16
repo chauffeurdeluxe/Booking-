@@ -331,13 +331,14 @@
           } else {
           // Over 10 km: ensure minimum starting fare $130 and vehicle minimum
           fareCore = Math.max(fareCore, 130, minFare[vehicleType]);
+          let fare = fareCore * (1 + gstRate + taxRate + profitRate);
           }
             
 
             const gstRate = 0.10;
             const taxRate = 0.10;
             const profitRate = 0.25;
-            let fare = fareCore * (1 + gstRate + taxRate + profitRate);
+            
 
             const pickupHour = new Date(pickupTime).getHours();
             if (pickupHour < 5 || pickupHour >= 22) fare += 30;
