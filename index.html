@@ -321,11 +321,17 @@
               first: 200
             };
 
-            let fareCore = (distanceKm * perKmRate + durationMin * perMinRate) * multipliers[vehicleType];
-            // Ensure over 10 km has minimum starting fare of $130
-            if (distanceKm >= 10.1) {
-            fareCore = Math.max(fareCore, 130);
-            }
+           // Calculate base fare
+           let fareCore = (distanceKm * perKmRate + durationMin * perMinRate) * multipliers[vehicleType];
+
+           // Apply minimum fares
+          if (distanceKm < 10) {
+          // Flat fare for short trips
+          fareCore = 130;
+          } else {
+          // Over 10 km: ensure minimum starting fare $130 and vehicle minimum
+          fareCore = Math.max(fareCore, 130, minFare[vehicleType]);
+          }
             
 
             const gstRate = 0.10;
@@ -345,11 +351,6 @@
               } else {
                 fare += 14;
               }
-            }
-
-            // ✅ Add flat $130 rule (final override)
-            if (distanceKm < 10) {
-            fare = 130;
             }
 
 
