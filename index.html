@@ -307,18 +307,18 @@
 
            // Pricing logic
            const perKmRate = 2.50; // rate for distance <= 20km
-           const perMinRate = 0.70;
+           const perMinRate = 0.60;
 
            const multipliers = {
-           business: 1,
+           business: 1.1,
            suv: 1.2,
-           first: 1.5
+           first: 1.4
            };
 
            const minFare = {
            business: 100,
-           suv: 135,
-           first: 200
+           suv: 130,
+           first: 180
            };
 
           // Declare fare variables
@@ -341,7 +341,7 @@
          // Apply GST, tax, and profit
          const gstRate = 0.10;
          const taxRate = 0.10;
-         const profitRate = 0.25;
+         const profitRate = 0.20;
          fare = fareCore * (1 + gstRate + taxRate + profitRate);
          }
 
